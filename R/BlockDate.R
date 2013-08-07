@@ -1,21 +1,42 @@
-#' A function for dating identified blocks of recombination.
-#' 
+# A function for dating identified blocks of recombination.
 Estimate.Ages <- function(blocks, sequence, mutation.rate=10e-8){
   stopifnot("HybRIDSdna" %in% class(sequence), is.numeric(mutation.rate))
   if("HybRIDSblock" %in% class(blocks)){
-    cat("Now dating blocks...\n")
     Dates <- estimate.ages(blocks, sequence, mutation.rate)
-    return(as.HybRIDSdates(Dates))
+    OutBlocks <- mergeBandD(blocks, Dates)
+    OutBlocks <- list(OutBlocks, ContigNames = blocks$ContigNames)
+    return(as.HybRIDSdatedBlocks(OutBlocks))
   } else {
     if("HybRIDSblockSET" %in% class(blocks)){
       cat("Now dating blocks...\n")
       DatesSet <- lapply(blocks, function(x) estimate.ages(x, sequence, mutation.rate))
-      return(as.HybRIDSdatesSET(DatesSet))
+      OutBlocks <- lapply(1:length(blocks), function(i) list(mergeBandD(blocks[[i]], DatesSet[[i]]), ContigNames = blocks[[i]]$ContigNames))
+      return(as.HybRIDSdatedBlocksSET(OutBlocks))
     } else {
       stop("Blocks input was not of type HybRIDSblock or HybRIDSblockSET")
     }
   }
 }
+
+
+mergeBandD <- function(block, date){
+  combineDatesWBlocks <- function(Bs,Ds){
+    comb <- function(B,D){
+      B$fiveAge <- D[,1]
+      B$fiftyAge <- D[,2]
+      B$ninetyfiveAge <- D[,3]
+      B$SNPnum <- D[,5]
+      return(B)
+    }
+    outdfs <- lapply(1:length(Bs), function(i) ifelse(is.character(Bs[[i]]) || nrow(Bs[[i]]) < 1, "NO BLOCKS DETECTED OR DATED", return(comb(Bs[[i]],Ds[[i]]))))
+    names(outdfs) <- names(Bs)
+    return(outdfs)
+  }
+  output <- lapply(1:3, function(i) combineDatesWBlocks(block[[2]][[i]], date[[i]]))
+  names(output) <- names(block[[2]])
+  return(output)
+}
+
 
 
 
@@ -30,15 +51,18 @@ estimate.ages <- function(block, dna, mut.rate) {
 
 
 
+
 date.for.all <- function(blocksset, Sequence, mrate, comps) {
   DatesForAllThresholds <- lapply(blocksset, function(x) date.blocks(x, Sequence, mrate, comps)) # A lapply command here because blocksset may have more than one element, 
   # depending on whether more than one suitable threshold was discovered. 
 }
 
 
+
+
 date.blocks <- function(blocksobj, dnaobj, mut, pair) { # blocksobj should be a dataframe
   # Check there are blocks to date!
-  if(!is.character(blocksobj) && nrow(blocksobj)>=1){ # Checking the blocksobj is not a string of characters and does in fact contain more than one row.
+  if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters and does in fact contain more than one row.
     blocksobj <- as.matrix(blocksobj)
     blockAges <- matrix(nrow=nrow(blocksobj),ncol=5)
     colnames(blockAges)<-c("5%","50%","95%","BlockSize","SNPs")

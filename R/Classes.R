@@ -52,13 +52,33 @@ as.HybRIDSbars <- function(x) {
 }
 
 
-as.HybRIDSdates <- function(x) {
-  class(x) <- c("HybRIDSdates","list")
+as.HybRIDSdatedBlocks <- function(x) {
+  class(x) <- c("HybRIDSdatedBlocks","list")
   return(x)
 }
 
 
-as.HybRIDSdatesSET <- function(x) {
-  class(x) <- c("HybRIDSdatesSET","list")
+as.HybRIDSdatedBlocksSET <- function(x) {
+  class(x) <- c("HybRIDSdatedBlocksSET","list")
+  return(x)
+}
+
+as.HybRIDSblockTable <- function(x){
+  class(x) <- c("HybRIDSblockTable","data.frame")
+  return(x)
+}
+
+as.HybRIDSblockTableSET <- function(x){
+  class(x) <- c("HybRIDSblockTableSET","list")
+  return(x)
+}
+
+as.HybRIDSdatedBlocksTable <- function(x){
+  class(x) <- c("HybRIDSdatedBlocksTable","data.frame")
+  return(x)
+}
+
+as.HybRIDSdatedBlocksTableSET <- function(x){
+  class(x) <- c("HybRIDSdatedBlocksTableSET","list")
   return(x)
 }

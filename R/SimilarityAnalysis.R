@@ -2,6 +2,8 @@
 # Created by Ben J. Ward on 18/04/2013.
 # Last edited by Ben J. Ward on 02/05/2013.
 
+#' Function performing the sequence similarity analysis with sliding window.
+#' @export
 Calc.Similarity <- function(input, window.size=100, step.size=1){
   if(!"HybRIDSdna" %in% class(input)) stop("Input needs to be of class HybRIDSdna")
   if(length(input$Combinations)<2){
@@ -27,7 +29,6 @@ Calc.Similarity <- function(input, window.size=100, step.size=1){
 
 seq.similarity <- function(dnain, win.size, s.size, fulllength, verbose) {
   if(verbose==T) cat("\nPreparing input DNA sequences...\n")
-#  cutDNA <- dnain$CroppedSequence[,apply(dnain$CroppedSequence,2,function(x) any(c(FALSE,x[-length(x)]!=x[-1])))] # remove all non-informative sites - 6 second bottleneck.
   cutDNA <- dnain$CroppedSequence[, colSums(dnain$CroppedSequence[-1,] != dnain$CroppedSequence[-nrow(dnain$CroppedSequence), ]) > 0]
   dnaCutLength <- ncol(cutDNA)     # Measure number of bases in cut data.
   if(dnaCutLength >= 1){   # Only continue with analysis if there is actually some informative sites.

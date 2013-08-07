@@ -4,7 +4,7 @@
 \alias{HybRIDS-package}
 \title{HybRIDS - A fast, simple to use, and attractive recombination detection and dating package.}
 \description{
-  HybRIDS - A simple and quickly to use, and attractive
+  HybRIDS - A fast, simple to use, and attractive
   recombination detection and dating package.
 }
 

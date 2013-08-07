@@ -1,8 +1,8 @@
 \name{dna.data.prepare}
 \alias{dna.data.prepare}
-\title{A function for loading in DNA sequences from fasta format and convert to HybRIDS format.}
+\title{A function for loading in DNA sequences from FASTA format and convert to HybRIDS format.}
 \usage{
-  dna.data.prepare(x = NULL)
+  dna.data.prepare(x = NULL, method = 1, RawThresh = 0.01)
 }
 \description{
   The function for loading in and converting DNA sequence

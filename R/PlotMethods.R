@@ -202,16 +202,91 @@ col.deter <- function(invalues,reference) {
 }
 
 
+# Internal function for subsetting the HybRIDS data objects.
+subseq <- function(x, s1, s2){
+  contains <- unlist(lapply(x, function(n) Sequence1 %in% n$ContigNames && Sequence2 %in% n$ContigNames))
+  if(!TRUE %in% contains){
+    stop("Those contig names are not in the present dataset.")
+  }
+  subx <- x[contains]
+  return(subx)
+}
 
-# plot.HybRIDSseqsimSET <- function(x) {
-#   plottingframe <- matrix(nrow=nrow(x[[1]]$Distances), ncol=length(x)*3)
-#   for(i in 1:length(x)){
-#     indicies <- c(1,2,3)+(3*(i-1))
-#     plottingframe[,indicies] <- x[[i]]$Distances[,c(7,8,9)]
-#     colnames(plottingframe)[,indicies] <- "yo"
-#   }
+
+# Internal function for getting the right SS values.
+subsim <- function(input, p){
+  if(all(p == c(1,2))){
+    return(input$Distance[,7])
+  } else {
+    if(all(p == c(2,3))){
+      return(input$Distance[,8])
+    } else {
+      if(all(p == c(1,3))){
+        return(input$Distance[,9])
+      }
+    }
+  }
+}
+
+
+# # Internal function for making the data fit an absolute bp by bp scale.
+# absoluteBP <- function(x){
+#   bpdf <- data.frame(matrix(ncol=2, nrow = subsetx[[1]]$FullSeqLength ))
+#   windowcover <- lapply(1:nrow(x$Distance), function(i) c(x$Distance$ActualStart[i]:x$Distance$ActualEnd[i]))
+#   
+#   
 #   
 #   
 #   
 #   
 # }
+
+
+
+
+
+# Plotting method for a set of triplet analyses.
+plot.HybRIDSseqsimSET <- function(x, Sequence1, Sequence2) {
+  subsetx <- subseq(x, Sequence1, Sequence2)
+  cat("Check1")
+  pair <- lapply(subsetx, function(x) c(which(x$ContigNames==Sequence1), which(x$ContigNames==Sequence2)))
+  cat("Check2")
+  dflength <- sum(unlist(lapply(subsetx, function(x) nrow(x$Distances))))
+  cat("Check3")
+  plotting.frame <- data.frame(matrix(nrow = dflength, ncol = 9))
+  names(plotting.frame) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", "SSVals", "TripletSet", "xvals")
+  plotting.frame$xvals <- unlist(lapply(subsetx, function(x) 1:nrow(x$Distance)))
+  plotting.frame$WindowCenter <- unlist(lapply(subsetx, function(x) x$Distance$WindowCenter))
+  plotting.frame$WindowStart <- unlist(lapply(subsetx, function(x) x$Distance$WindowStart))
+  plotting.frame$WindowEnd <- unlist(lapply(subsetx, function(x) x$Distance$WindowEnd))
+  plotting.frame$ActualCenter <- unlist(lapply(subsetx, function(x) x$Distance$ActualCenter))
+  plotting.frame$ActualStart <- unlist(lapply(subsetx, function(x) x$Distance$ActualStart))
+  plotting.frame$ActualEnd <- unlist(lapply(subsetx, function(x) x$Distance$ActualEnd))
+  plotting.frame$SSVals <- unlist(lapply(1:length(subsetx), function(i) subsim(subsetx[[i]],pair[[i]])))
+  plotting.frame$TripletSet <- as.factor(unlist(lapply(subsetx, function(x) rep(paste(x$ContigNames, collapse=":"), nrow(x$Distances)))))
+  linesplot <- ggplot(plotting.frame, aes(x=ActualCenter, y=SSVals)) +
+    geom_line(aes(colour=TripletSet), show_guide=T, size=0.8) +
+    ylab("% Sequence Similarity") +
+    xlab("Base Position")
+  return(linesplot)
+}
+
+
+dfdates <- function(){
+  
+}
+
+
+# Plotting method for the location of blocks and the date of the blocks.
+# plot.HybRIDSblocks <- function(input) {
+#   plotting.frame <- data.frame(matrix(nrow = sum(unlist(lapply(input[[2]], function(x) unlist(lapply(x, function(y) nrow(y)))))), ncol=7))
+#   names(plotting.frame) <- c("Pair", "Threshold", "Five", "Fifty", "Size", "SNPs", "SSVals", "TripletSet", "xvals")
+#   
+#   
+# }
+# 
+# 
+# plot.HybRIDSdatedblocks <- function(){
+#   
+# }
+

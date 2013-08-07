@@ -9,14 +9,14 @@
 NULL
 
 
-#'A function for loading in DNA sequences from fasta format and convert to HybRIDS format.
+#'A function for loading in DNA sequences from FASTA format and convert to HybRIDS format.
 #'
 #'The function for loading in and converting DNA sequence data in FASTA format. It can also perform a 
 #'pre-analysis of whole sequence similarity to try and remove sequences unlikely to contain
 #'recombinant regions e.g. those sequences that may be too similar. Note that analysis functions downstream of this function
 #'are somewhat intelligent in that they know if there are no informative sites.
 #'@export
-dna.data.prepare <- function(x=NULL, method=1) {
+dna.data.prepare <- function(x=NULL, method=1, RawThresh = 0.01) {
   if(is.null(x) == TRUE){
     cat("
         Enter the correct filepath for your fasta format alignment file below.
@@ -39,6 +39,15 @@ dna.data.prepare <- function(x=NULL, method=1) {
   colnames(completeDNA) <- 1:dnaSeqLengths[[1]]
   rownames(completeDNA) <- names(dnaSeqLst)
   cat("\nDNA data formatted successfully!")
+  cat("\nLooking for duplicates...")
+  dups <- duplicated(completeDNA)
+  if(any(dups)){
+    cat("\nSome duplicated sequences were found! - We will get rid of these...")
+    completeDNA <- completeDNA[!dups,]
+  }
+  if(nrow(completeDNA) < 3){
+    stop("After Removing duplicates, we find that ")
+  }
   combos <- combn(c(1:nrow(completeDNA)), 3, simplify=FALSE)
   pairs <- combn(c(1:nrow(completeDNA)), 2, simplify=FALSE)
   if(method > 1 && length(combos) > 1){
@@ -47,7 +56,7 @@ dna.data.prepare <- function(x=NULL, method=1) {
     if(method==2){                                                    
       binarySeqs <- as.DNAbin(completeDNA)
       distances <- dist.dna(binarySeqs)
-      rejectpairs <- pairs[which(distances<0.01)]
+      rejectpairs <- pairs[which(distances<RawThresh)]
       removals <- list()
       for(i in 1:length(combos)){
         for(n in 1:length(rejectpairs)){
@@ -62,10 +71,11 @@ dna.data.prepare <- function(x=NULL, method=1) {
       # Decide pairs to exclude by considering troughs in density distribution.
       if(method==3){
         binarySeqs <- as.DNAbin(completeDNA)
-        distances <- dist.dna(binarySeqs)
+        distances <- dist.dna(binarySeqs, model="raw")
         distances_density <- density(distances)
         Lows <- cbind(distances_density$x[which(diff(sign(diff(distances_density$y))) == 2)],distances_density$y[which(diff(sign(diff(distances_density$y))) == 2)])
         Lowest <- Lows[which(Lows[,1] == min(Lows[,1])),]
+        plot(distances_density)
         rejectpairs <- pairs[which(distances < Lowest[1])]
         removals <- list()
         for(i in 1:length(combos)){
@@ -76,12 +86,12 @@ dna.data.prepare <- function(x=NULL, method=1) {
             }
           }
         }
+        cat("\nRemoving",length(removals),"triplets")
         combos <- combos[-unlist(removals)]
       } 
     }
   }
   cat("\nCropping DNA of universally shared sites...")
-  # Replaced by much faster impementation: croppedDNA <- completeDNA[,apply(completeDNA,2,function(x) any(c(FALSE,x[-length(x)]!=x[-1])))]
   croppedDNA <- completeDNA[, colSums(completeDNA[-1,] != completeDNA[-nrow(completeDNA), ]) > 0]
   contignames <- rownames(completeDNA)
   cat("\nAll Done!")

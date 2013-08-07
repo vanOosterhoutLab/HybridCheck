@@ -1,4 +1,7 @@
+export(Calc.Similarity)
 export(dna.data.prepare)
+export(Identify.Blocks)
+export(SubSeq)
 import(ape)
 import(ggplot2)
 import(grid)
