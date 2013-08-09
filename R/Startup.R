@@ -67,7 +67,7 @@
   Notebook <- gnotebook(tab.pos = 3, closebuttons = FALSE, container = MainWinGroup, toolkit = guiToolkit())
   SecondMainwinGroup <- ggroup(horizontal=FALSE, container=MainWinGroup)
   DataSelection <- gframe("Data Selector", cont=SecondMainwinGroup, horizontal=F)
-  DataSelectGroup2 <- gframe("Analysis Selection", cont=DataSelection, horizontal=T)
+  DataSelectGroup2 <- gframe("\nAnalysis Selection", cont=DataSelection, horizontal=T)
   AnalysisSwitcher <- gcombobox("", cont=DataSelectGroup2, width=100, handler=function(h,...){
     if("HybRIDSseqsim" %in% class(analysisselector(HybRIDSenv$analysisSessions, svalue(AnalysisSwitcher))$SSAnalysis)){
       names <- analysisselector(HybRIDSenv$analysisSessions, svalue(AnalysisSwitcher))$SSAnalysis$ContigNames
@@ -107,7 +107,7 @@
   Triplets2 <- gcombobox("", cont=Tg2, width=80, handler=function(h,...){dothewindow()})
   Triplets3 <- gcombobox("", cont=Tg3, width=80, handler=function(h,...){dothewindow()})
   SelectedLabel <- glabel("The current triplet selection is: ", cont=DataSelection)
-  DataSummary <- gframe("Data Summary", cont=SecondMainwinGroup, expand=T)
+  DataSummary <- gframe("\nData Summary", cont=SecondMainwinGroup, expand=T)
   SequencesFrame <- gframe("Sequences: ", cont=DataSummary, horizontal=F)
   addSpring(DataSummary)
   vertanalysisframe <- ggroup(horizontal=F, cont=DataSummary)
@@ -147,7 +147,7 @@
       visible(blockwin) <- T
     } else {
       if(length(unique(c(svalue(Triplets1), svalue(Triplets2), svalue(Triplets3)))) > 2){
-        BlocksTable <- SimplifyBlocks(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks, svalue(Triplets1), svalue(Triplets2), svalue(Triplets3), returnEach=F)
+        BlocksTable <- SimplifyBlocks(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks, svalue(Triplets1), svalue(Triplets2), svalue(Triplets3), returnEach=F, selectionOnly=T)
         blockwin <- gwindow(title=paste("Blocks for ", svalue(Triplets1), svalue(Triplets2), svalue(Triplets3)), visible=F)
         gtable(items=BlocksTable, container=blockwin)
         buttonsgroup <- gframe("Options", cont=blockwin, horizontal=T)
@@ -231,11 +231,12 @@
                               }
                               }
                             }
+                          svalue(HintBar) <- paste("DNA Data Loaded as ", sequencename, "...", sep="")
                           })
   addHandlerMouseMotion(DataButton, handler = function(h,...){
     svalue(HintBar) <- "Click to load in the sequences from fasta file..."
   })
-  SequenceSelectGroup <- gframe("Select Sequence Set", cont=subframe0, horizontal=T, expand=T)
+  SequenceSelectGroup <- gframe("\nSelect Sequence Set", cont=subframe0, horizontal=T, expand=T)
   FastaSeqSelect <- gcombobox("", width = 100, cont=SequenceSelectGroup, editable=TRUE, handler=function(h,...){
     if(!svalue(FastaSeqSelect) %in% names(HybRIDSenv$fastaseqs)){
       sequencestodo[] <- ""
@@ -258,11 +259,6 @@
   addHandlerMouseMotion(FastaSeqSelect, handler = function(h,...){
     svalue(HintBar) <- "Select the currently active DNA sequence set..."
   })
-  
-  
-  
-  
-  
   addSpring(SequenceSelectGroup)
   Fastabutton <- gbutton("Delete Sequence Set", cont=SequenceSelectGroup, handler=function(h,...){
     valuetodel <- svalue(FastaSeqSelect)
@@ -283,7 +279,7 @@
   
   
   # Sequence Similarity Analysis Options
-  subframe1 <- gframe("Analysis Options", container=frame0)
+  subframe1 <- gframe("\nAnalysis Options", container=frame0)
   winoptframe <- ggroup(cont=subframe1, horizontal=F)
   subwinopt <- gframe("Window Settings", cont = winoptframe, horizontal=F)
   lab3 <- glabel("Window Size",cont=subwinopt)
@@ -355,6 +351,7 @@
                           }
                         }
                         gmessage("Finished Analysing All Sequence Triplets", title="Finished Analysis", icon="info")
+                        svalue(HintBar) <- "Finished Sequence Similarity Analysis..."
                       })
   addHandlerMouseMotion(Analyze1, handler = function(h,...){
     svalue(HintBar) <- "Run the analysis with selected options..."
@@ -374,7 +371,7 @@
   
   # Block Detection Group
   detdateframe <- gframe("Block Detection & Dating", cont=framevert, horizontal=F)
-  blockdetframe <- gframe("Block Detection", cont=detdateframe)
+  blockdetframe <- gframe("\nBlock Detection", cont=detdateframe)
   threshframe <- ggroup(cont=blockdetframe, horizontal=F)
   thresh2frame <- ggroup(cont=blockdetframe, horizontal=F)
   mutratelab <- glabel("Manual Similarity Thresholds", cont=threshframe)
@@ -412,7 +409,7 @@
   
   
   
-  manfallcheck <- gcheckbox("Fallback to manual values?", checked = TRUE, use.togglebutton=FALSE, handler = NULL, action = NULL,
+  manfallcheck <- gcheckbox("Fallback to manual values?", checked = TRUE, use.togglebutton = FALSE, handler = NULL, action = NULL,
                             container = threshframe)
   addHandlerMouseMotion(manfallcheck, handler = function(h,...){
     svalue(HintBar) <- "If TRUE, then if HybRIDS fails to find any thresholds it finds suitable it can fallack to the manual values you specify - this is recommended generally..."
@@ -445,15 +442,51 @@
         }
       }
     }
+    gmessage("Finished Block Detection")
+    svalue(HintBar) <- "Finished Block Detection..."
   })
   addHandlerMouseMotion(blockidbutton, handler = function(h,...){
     svalue(HintBar) <- "Start finding potential blocks..."
   })
   
   # Section for Block Dating.
-  DatingFrame <- gframe("Dating Blocks", cont=)
+  DatingFrame <- gframe("\nDating Blocks", cont=detdateframe, expand=T, horizontal=FALSE)
+  mrategroup <- ggroup(cont=DatingFrame, horizontal=T, expand=T)
+  MutRateLabel <- glabel("Mutation Rate:", cont=mrategroup)
+  Mutgedit <- gedit("10e-8", width=10, cont=mrategroup)
+  addSpring(mrategroup)
+  AllDateCheck <- gcheckbox("Do for all triplets", cont=DatingFrame)
+  DateBlockButton <- gbutton("Date Blocks", cont = mrategroup, handler = function(h,...){
+    if(length(HybRIDSenv$analysisSessions) < 1){
+      gmessage("No analyses sessions found!", icon="error")
+      stop("No analysis sessions found")
+    } 
+    analysisindex <- analysisindexer(HybRIDSenv$analysisSessions, svalue(AnalysisSwitcher))
+    if(!HybRIDSenv$analysisSessions[[analysisindex]]$SeqDep %in% names(HybRIDSenv$fastaseqs)){
+      stop("DNA Sequence needed does not exist... did you delete it?")
+    } else {
+      dnatouse <- HybRIDSenv$fastaseqs[[which(names(HybRIDSenv$fastaseqs)==HybRIDSenv$analysisSessions[[analysisindex]]$SeqDep)]]
+      if(svalue(AllDateCheck) == TRUE){
+        cat(class(dnatouse))
+        cat(class(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks))
+        HybRIDSenv$analysisSessions[[analysisindex]]$Blocks <- Estimate.Ages(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks, dnatouse, as.numeric(svalue(Mutgedit)))
+        
+      }
+      
+      
+    }
+  })
   
-  
+  addHandlerMouseMotion(Mutgedit, handler = function(h,...){
+    svalue(HintBar) <- "Adjust mutation rate used in dating function, a higher mutation rate means the function considers accumulation of mutations occurs faster and this affects the date..."
+  })
+  addHandlerMouseMotion(DateBlockButton, handler = function(h,...){
+    svalue(HintBar) <- "Date the blocks..."
+  })
+  addHandlerMouseMotion(AllDateCheck, handler = function(h,...){
+    svalue(HintBar) <- "If true, all blocks for all triplets will be dated, otherwise the blocks for the triplet selected will be dated..."
+  })
+  svalue(AllDateCheck) <- TRUE
   
   
   # Plotting Page of the notebook in the GUI.

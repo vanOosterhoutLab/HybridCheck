@@ -1,21 +1,20 @@
 # S3 classes for HybRIDS.
 # Last Edited by B. J. Ward on 21/04/2013.
 
-
+# Most of these are internal and not really for the use of the user even though some are exported... 
+# Methods for them that convert dnabin classes and such from packages such as ape will be added.
 
 
 # Classes defined are S3 classes.
 
-#' DNA sequence data class for HybRIDS.
-#' 
+
 as.HybRIDSdna <- function(x) {
   class(x) <- c("HybRIDSdna","list")
   return(x)
 }
 
 
-#' A results class for HybRIDS output.
-#' 
+
 as.HybRIDSseqsim <- function(x) {
   class(x) <- c("HybRIDSseqsim","list")
   return(x)

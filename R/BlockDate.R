@@ -1,4 +1,10 @@
-# A function for dating identified blocks of recombination.
+#' Function that estimates the ages of putative recombination blocks
+#' 
+#' This function take a HybRIDSblock or HybRIDSblockSET and will estimate the ages of the blocks detected.
+#' 
+#' @param blocks An object of class HybRIDSblock or HybRIDSblockSET
+#' @param sequence The object of class HybRIDSdna that was used to generate the object given as the 'blocks' parameter.
+#' @export
 Estimate.Ages <- function(blocks, sequence, mutation.rate=10e-8){
   stopifnot("HybRIDSdna" %in% class(sequence), is.numeric(mutation.rate))
   if("HybRIDSblock" %in% class(blocks)){
@@ -10,7 +16,7 @@ Estimate.Ages <- function(blocks, sequence, mutation.rate=10e-8){
     if("HybRIDSblockSET" %in% class(blocks)){
       cat("Now dating blocks...\n")
       DatesSet <- lapply(blocks, function(x) estimate.ages(x, sequence, mutation.rate))
-      OutBlocks <- lapply(1:length(blocks), function(i) list(mergeBandD(blocks[[i]], DatesSet[[i]]), ContigNames = blocks[[i]]$ContigNames))
+      OutBlocks <- lapply(1:length(blocks), function(i) as.HybRIDSdatedBlocks(list(mergeBandD(blocks[[i]], DatesSet[[i]]), ContigNames = blocks[[i]]$ContigNames))) # Put as.HybRIDSdatedBlocks here to make sure each element of the set is correct type...
       return(as.HybRIDSdatedBlocksSET(OutBlocks))
     } else {
       stop("Blocks input was not of type HybRIDSblock or HybRIDSblockSET")

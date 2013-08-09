@@ -15,7 +15,7 @@
   sequences present in another HybRIDSdna object.
 }
 \details{
-  This is a convienience untility function to save the user
+  This is a convienience utility function to save the user
   from writing a chunk of code playing the names and
   indexing the dataset. It is also an important function
   for the sequence selector in the HybRIDS GUI.

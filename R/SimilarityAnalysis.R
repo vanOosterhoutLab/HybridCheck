@@ -2,7 +2,11 @@
 # Created by Ben J. Ward on 18/04/2013.
 # Last edited by Ben J. Ward on 02/05/2013.
 
-#' Function performing the sequence similarity analysis with sliding window.
+#' @title Calc.Similarity
+#' @description Function performing the sequence similarity analysis with sliding window.
+#' @param input An object of type HybRIDSdna.
+#' @param window.size A number specifiying the size of the sliding window in base pairs. Must be integer.
+#' @param step.size A number specifying the size of the steps the sliding window takes, in base pairs. Must be integer.
 #' @export
 Calc.Similarity <- function(input, window.size=100, step.size=1){
   if(!"HybRIDSdna" %in% class(input)) stop("Input needs to be of class HybRIDSdna")
