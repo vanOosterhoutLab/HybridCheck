@@ -91,10 +91,14 @@ Note that saying yes to the GUI does not mean you cannot use the exported functi
 The documentation of each can be viewed from within R by typing:
 ``` ?function_name_here ``` in the R console.
 
-# Contributing - if anyone wants to contribute in the future, we welcome it, whether it is improvements over old code or new features/ideas.
+# Contributing
+
+If anyone wants to contribute in the future, we welcome it, whether it is improvements over old code or new features/ideas.
 Contribution can be done by the usual github cycle of sending pull requests, alternatively contact one of the authors of the paper: 
 
-# Filing Issues - if you have trouble working the package on your data there may be many causes from a genuine bug in the code - a misreading of a file leading to downstream issues, or unsuitability of the data for the kind of analysis HybRIDS does.
+# Filing Issues
+
+If you have trouble working the package on your data there may be many causes from a genuine bug in the code - a misreading of a file leading to downstream issues, or unsuitability of the data for the kind of analysis HybRIDS does.
 HybRIDS has been developed and tested using both real datasets and simulated data. However of course that does not mean there are no datasets which may cause problems. If you run into problems, you can contact the maintainer or file an issue on the repository. 
 Be descriptive and detailed in what you did so as the error can be reproduced, a sample of the data that causes the error might be needed to get to the bottom of the issue.
 
