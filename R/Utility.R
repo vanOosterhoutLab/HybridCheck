@@ -107,8 +107,8 @@ SimplifyBlocks.HybRIDSblock <- function(x){
 #' @rdname SimplifyBlocks
 #' @S3method SimplifyBlocks HybRIDSdatedBlocks
 SimplifyBlocks.HybRIDSdatedBlocks <- function(x){
-  combinedframes <- data.frame(matrix(ncol=10)) 
-  names(combinedframes) <- c("Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum")
+  combinedframes <- data.frame(matrix(ncol=11)) 
+  names(combinedframes) <- c("Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
   sequencepair <- c()
   thresholds <- c()
   for(i in 1:3){
@@ -163,8 +163,8 @@ SimplifyBlocks.HybRIDSblockSET  <- function(x, seq1, seq2="Individual", seq3="Pa
 #' @S3method SimplifyBlocks HybRIDSdatedBlocksSET
 SimplifyBlocks.HybRIDSdatedBlocksSET  <- function(x, seq1, seq2="Individual", seq3="Pair", returnEach=T, selectionOnly=T){
   Index <- TripletIndexes(x, seq1, seq2, seq3)
-  combinedframes <- data.frame(matrix(ncol=12))
-  names(combinedframes) <- c("Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","SequencePair","Threshold")
+  combinedframes <- data.frame(matrix(ncol=13))
+  names(combinedframes) <- c("Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue","SequencePair","Threshold")
   blocksframes <- x[Index]
   sortedblocks <- lapply(blocksframes, function(x) SimplifyBlocks(x))
   for(i in 1:length(blocksframes)){

@@ -2,7 +2,8 @@
 \alias{Estimate.Ages}
 \title{Function that estimates the ages of putative recombination blocks}
 \usage{
-  Estimate.Ages(blocks, sequence, mutation.rate = 1e-07)
+  Estimate.Ages(blocks, sequence, mutation.rate = 1e-07,
+    requiredP = 0.005)
 }
 \arguments{
   \item{blocks}{An object of class HybRIDSblock or

@@ -5,17 +5,17 @@
 #' @param blocks An object of class HybRIDSblock or HybRIDSblockSET
 #' @param sequence The object of class HybRIDSdna that was used to generate the object given as the 'blocks' parameter.
 #' @export
-Estimate.Ages <- function(blocks, sequence, mutation.rate=10e-8){
+Estimate.Ages <- function(blocks, sequence, mutation.rate = 10e-8, requiredP = 0.005){
   stopifnot("HybRIDSdna" %in% class(sequence), is.numeric(mutation.rate))
   if("HybRIDSblock" %in% class(blocks)){
-    Dates <- estimate.ages(blocks, sequence, mutation.rate)
+    Dates <- estimate.ages(blocks, sequence, mutation.rate, requiredP)
     OutBlocks <- mergeBandD(blocks, Dates)
     OutBlocks <- list(OutBlocks, ContigNames = blocks$ContigNames)
     return(as.HybRIDSdatedBlocks(OutBlocks))
   } else {
     if("HybRIDSblockSET" %in% class(blocks)){
       cat("Now dating blocks...\n")
-      DatesSet <- lapply(blocks, function(x) estimate.ages(x, sequence, mutation.rate))
+      DatesSet <- lapply(blocks, function(x) estimate.ages(x, sequence, mutation.rate, requiredP))
       OutBlocks <- lapply(1:length(blocks), function(i) as.HybRIDSdatedBlocks(list(mergeBandD(blocks[[i]], DatesSet[[i]]), ContigNames = blocks[[i]]$ContigNames))) # Put as.HybRIDSdatedBlocks here to make sure each element of the set is correct type...
       return(as.HybRIDSdatedBlocksSET(OutBlocks))
     } else {
@@ -32,6 +32,11 @@ mergeBandD <- function(block, date){
       B$fiftyAge <- D[,2]
       B$ninetyfiveAge <- D[,3]
       B$SNPnum <- D[,5]
+      B$PValue <- D[,6] # Incorporate the p-value into output
+      B <- as.data.frame(na.omit(B))
+      if(nrow(B) == 0){
+        B <- "NO BLOCKS DETECTED OR DATED"
+      }
       return(B)
     }
     outdfs <- lapply(1:length(Bs), function(i) ifelse(is.character(Bs[[i]]) || nrow(Bs[[i]]) < 1, "NO BLOCKS DETECTED OR DATED", return(comb(Bs[[i]],Ds[[i]]))))
@@ -46,11 +51,11 @@ mergeBandD <- function(block, date){
 
 
 
-estimate.ages <- function(block, dna, mut.rate) {
+estimate.ages <- function(block, dna, mut.rate, rp) {
   stopifnot("HybRIDSblock" %in% class(block))
   cat("Now dating blocks...\n")
   Blocks <- block[[2]]
-  AllDates <- lapply(1:3, function(i) date.for.all(Blocks[[i]], dna, mut.rate, i))
+  AllDates <- lapply(1:3, function(i) date.for.all(Blocks[[i]], dna, mut.rate, i, rp))
   names(AllDates) <- names(block[[2]])
   return(AllDates)
 }
@@ -58,20 +63,20 @@ estimate.ages <- function(block, dna, mut.rate) {
 
 
 
-date.for.all <- function(blocksset, Sequence, mrate, comps) {
-  DatesForAllThresholds <- lapply(blocksset, function(x) date.blocks(x, Sequence, mrate, comps)) # A lapply command here because blocksset may have more than one element, 
+date.for.all <- function(blocksset, Sequence, mrate, comps, reqp) {
+  DatesForAllThresholds <- lapply(blocksset, function(x) date.blocks(x, Sequence, mrate, comps, reqp)) # A lapply command here because blocksset may have more than one element, 
   # depending on whether more than one suitable threshold was discovered. 
 }
 
 
 
 
-date.blocks <- function(blocksobj, dnaobj, mut, pair) { # blocksobj should be a dataframe
+date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh) {
   # Check there are blocks to date!
   if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters and does in fact contain more than one row.
     blocksobj <- as.matrix(blocksobj)
-    blockAges <- matrix(nrow=nrow(blocksobj),ncol=5)
-    colnames(blockAges)<-c("5%","50%","95%","BlockSize","SNPs")
+    blockAges <- matrix(nrow=nrow(blocksobj),ncol=6) #ncol was 5 before p-value accomodation.
+    colnames(blockAges) <- c("5%","50%","95%","BlockSize","SNPs","p-value")
     # For each significant block...
     for(i in 1:nrow(blocksobj)){
       # Pick the correct sequences for the blocks...
@@ -81,12 +86,21 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair) { # blocksobj should be a 
       # Figure out what sort of pair comparrison this comparrison is, then extract the two sequences required...
       if(pair == 1){
         Seq <- dnaobj$CroppedSequence[c(1,2),c(BlockStart:BlockEnd)]
+        wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$Sequence[c(1,2),]), model="N")[1] # Get the raw sequence distance.
+        wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$Sequence) # Divide by the sequence length.
+        #wholeSequenceDist <- wholeSequenceDist*100 # Multiply by 100 to get divergence of two sequences as a percentage.
       } else {
         if(pair == 2){
           Seq <- dnaobj$CroppedSequence[c(1,3),c(BlockStart:BlockEnd)]
+          wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$Sequence[c(1,3),]), model="N")[1]
+          wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$Sequence)
+          #wholeSequenceDist <- wholeSequenceDist*100
         } else {
           if(pair == 3){
             Seq <- dnaobj$CroppedSequence[c(2,3),c(BlockStart:BlockEnd)]
+            wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$Sequence[c(2,3),]), model="N")[1]
+            wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$Sequence)
+            #wholeSequenceDist <- wholeSequenceDist*100
           }
         }
       }
@@ -95,7 +109,14 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair) { # blocksobj should be a 
       # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
       cutSeq <- as.matrix(Seq[,Seq[1,] != Seq[2,]])
       # Calculate the maximum number of SNPs
-      blockAges[i,5] <- maxSNPs <- ncol(cutSeq)
+      maxSNPs <- ncol(cutSeq)
+      
+      # p-value calculation is a binomial distribution, taking into account number of SNP's in the block, 
+      pValue <- pbinom(maxSNPs, B, wholeSequenceDist)
+      if(pValue > pthresh) next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration. 
+      
+      blockAges[i,5] <- maxSNPs  
+      blockAges[i,6] <- pValue
       t <- 0
       continue <- T
       flag5 <- F
@@ -123,7 +144,7 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair) { # blocksobj should be a 
         }
         t <- t+100
       }
-    } 
+    }
   } else {
     blockAges <- "NO BLOCKS TO DATE"
   }
