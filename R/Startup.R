@@ -450,10 +450,13 @@
   })
   
   # Section for Block Dating.
-  DatingFrame <- gframe("\nDating Blocks", cont=detdateframe, expand=T, horizontal=FALSE)
+  DatingFrame <- gframe("\nDating Blocks & P-Value Calculation", cont=detdateframe, expand=T, horizontal=FALSE)
   mrategroup <- ggroup(cont=DatingFrame, horizontal=T, expand=T)
+  ptgroup <- ggroup(cont=DatingFrame, horizontal=T, expand=T)
   MutRateLabel <- glabel("Mutation Rate:", cont=mrategroup)
   Mutgedit <- gedit("10e-8", width=10, cont=mrategroup)
+  PThreshLabel <- glabel("P-Value Threshold:", cont=ptgroup)
+  PTgedit <- gedit("0.05", cont=ptgroup, width=10)
   addSpring(mrategroup)
   AllDateCheck <- gcheckbox("Do for all triplets", cont=DatingFrame)
   DateBlockButton <- gbutton("Date Blocks", cont = mrategroup, handler = function(h,...){
@@ -469,7 +472,7 @@
       if(svalue(AllDateCheck) == TRUE){
         cat(class(dnatouse))
         cat(class(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks))
-        HybRIDSenv$analysisSessions[[analysisindex]]$Blocks <- Estimate.Ages(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks, dnatouse, as.numeric(svalue(Mutgedit)))
+        HybRIDSenv$analysisSessions[[analysisindex]]$Blocks <- Estimate.Ages(HybRIDSenv$analysisSessions[[analysisindex]]$Blocks, dnatouse, as.numeric(svalue(Mutgedit)), as.numeric(svalue(PTgedit)))
         
       }
       
