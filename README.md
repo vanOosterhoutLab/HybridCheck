@@ -13,8 +13,25 @@ along with the ability to detect potential blocks based on the analysis method, 
 HybRIDS then can cater to the individual who is comfortable with code and who wants to script many analyses steps together and want's to include some HybRIDS visualisation and dating, and also to the user who wants to quickly get output 
 without having to do any scripting.
 
+# Installation from Github Repository
 
-# Installation
+Installing the bleeding edge versions from Github is slightly different to installing the source or binary tarballs resent on the NBI website - which are not updated as often.
+The Github repository is updated and watched almost daily by the author and so is recommended. The process is the same on all machines and operating systems.
+The main difference is that the Github repo is raw source code, unpackaged into a source tarball or a binary file. It is cloned to a PC as directory/set of files that follow the R layout for packages.
+Therefore there is an added step that once you've "cloned this repo" to your computer i.e. downloaded the files, there are a few steps extra just to put it into an R source tarball or build it before you can then install it in the usual manner.
+
+1. First make sure that R is installed correctly for your system, here I must direct you to the R website and the CRAN. If youknow how to install 'normal' programs on your PC or Mac this should be trivial.
+2. Next click the button on the site to clone the repo to your computer or if you have git installed and are comfortable using it, you can issue a command-line call to clone to your computer using git.
+3. Start a terminal/command-prompt and issue the command ``` R CMD check ``` followed by the path to where you downloaded the repo. For example ``` R CMD check ~/Desktop/HybRIDS ```. This will run a series of checks HybRIDS should pass.
+4. After the check then run ``` R CMD build --binary ``` or ``` R CMD build ``` followed by the path to the repo. The first builds a binary file, the second makes a source tarball file.
+5. After building the package then issuing ``` R CMD INSTALL ``` followed by the path to the file created from step 4.
+
+Currently it does not really matter if you install HybRIDS on your R system from binary or source since there is - at present - no object files or C/FORTRAN code in the package, it is pure R.
+This may change in the future however.
+
+
+# Installation from Binary or Source from The NBI Website
+
 R Packages are typically distributed as either a source or binary distribution. Instructions for both are given below.
 
 First it is essential to have a working up to date install of R on your computer. HybRIDS has been developed largely

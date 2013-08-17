@@ -177,7 +177,7 @@
     Aboutwin <- gwindow("About HybRIDS", visible=F)
     aboutgroup1 <- ggroup(cont = Aboutwin)
     aboutgroup2 <- ggroup(cont=aboutgroup1, horizontal=F)
-    logo <- gimage(filename = "HybRIDSlogo.png", dirname = "inst", container = aboutgroup2, expand=T)
+    logo <- gimage(filename = "HybRIDSlogo.png", dirname = "inst/logo", container = aboutgroup2, expand=T)
     glabel("HybRIDS - recombination detection, dating &\n plotting of mosaic genome structures.\n", cont=aboutgroup2)
     glabel("Ben J. Ward, Cock van Oosterhout, Mark McMullan\n", cont=aboutgroup2)
     glabel("University of East Anglia\nSchool of Environmental Sciences\nELSA - Earth & Life Systems Alliance\n", cont=aboutgroup2)
