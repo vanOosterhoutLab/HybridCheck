@@ -66,7 +66,7 @@ plot.mosaic <- function(x, xscale, condense, labfontsize, legfontsize)
   
   if(condense==T) {
     PlotA <- ggplot(Aframe, aes(x=xaxis, y=yaxis)) + 
-      geom_tile(aes(fill=mix), color="white") + 
+      geom_raster(aes(fill=mix)) + 
       scale_fill_identity() +
       xlab(xwindowlabel) +
       ylab(paste("A).",x$ContigNames[1], sep=" ")) +
@@ -74,7 +74,7 @@ plot.mosaic <- function(x, xscale, condense, labfontsize, legfontsize)
     
     
     PlotB <- ggplot(Bframe, aes(x=xaxis, y=yaxis)) + 
-      geom_tile(aes(fill=mix), color="white") + 
+      geom_raster(aes(fill=mix)) + 
       scale_fill_identity() +
       xlab(xwindowlabel) +
       ylab(paste("B).",x$ContigNames[2], sep=" ")) +
@@ -82,7 +82,7 @@ plot.mosaic <- function(x, xscale, condense, labfontsize, legfontsize)
     
     
     PlotC <- ggplot(Cframe, aes(x=xaxis, y=yaxis)) + 
-      geom_tile(aes(fill=mix), color="white") + 
+      geom_raster(aes(fill=mix)) + 
       scale_fill_identity() +
       xlab(xwindowlabel) +
       ylab(paste("C).",x$ContigNames[3], sep=" ")) +
@@ -91,19 +91,19 @@ plot.mosaic <- function(x, xscale, condense, labfontsize, legfontsize)
   } else {
     
     PlotA <- ggplot(Aframe, aes(x=yaxis, y=xaxis)) + 
-      geom_tile(aes(fill=mix), color="white") + 
+      geom_raster(aes(fill=mix)) + 
       scale_fill_identity() +
       ylab("Sliding Window (1:100)") +
       xlab("Sliding Window (x100)")
     
     PlotB <- ggplot(Bframe, aes(x=yaxis, y=xaxis)) + 
-      geom_tile(aes(fill=mix), color="white") + 
+      geom_raster(aes(fill=mix)) + 
       scale_fill_identity() +
       ylab("Sliding Window (1:100)") +
       xlab("Sliding Window (x100)")
     
     PlotC <- ggplot(Cframe, aes(x=yaxis, y=xaxis)) + 
-      geom_tile(aes(fill=mix), color="white") + 
+      geom_raster(aes(fill=mix)) + 
       scale_fill_identity() +
       ylab("Sliding Window (1:100)") +
       xlab(xwindowlabel)

@@ -192,19 +192,15 @@ print.HybRIDSbars <- function(x){
 
 
 # Function to Determine the colour to use for the mosaic rainbow plots.
-col.deter <- function(invalues,reference) {
-  if(is.na(invalues[3]) && is.na(invalues[4])){
-    cols <- "#000000"
-  } else {
-    cols <- reference[reference[,1]==invalues[3] & reference[,2]==invalues[4],3]
-  }
+col.deter <- function(invalues, reference) {
+  cols <- reference[reference[,1]==invalues[2] & reference[,2]==invalues[3],3]
   return(cols)
 }
 
 
 # Internal function for subsetting the HybRIDS data objects.
 subseq <- function(x, s1, s2){
-  contains <- unlist(lapply(x, function(n) Sequence1 %in% n$ContigNames && Sequence2 %in% n$ContigNames))
+  contains <- unlist(lapply(x, function(n) s1 %in% n$ContigNames && s2 %in% n$ContigNames))
   if(!TRUE %in% contains){
     stop("Those contig names are not in the present dataset.")
   }
