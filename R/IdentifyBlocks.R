@@ -122,8 +122,8 @@ block.find <- function(dist,thresh) {
     sums <- lapply(1:length(runs), function(i) cumsum(runs[[i]]$lengths)[ind[[i]]])  # Generate a cumulative sum of the run lengths and pick out the ones for the actual blocks.
     BlockPos2 <- lapply(1:length(runs), function(i) data.frame(Length=runs2[[i]], Last=sums[[i]]))
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, First <- (x$Last - (x$Length-1))))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, FirstBP <- dist[x$First,5]))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, LastBP <- dist[x$Last,6]))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, FirstBP <- dist[x$First,4]))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, LastBP <- dist[x$Last,4]))
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, ApproxBpLength <- (x$LastBP-x$FirstBP)+1))
     names(BlockPos2) <- thresh2
     for(i in 1:length(BlockPos2)){

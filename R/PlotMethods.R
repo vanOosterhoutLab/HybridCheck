@@ -10,7 +10,7 @@ plot.HybRIDSseqsim <- function(x, linesplot=T, legends=T, baseannotate=T, bpfreq
   if(linesplot==F && mosaic.bars==F && densityplot==F) stop("You have specified no type of plot to be plotted.
                                           You need to set one of these to true.")
   if(linesplot==T){
-    LinesPlot <- plot.similarities(x, legends, baseannotate, bpfreq, labfontsize,legfontsize)
+    LinesPlot <- plot.similarities(x, legends, baseannotate, bpfreq, labfontsize,legfontsize, F)
     if(onecanvas==F) plot(LinesPlot)
   }
   if(mosaic.bars==T){
@@ -192,8 +192,14 @@ print.HybRIDSbars <- function(x){
 
 
 # Function to Determine the colour to use for the mosaic rainbow plots.
-col.deter <- function(invalues, reference) {
-  cols <- reference[reference[,1]==invalues[2] & reference[,2]==invalues[3],3]
+col.deter <- function(invalues, reference) 
+{
+  if (is.na(invalues[3]) && is.na(invalues[4])) {
+    cols <- "#000000"
+  }
+  else {
+    cols <- reference[reference[, 1] == invalues[3] & reference[,2] == invalues[4], 3]
+  }
   return(cols)
 }
 
@@ -225,17 +231,7 @@ subsim <- function(input, p){
 }
 
 
-# # Internal function for making the data fit an absolute bp by bp scale.
-# absoluteBP <- function(x){
-#   bpdf <- data.frame(matrix(ncol=2, nrow = subsetx[[1]]$FullSeqLength ))
-#   windowcover <- lapply(1:nrow(x$Distance), function(i) c(x$Distance$ActualStart[i]:x$Distance$ActualEnd[i]))
-#   
-#   
-#   
-#   
-#   
-#   
-# }
+
 
 
 
@@ -273,7 +269,7 @@ dfdates <- function(){
 }
 
 
-# Plotting method for the location of blocks and the date of the blocks.
+# Plotting method for the location of blocks and the date of the blocks. - TODO
 # plot.HybRIDSblocks <- function(input) {
 #   plotting.frame <- data.frame(matrix(nrow = sum(unlist(lapply(input[[2]], function(x) unlist(lapply(x, function(y) nrow(y)))))), ncol=7))
 #   names(plotting.frame) <- c("Pair", "Threshold", "Five", "Fifty", "Size", "SNPs", "SSVals", "TripletSet", "xvals")
