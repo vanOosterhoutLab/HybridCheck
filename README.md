@@ -15,19 +15,21 @@ without having to do any scripting.
 
 # Installation from Github Repository
 
-Installing the bleeding edge versions from Github is slightly different to installing the source or binary tarballs resent on the NBI website - which are not updated as often.
-The Github repository is updated and watched almost daily by the author and so is recommended. The process is the same on all machines and operating systems.
-The main difference is that the Github repo is raw source code, unpackaged into a source tarball or a binary file. It is cloned to a PC as directory/set of files that follow the R layout for packages.
-Therefore there is an added step that once you've "cloned this repo" to your computer i.e. downloaded the files, there are a few steps extra just to put it into an R source tarball or build it before you can then install it in the usual manner.
+You have two options of how to do this - either is perfectly acceptable.
 
-1. First make sure that R is installed correctly for your system, here I must direct you to the R website and the CRAN. If youknow how to install 'normal' programs on your PC or Mac this should be trivial.
-2. Next click the button on the site to clone the repo to your computer or if you have git installed and are comfortable using it, you can issue a command-line call to clone to your computer using git.
-3. Start a terminal/command-prompt and issue the command ``` R CMD check ``` followed by the path to where you downloaded the repo. For example ``` R CMD check ~/Desktop/HybRIDS ```. This will run a series of checks HybRIDS should pass.
-4. After the check then run ``` R CMD build --binary ``` or ``` R CMD build ``` followed by the path to the repo. The first builds a binary file, the second makes a source tarball file.
-5. After building the package then issuing ``` R CMD INSTALL ``` followed by the path to the file created from step 4.
+## Method 1:
 
-Currently it does not really matter if you install HybRIDS on your R system from binary or source since there is - at present - no object files or C/FORTRAN code in the package, it is pure R.
-This may change in the future however.
+Note for this you must have the "devtools" installed as previously recommended.
+
+1. Open an R window and type into it: install_github("HybRIDS", username="Ward9250", ref="master")
+2. Thats it!
+
+## Method 2:
+
+1. Click the buttons in the navigation bar called ZIP or TAR to download the files, or get them from the github repository - it is up to you whether you download the tar or zip folder and does not matter. Unzip the file.
+2. Start a terminal/command-prompt and issue the command R CMD check followed by the path to where you juse unzipped the file. For example R CMD check ~/Desktop/HybRIDS. This will run a series of checks HybRIDS should pass.
+3. After the check then run R CMD build --binary or R CMD build followed by the path to the repo. The first builds a binary file, the second makes a source tarball file.
+4. After building the package then issuing R CMD INSTALL followed by the path to the file created from step 4.
 
 
 # Installation from Binary or Source from The NBI Website
@@ -103,9 +105,9 @@ You will be asked if you want to use the graphical user interface (GUI) for HybR
 functions, then you can click no.
 Note that saying yes to the GUI does not mean you cannot use the exported functions for use in the R console.
 
-## The exported functions
+## Internal documentation
 
-The documentation of each can be viewed from within R by typing:
+The documentation of each HybRIDS function can be viewed from within R by typing:
 ``` ?function_name_here ``` in the R console.
 
 # Contributing
