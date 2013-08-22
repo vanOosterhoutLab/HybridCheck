@@ -107,7 +107,7 @@ block.find <- function(dist,thresh) {
   b1 <- list()                                                                     # Create and empty list called b1.
   length(b1) <- length(thresh2)
   if(is.numeric(thresh2)){
-    for(i in 1:length(thresh2)){                                                     #Find which sliding windows meet the threshold with for loop.
+    for(i in 1:length(thresh2)){                                                   #Find which sliding windows meet the threshold with for loop.
       b1[[i]] <- rep(F, times=nrow(dist))
       if(i == 1){
         b1[[i]][which(dist[,7] > thresh2[i])] <- T
