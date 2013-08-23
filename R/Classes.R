@@ -39,18 +39,6 @@ as.HybRIDSblockSET <- function(x) {
 }
 
 
-as.HybRIDSlinesplot <- function(x) {
-  class(x) <- c("HybRIDSlinesplot","gg","ggplot")
-  return(x)
-}
-
-
-as.HybRIDSbars <- function(x) {
-  class(x) <- c("HybRIDSbars","list")
-  return(x)
-}
-
-
 as.HybRIDSdatedBlocks <- function(x) {
   class(x) <- c("HybRIDSdatedBlocks","list")
   return(x)
