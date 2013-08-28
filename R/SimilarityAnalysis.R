@@ -9,7 +9,6 @@
 #' @param step.size A number specifying the size of the steps the sliding window takes, in base pairs. Must be integer.
 #' @export
 Calc.Similarity <- function(input, window.size=100, step.size=1){
-  if(!"HybRIDSdna" %in% class(input)) stop("Input needs to be of class HybRIDSdna")
   if(length(input$Combinations)<2){
     TripletSubset <- list(CroppedSequence=input$CroppedSequence, ContigNames=input$ContigNames)
     analysis <- seq.similarity(TripletSubset, window.size, step.size, fulllength = ncol(input$Sequence), verbose=T)
@@ -25,7 +24,7 @@ Calc.Similarity <- function(input, window.size=100, step.size=1){
       TripletSubset <- list(CroppedSequence=input$CroppedSequence[input$Combinations[[i]],], ContigNames=input$ContigNames[Triplet])
       analysis[[i]] <- seq.similarity(TripletSubset, window.size, step.size, fulllength = ncol(input$Sequence), verbose=F)
     }
-    return(as.HybRIDSseqsimSET(analysis))
+    return(analysis)
   }
 }
 
@@ -100,16 +99,16 @@ seq.similarity <- function(dnain, win.size, s.size, fulllength, verbose) {
         Distances[n1,8] <- sum(dnaStretch[pairs[[2]][1],] != dnaStretch[pairs[[2]][2],])
         Distances[n1,9] <- sum(dnaStretch[pairs[[3]][1],] != dnaStretch[pairs[[3]][2],])
       }
-      colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter","ActualStart","ActualEnd", unlist(lapply(pairs, function(x) paste(LETTERS[x], collapse=""))))
-      Distances[,c(7,8,9)] <- 100-round((as.numeric(Distances[,c(7,8,9)])/(win.size+1))*100)
-      Distances <- data.frame(Distances)
+      colnames( Distances ) <- c( "WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist( lapply( pairs, function( x ) paste( LETTERS[ x ], collapse="" ) ) ) )
+      Distances[ , c( 7, 8, 9 ) ] <- 100 - round ( ( as.numeric( Distances[ , c( 7, 8, 9 ) ] ) / ( win.size + 1 ) ) * 100 )
+      Distances <- data.frame( Distances )
       } else {
-        cat("The sliding window size is less than 1, this is not supposed to happen...\n")
+        cat( "The sliding window size is less than 1, this is not supposed to happen...\n" )
         Distances <- "The sliding window size is less than 1, this is not supposed to happen...\n"
-        return(Distances)
+        return( Distances )
       }
     } else {
       Distances <- "There are no informative sites to work on - skipping analysis of this triplet...\n"
     }
-  return(as.HybRIDSseqsim(list(Distances = Distances, FullSeqLength = fulllength, CutSeqLength = dnaCutLength, ContigNames=dnain$ContigNames)))
+  return( list(Distances = Distances, Contigs = ) )
 }

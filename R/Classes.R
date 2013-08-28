@@ -7,14 +7,6 @@
 
 # Classes defined are S3 classes.
 
-
-as.HybRIDSdna <- function(x) {
-  class(x) <- c("HybRIDSdna","list")
-  return(x)
-}
-
-
-
 as.HybRIDSseqsim <- function(x) {
   class(x) <- c("HybRIDSseqsim","list")
   return(x)
