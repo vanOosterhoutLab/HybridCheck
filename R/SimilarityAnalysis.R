@@ -110,5 +110,28 @@ seq.similarity <- function(dnain, win.size, s.size, fulllength, verbose) {
     } else {
       Distances <- "There are no informative sites to work on - skipping analysis of this triplet...\n"
     }
-  return( list(Distances = Distances, Contigs = ) )
+  return( list(Distances = Distances, InformativeDNAlength = , Contigs = ) )
+}
+
+
+# Internal function For reading in FASTA formatted files.
+InputFasta <- function( infile ) {
+  dnaSeqLst <- read.fasta( file = infile, 
+                           seqtype = "DNA", as.string = FALSE, forceDNAtolower = TRUE,
+                           set.attributes = TRUE, legacy.mode = TRUE, seqonly = FALSE, strip.desc = FALSE )
+  dnaSeqLengths <- sapply( dnaSeqLst, length )
+  if( all( dnaSeqLengths == dnaSeqLengths[[1]] ) == FALSE ) stop( "\nAll sequences are not of the same length. Please check your input files...\nInput files must be fasta files of an alignment, and 'not' the raw sequence files.\nAborting..." )
+  cat( "\nAll sequences are of the same length - good - continuing process..." )
+  cat( "\nFormatting data..." )
+  CompleteDNA <<- do.call( rbind, dnaSeqLst )
+  colnames( CompleteDNA ) <<- 1:dnaSeqLengths[[1]]
+  rownames( CompleteDNA ) <<- names( dnaSeqLst )
+  cat( "\nDNA data formatted successfully!" )
+  cat( "\nLooking for duplicates..." )
+  dups <- duplicated( CompleteDNA )
+  if( any( dups ) ){
+    cat("\nSome duplicated sequences were found! - We will get rid of these...")
+    CompleteDNA <- CompleteDNA[!dups,]
+  }
+  return( CompleteDNA )
 }
