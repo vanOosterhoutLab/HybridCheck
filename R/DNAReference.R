@@ -1,5 +1,5 @@
 # Reference Class for DNA Sequence Information in HybRIDS 
-DNASequence <- setRefClass( "HybRIDSseq",
+HybRIDSseq <- setRefClass( "HybRIDSseq",
                             fields = list( 
                               FullSequenceFile = "character",
                               FullSequence = function( value ) {
@@ -46,7 +46,8 @@ DNASequence <- setRefClass( "HybRIDSseq",
                                   }
                                   SequenceNames <<- rownames( FullSequence )
                                   SequenceLength <<- ncol( FullSequence )
-                                },
+                                  InformativeLength <<- ncol( InformativeSequence )
+                                }
                             ))
 
 
