@@ -154,14 +154,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  index <- which( unlist( lapply( SSAnalysisParams$TripletCombinations, function(x) all( which( DNA$SequenceNames %in% unlist( strsplit( i, split=":" ) ) ) %in% x ) ) ) )
                                                  cat( "Analyzing Triplet:", SSAnalysisParams$TripletCombinations[[index]] )
                                                  seq.similarity( DNA$InformativeSequence[ SSAnalysisParams$TripletCombinations[[index]], ], Triplets[[index]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = F )
-                                                 
                                                }
-                                                
-                                                 
-                                                 
-                                                
                                              }
-                                             
                                            }
 
 
