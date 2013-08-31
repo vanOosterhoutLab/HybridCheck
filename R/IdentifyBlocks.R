@@ -71,7 +71,7 @@ identify.blocks <- function(x, manual.thresholds, autodetect, manualfallback, SD
     names(Thresholds) <- c(paste(x$ContigNames[1],x$ContigNames[2],sep=":"),paste(x$ContigNames[1],x$ContigNames[3],sep=":"),paste(x$ContigNames[2],x$ContigNames[3],sep=":"))
   } else {
     Thresholds <- list(manual.thresholds, manual.thresholds, manual.thresholds)
-    names(Thresholds)<- c(paste(x$ContigNames[1],x$ContigNames[2],sep=":"),paste(x$ContigNames[1],x$ContigNames[3],sep=":"),paste(x$ContigNames[2],x$ContigNames[3],sep=":"))
+    names(Thresholds) <- c(paste(x$ContigNames[1],x$ContigNames[2],sep=":"),paste(x$ContigNames[1],x$ContigNames[3],sep=":"),paste(x$ContigNames[2],x$ContigNames[3],sep=":"))
   }
   cat("Now beginning Block Search...\n\n")
   Blocks <- lapply(1:3, function(i) block.find(distances[,c(1:6,6+i)], Thresholds[[i]]))

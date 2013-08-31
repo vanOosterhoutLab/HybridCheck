@@ -34,7 +34,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
                                  plotLines =
-                                   function( LabelFontSize = 12, LegendFontSize = 12, Title = TRUE ) {
+                                   function( LabelFontSize = 12, LegendFontSize = 12, title = TRUE ) {
                                      combo <- unlist( lapply( combn( c( SequenceA, SequenceB, SequenceC ), 2, simplify=FALSE ), function(x) paste( x, collapse=":" ) ) )
                                      similarities <- as.matrix( SSTable[ , 7:9] )
                                      plotting.frame <- data.frame( basepos = rep( as.numeric( SSTable[,4] ), 3 ),
@@ -46,7 +46,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                        scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
                                        xlab("Base Position") +
                                        ylab("% Sequence Similarity")
-                                     if( Title == TRUE ) {
+                                     if( title == TRUE ) {
                                        plot + 
                                          ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") ) +
                                          theme( title = element_text(size = 14, colour = "black", face = "bold" ),
@@ -64,7 +64,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                  
                                  #Plotting method for the rainbow bars in ggplot2
                                  plotBars =
-                                   function( mosaicscale = 500, pyramidleg = TRUE, labfontsize = 12, legfontsize = 12, xlabel = TRUE ) {
+                                   function( mosaicscale = 500, pyramidleg = TRUE, labfontsize = 12, legfontsize = 12, xlabel = TRUE, title = TRUE ) {
                                      # Now let's generate the reference colour palettes.
                                      RefA <- expand.grid(contigb = seq(0, 100, by = 1), contigc = seq(0, 100, by = 1))
                                      RefA <- within(RefA, mix <- rgb(green = contigb, red = 100, blue = contigc, maxColorValue = 100))
@@ -101,19 +101,23 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                        scale_x_continuous( breaks = c(seq( from = 1, to = mosaicscale, by = mosaicscale / 10 ), mosaicscale), labels = c(bpX[seq( from = 1, to = mosaicscale, by = mosaicscale / 10 )], max(bpX)) ) + 
                                        scale_y_discrete( labels = c(Sequence3, Sequence2, Sequence1))
                                      if( xlabel == TRUE ){
-                                       bars + theme( axis.text.y = element_text( colour="black", size = 12 ),
+                                       bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
+                                                     axis.text.y = element_text( colour="black", size = 12 ),
                                                      axis.title.y = element_text( size = labfontsize, colour = "black" ),
                                                      axis.text.x = element_text( colour="black", size = 12),
                                                      axis.title.x = element_text( colour = "black", size = labfontsize)
                                        )
                                      } else {
-                                       bars + theme( axis.text.y = element_text( colour="black", size = 12 ),
+                                       bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
+                                                     axis.text.y = element_text( colour="black", size = 12 ),
                                                      axis.title.y = element_text( size = labfontsize, colour = "black" ),
                                                      axis.text.x = element_blank(),
                                                      axis.title.x = element_blank()
                                        )
                                      }
-                                     
+                                     if( title == T ) {
+                                       bars <- bars + ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") )
+                                     }
                                      if( pyramidleg == T ) {
                                        legend <- readPNG( system.file( "extdata/rgblegend.png", package="HybRIDS" ), TRUE )
                                        if ( names( dev.cur() ) == "windows" ) {
@@ -129,6 +133,24 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      } else {
                                        print( bars )
                                      }
+                                   },
+                                 
+                                 # Method for putative block detection.
+                                 putativeBlockFind = 
+                                   function( autodetect = TRUE, sd.stringency = 2, manual.thresholds = c( 90 ), manual.fallback = T ) {
+                                     if( autodetect == TRUE ) {
+                                       cat( "Using the autodetect thresholds method...\n" )
+                                       cat( "Deciding on suitable thresholds...\n" )
+                                       Thresholds <- autodetect.thresholds( SSTable, sd.stringency, manual.thresholds, manual.fallback )
+                                       # Results in a list of thresholds for AB, AC and BC.
+                                     } else {
+                                       Thresholds <- list( manual.thresholds, manual.thresholds, manual.thresholds )
+                                     }
+                                     names(Thresholds) <- c( paste( SequenceA, SequenceB ,sep=":" ), paste( SequenceA, SequenceC, sep=":" ), paste( SequenceB, SequenceC, sep=":" ) )
+                                     cat( "Now beginning Block Search...\n\n" )
+                                     Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
+                                     names(Blocks) <<- names(Thresholds) <- c( paste( SequenceA , SequenceB, sep=":" ), paste( SequenceA, SequenceC, sep=":" ), paste( SequenceB, SequenceC, sep=":" ) )
+                                     
                                    }
                                  )
                                )
