@@ -1,35 +1,4 @@
-# Sliding window internal function to zip along sequence triplets and record their sequence similarity as a percentage.
-# Created by Ben J. Ward on 18/04/2013.
-# Last edited by Ben J. Ward on 02/05/2013.
-
-#' @title Calc.Similarity
-#' @description Function performing the sequence similarity analysis with sliding window.
-#' @param input An object of type HybRIDSdna.
-#' @param window.size A number specifiying the size of the sliding window in base pairs. Must be integer.
-#' @param step.size A number specifying the size of the steps the sliding window takes, in base pairs. Must be integer.
-#' @export
-Calc.Similarity <- function(input, window.size=100, step.size=1){
-  if(length(input$Combinations)<2){
-    TripletSubset <- list(CroppedSequence=input$CroppedSequence, ContigNames=input$ContigNames)
-    analysis <- seq.similarity(TripletSubset, window.size, step.size, fulllength = ncol(input$Sequence), verbose=T)
-    return(analysis)
-  } else {
-    # prepare the outputted list...
-    analysis <- list()
-    length(analysis) <- length(input$Combinations)
-    progress <- txtProgressBar(min=0, max=length(analysis), style=3)
-    for(i in 1:length(analysis)){
-      setTxtProgressBar(progress, i)
-      Triplet <- input$Combinations[[i]]
-      TripletSubset <- list(CroppedSequence=input$CroppedSequence[input$Combinations[[i]],], ContigNames=input$ContigNames[Triplet])
-      analysis[[i]] <- seq.similarity(TripletSubset, window.size, step.size, fulllength = ncol(input$Sequence), verbose=F)
-    }
-    return(analysis)
-  }
-}
-
-
-# Internal Function to takes a trio of sequences (dnain), and 
+# Internal Function to takes a trio of sequences (dnain), and calculate the sequence similarity across a sliding window.
 seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp, verbose ) {
   if( verbose == T ) cat( "\nPreparing input DNA sequences...\n" )
   colnames( dnain ) <- cutbp
