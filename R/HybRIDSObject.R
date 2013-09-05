@@ -8,6 +8,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                           SSAnalysisParams = "list",
                           BlockDetectionParams = "list",
                           BlockDatingParams = "list",
+                          LastTripletSelection = "numeric",
                           Triplets = "list"
                           ),
                         
@@ -136,27 +137,121 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
-                                           function( triplet = "all" ) {
-                                             if( !is.character( triplet ) ) stop( "option 'which' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( triplet == "all" ) {
+                                           function( Selections = "all" ) {
+                                             if( !is.character( Selections ) ) stop( "option 'which' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( Selections == "all" ) {
                                                if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
-                                                 cat( "Only one triplet to analyze\nAnalyzing triplet of sequences" )
+                                                 cat( "Only one triplet to analyze the sequence similarity of..." )
                                                  seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = T )
                                                } else {
-                                                 progress <- txtProgressBar( min = 0, max = length( SSAnalysisParams$TripletCombinations ), style = 3 )
+                                                 cat( "Analyzing the sequence similarity of all the triplets...\n" )
+                                                 progress <- txtProgressBar( min = 0, max = length(SSAnalysisParams$TripletCombinations), style = 3 )
                                                  for( i in 1:length( SSAnalysisParams$TripletCombinations ) ) {
                                                    setTxtProgressBar( progress, i )
                                                    seq.similarity( DNA$InformativeSequence[ SSAnalysisParams$TripletCombinations[[i]], ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = F )
                                                  }
                                                }
                                              } else {
-                                               for( i in triplet ) {
-                                                 index <- which( unlist( lapply( SSAnalysisParams$TripletCombinations, function(x) all( which( DNA$SequenceNames %in% unlist( strsplit( i, split=":" ) ) ) %in% x ) ) ) )
-                                                 cat( "Analyzing Triplet:", SSAnalysisParams$TripletCombinations[[index]] )
-                                                 seq.similarity( DNA$InformativeSequence[ SSAnalysisParams$TripletCombinations[[index]], ], Triplets[[index]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = F )
-                                               }
+                                               indexTriplets( Selections )
+                                               for( i in LastTripletSelection ){
+                                                 cat( "Now analysing sequence similarity of triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
+                                                 seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = F )
+                                               } 
                                              }
+                                           },
+                                         
+                                         # GGplot method for HybRIDS object - activates submethods of triplets.
+                                         plotTriplets =
+                                           function( Selections, What = c("Lines", "Bars"), Combine = TRUE ) {
+                                             if( !is.character( Selections ) ) stop( "option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             for( i in Selections ) {
+                                               cat("Selection", i)
+                                               if( length( unlist( strsplit(i, ":") ) ) == 3 ) {
+                                                 indexTriplets( i )
+                                                 if( "Lines" %in% What && !"Bars" %in% What ) {
+                                                   outplot <- Triplets[[LastTripletSelection]]$plotLines()
+                                                 }
+                                                 if( !"Lines" %in% What && "Bars" %in% What ) {
+                                                   outplot <- Triplets[[LastTripletSelection]]$plotBars()
+                                                 }
+                                                 if( "Lines" %in% What && "Bars" %in% What ) {
+                                                   outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars(),
+                                                                Triplets[[LastTripletSelection]]$plotLines(),
+                                                                ncol = 1 )
+                                                 }
+                                               } else {
+                                                 if( length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == TRUE ) {
+                                                   indexTriplets( i )
+                                                   if( "Lines" %in% What ){
+                                                     dflength <- sum( unlist( lapply( Triplets[LastTripletSelection], function(x) nrow(x$SSTable) ) ) )
+                                                     plotting.frame <- data.frame( matrix( nrow = dflength, ncol = 9 ) )
+                                                     names(plotting.frame) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", "SSVals", "TripletSet", "xvals")
+                                                     plotting.frame$xvals <- unlist( lapply( Triplets[LastTripletSelection], function(x) 1:nrow( x$SSTable ) ) )
+                                                     plotting.frame$WindowCenter <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$WindowCenter ) )
+                                                     plotting.frame$WindowStart <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$WindowStart ) )
+                                                     plotting.frame$WindowEnd <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$WindowEnd ) )
+                                                     plotting.frame$ActualCenter <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualCenter ) )
+                                                     plotting.frame$ActualStart <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualStart ) )
+                                                     plotting.frame$ActualEnd <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualEnd ) )
+                                                     plotting.frame$SSVals <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( Selections, ":" ) )[1], unlist( strsplit( Selections, ":" ) )[2] ) ) )
+                                                     plotting.frame$TripletSet <- as.factor( unlist( lapply( Triplets[LastTripletSelection], function(x) rep( paste( c(x$SequenceA, x$SequenceB, x$SequenceC), collapse=":" ), nrow( x$SSTable ) ) ) ) )
+                                                     outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
+                                                       geom_line( aes( colour = TripletSet ), show_guide = T, size = 0.8 ) +
+                                                       ylab( "% Sequence Similarity" ) +
+                                                       xlab( "Base Position" )
+                                                   }
+#                                                    if( "Bars" %in% What ){
+#                                                      bars <- lapply( Triplets[LastTripletSelection], function(x) plotBars() )
+#                                                      datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
+#                                                      plotting.frame <- data.frame( matrix( nrow = datasize ) )
+#                                                      names(plotting.frame) <- 
+#                                                      
+#                                                    }
+                                                   
+                                                   
+                                                   if( "Lines" %in% What && !"Bars" %in% What ) {
+                                                     outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
+                                                       geom_line( aes( colour = TripletSet ), show_guide = T, size = 0.8 ) +
+                                                       ylab( "% Sequence Similarity" ) +
+                                                       xlab( "Base Position" )
+                                                   } else {
+#                                                      if( !"Lines" %in% What && "Bars" %in% What ) {
+#                                                        outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = TripletSet ) ) +
+#                                                          geom_line( aes( colour = SSVals ), show_guide = T, size = 0.8 )
+                                                     }
+                                                   }
+                                                 }
+                                               } 
+                                               return( outplot )
+                                             }
+                                           },
+                                         
+                                         # Method for indexing triplets.
+                                         indexTriplets =
+                                           function( selections ) {
+                                             if( !is.character( selections ) ) stop( "option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             processedSelections <- strsplit( selections, split=":" )
+                                             threes <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 3 )]
+                                             twos <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 2 )]
+                                             ones <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 1 )]
+                                             threes <- lapply( threes, function(x) which( DNA$SequenceNames %in% x ) )
+                                             twos <- lapply( twos, function(x) which( DNA$SequenceNames %in% x ) )
+                                             ones <- lapply( ones, function(x) which( DNA$SequenceNames %in% x ) )
+                                             threes <- which( SSAnalysisParams$TripletCombinations %in% threes )
+                                             if( length(twos) > 0 ) {
+                                               twos <- which( unlist( lapply( twos, function(y) lapply( SSAnalysisParams$TripletCombinations, function(x) all( y %in% x ) ) ) ) )
+                                             } else {
+                                               twos <- c()
+                                             }
+                                             if( length(ones) > 0 ) {
+                                               ones <- which( unlist( lapply( ones, function(y) lapply( SSAnalysisParams$TripletCombinations, function(x) any( y %in% x ) ) ) ) )
+                                             } else {
+                                               ones <- c()
+                                             }
+                                             # Now let's get rid of redunancies and assign the selection to LastTripletSelection.
+                                             LastTripletSelection <<- unique( c( threes, twos, ones ) )
                                            }
+                                         
 
 
 

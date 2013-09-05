@@ -70,36 +70,10 @@ plot.HybRIDSseqsim <- function(x, mosaic.bars=T, mosaic.scale=500, density.plot 
 
 
 
-consolidate.bars <- function(x, pyramid=T){
-  legend <- readPNG(system.file("extdata/rgblegend.png", package="HybRIDS"), TRUE)
-  if (names(dev.cur()) == "windows") {
-    # windows device doesn’t support semi-transparency so we’ll need
-    # to flatten the image
-    transparent <- legend[,,4] == 0
-    legend <- as.raster(legend[,,1:3])
-    legend[transparent] <- NA
-  }
-  legendgrob <- rasterGrob(image=legend)
-  if(pyramid==T){
-    barsgrob <- arrangeGrob(arrangeGrob(x[[1]],
-                            x[[2]],
-                            x[[3]],ncol=1), legendgrob, widths=c(1,0.13), ncol=2)
-    return(barsgrob)
-  } else {
-    if(pyramid==F){
-      barsgrob <- arrangeGrob(x[[1]],
-                              x[[2]],
-                              x[[3]],ncol=1)
-      return(barsgrob)
-    } 
-  }
-}
 
 
-print.HybRIDSbars <- function(x){
-  y <- plot(x)
-  return(y)
-}
+
+
 
 
 
@@ -119,7 +93,7 @@ subseq <- function(x, s1, s2){
 # Internal function for getting the right SS values.
 subsim <- function(input, p){
   if(all(p == c(1,2))){
-    return(input$Distance[,7])
+    return(input$SSTable[,7])
   } else {
     if(all(p == c(2,3))){
       return(input$Distance[,8])
@@ -165,9 +139,7 @@ plot.HybRIDSseqsimSET <- function(x, Sequence1, Sequence2) {
 }
 
 
-dfdates <- function(){
-  
-}
+
 
 
 # Plotting method for the location of blocks and the date of the blocks. - TODO

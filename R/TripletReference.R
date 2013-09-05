@@ -17,6 +17,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               StepSizeUsed = "numeric",
                                               SSError = "character",
                                               SSWarning = "character",
+                                              BlocksWarning = "character",
                                               Blocks = "list"
                                               ),
                                methods = list(
@@ -47,7 +48,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                        xlab("Base Position") +
                                        ylab("% Sequence Similarity")
                                      if( title == TRUE ) {
-                                       plot + 
+                                       plot <- plot + 
                                          ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") ) +
                                          theme( title = element_text(size = 14, colour = "black", face = "bold" ),
                                                 axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
@@ -55,16 +56,17 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                                 axis.text.x = element_text( size = LabelFontSize, colour = "black" ), 
                                                 legend.text = element_text( size = LegendFontSize ) )
                                      } else {
-                                       plot + theme( axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
+                                       plot <- plot + theme( axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
                                                      axis.title.x = element_text( size = LabelFontSize, colour = "black" ), 
                                                      axis.text.x = element_text( size = LabelFontSize, colour = "black" ), 
                                                      legend.text = element_text( size = LegendFontSize ) )
                                      }
+                                     return( plot )
                                    },
                                  
                                  #Plotting method for the rainbow bars in ggplot2
                                  plotBars =
-                                   function( mosaicscale = 500, pyramidleg = TRUE, labfontsize = 12, legfontsize = 12, xlabel = TRUE, title = TRUE ) {
+                                   function( mosaicscale = 500, pyramidleg = TRUE, labfontsize = 12, legfontsize = 12, xlabel = TRUE, title = TRUE, exportDat = F ) {
                                      # Now let's generate the reference colour palettes.
                                      RefA <- expand.grid(contigb = seq(0, 100, by = 1), contigc = seq(0, 100, by = 1))
                                      RefA <- within(RefA, mix <- rgb(green = contigb, red = 100, blue = contigc, maxColorValue = 100))
@@ -94,44 +96,48 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      frame$B_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[4]), as.numeric(x[6]) ), RefB ) )
                                      frame$C_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[5]), as.numeric(x[6]) ), RefC ) )
                                      plottingFrame <- data.frame( X = frame$X, Y = rep( c(3, 2, 1), each = mosaicscale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
-                                     bars <- ggplot(plottingFrame, aes(x = X, y = as.factor(Y)) ) +
-                                       geom_raster( aes( fill = colour ) ) + scale_fill_identity() +
-                                       xlab("Approximate Base Position") +
-                                       ylab( "Sequence Name" ) +
-                                       scale_x_continuous( breaks = c(seq( from = 1, to = mosaicscale, by = mosaicscale / 10 ), mosaicscale), labels = c(bpX[seq( from = 1, to = mosaicscale, by = mosaicscale / 10 )], max(bpX)) ) + 
-                                       scale_y_discrete( labels = c(Sequence3, Sequence2, Sequence1))
-                                     if( xlabel == TRUE ){
-                                       bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
-                                                     axis.text.y = element_text( colour="black", size = 12 ),
-                                                     axis.title.y = element_text( size = labfontsize, colour = "black" ),
-                                                     axis.text.x = element_text( colour="black", size = 12),
-                                                     axis.title.x = element_text( colour = "black", size = labfontsize)
-                                       )
+                                     if( exportDat == T ) {
+                                       return(plottingFrame)
                                      } else {
-                                       bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
-                                                     axis.text.y = element_text( colour="black", size = 12 ),
-                                                     axis.title.y = element_text( size = labfontsize, colour = "black" ),
-                                                     axis.text.x = element_blank(),
-                                                     axis.title.x = element_blank()
-                                       )
-                                     }
-                                     if( title == T ) {
-                                       bars <- bars + ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") )
-                                     }
-                                     if( pyramidleg == T ) {
-                                       legend <- readPNG( system.file( "extdata/rgblegend.png", package="HybRIDS" ), TRUE )
-                                       if ( names( dev.cur() ) == "windows" ) {
-                                         # windows device doesn’t support semi-transparency so we’ll need
-                                         # to flatten the image
-                                         transparent <- legend[,,4] == 0
-                                         legend <- as.raster( legend[,,1:3] )
-                                         legend[transparent] <- NA
+                                       bars <- ggplot(plottingFrame, aes(x = X, y = as.factor(Y)) ) +
+                                         geom_raster( aes( fill = colour ) ) + scale_fill_identity() +
+                                         xlab("Approximate Base Position") +
+                                         ylab( "Sequence Name" ) +
+                                         scale_x_continuous( breaks = c(seq( from = 1, to = mosaicscale, by = mosaicscale / 10 ), mosaicscale), labels = c(bpX[seq( from = 1, to = mosaicscale, by = mosaicscale / 10 )], max(bpX)) ) + 
+                                         scale_y_discrete( labels = c(Sequence3, Sequence2, Sequence1))
+                                       if( xlabel == TRUE ){
+                                         bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
+                                                               axis.text.y = element_text( colour="black", size = 12 ),
+                                                               axis.title.y = element_text( size = labfontsize, colour = "black" ),
+                                                               axis.text.x = element_text( colour="black", size = 12),
+                                                               axis.title.x = element_text( colour = "black", size = labfontsize)
+                                         )
+                                       } else {
+                                         bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
+                                                               axis.text.y = element_text( colour="black", size = 12 ),
+                                                               axis.title.y = element_text( size = labfontsize, colour = "black" ),
+                                                               axis.text.x = element_blank(),
+                                                               axis.title.x = element_blank()
+                                         )
                                        }
-                                       legendgrob <- rasterGrob( image=legend )
-                                       bars <- arrangeGrob( bars, legendgrob, widths = c( 1, 0.13 ), ncol=2)
-                                       print( bars )
-                                     } else {
-                                       print( bars )
+                                       if( title == T ) {
+                                         bars <- bars + ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") )
+                                       }
+                                       if( pyramidleg == T ) {
+                                         legend <- readPNG( system.file( "extdata/rgblegend.png", package="HybRIDS" ), TRUE )
+                                         if ( names( dev.cur() ) == "windows" ) {
+                                           # windows device doesn’t support semi-transparency so we’ll need
+                                           # to flatten the image
+                                           transparent <- legend[,,4] == 0
+                                           legend <- as.raster( legend[,,1:3] )
+                                           legend[transparent] <- NA
+                                         }
+                                         legendgrob <- rasterGrob( image=legend )
+                                         bars <- arrangeGrob( bars, legendgrob, widths = c( 1, 0.13 ), ncol=2)
+                                         return( bars )
+                                       } else {
+                                         return( bars )
+                                       }
                                      }
                                    },
                                  
@@ -150,7 +156,36 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      cat( "Now beginning Block Search...\n\n" )
                                      Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
                                      names(Blocks) <<- names(Thresholds) <- c( paste( SequenceA , SequenceB, sep=":" ), paste( SequenceA, SequenceC, sep=":" ), paste( SequenceB, SequenceC, sep=":" ) )
-                                     
+                                   },
+                                 
+                                 # Method for testing significance and dating of blocks.
+                                 blockDate =
+                                   function( dnaobj, mutation.rate = 10e-8, required.p = 0.005 ) {
+                                     cat( "Now dating blocks" )
+                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, mutation.rate, 1, required.p ) )
+                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, mutation.rate, 2, required.p ) )
+                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, mutation.rate, 3, required.p ) )
+                                     out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
+                                     Blocks <<- mergeBandD( Blocks, out.blocks )
+                                   },
+                                 
+                                 returnPair =
+                                   function( sequence1, sequence2 ) {
+                                     pair <- c( which( c( SequenceA, SequenceB, SequenceC ) == sequence1 ), which( c( SequenceA, SequenceB, SequenceC ) == sequence2 ) )
+                                     if( all( pair == c(1, 2) ) ) {
+                                       return( SSTable[,7] )
+                                     } else {
+                                       if( all( pair == c(2,3) ) ) {
+                                         return( SSTable[,8] )
+                                       } else {
+                                         if( all( pair == c(1, 3) ) ) {
+                                           return( SSTable[,9] )
+                                         }
+                                       }
+                                     }
+                                  
                                    }
+                                 
+                                 
                                  )
                                )
