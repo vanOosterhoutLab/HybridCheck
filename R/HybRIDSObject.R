@@ -161,7 +161,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            },
                                          
                                          # GGplot method for HybRIDS object - activates submethods of triplets.
-                                         plotTriplets =
+                                         plotSS =
                                            function( Selections, What = c("Lines", "Bars"), Combine = TRUE ) {
                                              if( !is.character( Selections ) ) stop( "option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              for( i in Selections ) {
@@ -194,7 +194,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                      plotting.frame$ActualStart <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualStart ) )
                                                      plotting.frame$ActualEnd <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualEnd ) )
                                                      plotting.frame$SSVals <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( Selections, ":" ) )[1], unlist( strsplit( Selections, ":" ) )[2] ) ) )
-                                                     plotting.frame$TripletSet <- as.factor( unlist( lapply( Triplets[LastTripletSelection], function(x) rep( paste( c(x$SequenceA, x$SequenceB, x$SequenceC), collapse=":" ), nrow( x$SSTable ) ) ) ) )
+                                                     plotting.frame$TripletSet <- as.factor( unlist( lapply( Triplets[LastTripletSelection], function(x) rep( paste( c(x$ContigNames[1], x$ContigNames[2], x$ContigNames[3]), collapse=":" ), nrow( x$SSTable ) ) ) ) )
                                                      outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
                                                        geom_line( aes( colour = TripletSet ), show_guide = T, size = 0.8 ) +
                                                        ylab( "% Sequence Similarity" ) +
@@ -204,7 +204,11 @@ HybRIDS <- setRefClass( "HybRIDS",
 #                                                      bars <- lapply( Triplets[LastTripletSelection], function(x) plotBars() )
 #                                                      datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
 #                                                      plotting.frame <- data.frame( matrix( nrow = datasize ) )
-#                                                      names(plotting.frame) <- 
+#                                                      names( plotting.frame ) <- c("AB","AC","BC", "X", "A_mix","B_mix","C_mix")
+#                                                      plotting.frame$AB <- unlist( lapply( bars, function(x) x$AB ) )
+#                                                      plotting.frame$AC <- unlist( lapply( bars, function(x) x$AC ) )
+#                                                      plotting.frame$BC <- unlist( lapply( bars, function(x) x$BC ) )
+#                                                      plotting.frame$X <- unlist( lapply( bars, function(x) x$X ) )
 #                                                      
 #                                                    }
                                                    
@@ -223,8 +227,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  }
                                                } 
                                                return( outplot )
-                                             }
-                                           },
+                                             },
+                                           
                                          
                                          # Method for indexing triplets.
                                          indexTriplets =

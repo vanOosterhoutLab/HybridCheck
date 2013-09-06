@@ -10,9 +10,10 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               },
                                               InformativeDNALength = "numeric",
                                               FullDNALength = "numeric",
-                                              SequenceA = "character",
-                                              SequenceB = "character",
-                                              SequenceC = "character",
+                                              ContigNames = "character",
+#                                               SequenceA = "character",
+#                                               SequenceB = "character",
+#                                               SequenceC = "character",
                                               WindowSizeUsed = "numeric",
                                               StepSizeUsed = "numeric",
                                               SSError = "character",
@@ -27,16 +28,18 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      SSTable <<- data.frame( WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
                                                              ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
                                                              AB = NA, AC = NA, BC = NA )
-                                     SequenceA <<- sequences[1]
-                                     SequenceB <<- sequences[2]
-                                     SequenceC <<- sequences[3]
+                                     ContigNames <<- c( sequences[1], sequences[2], sequences[3] )
+#                                      SequenceA <<- sequences[1]
+#                                      SequenceB <<- sequences[2]
+#                                      SequenceC <<- sequences[3]
                                      FullDNALength <<- fullseqlength
                                    },
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
                                  plotLines =
                                    function( LabelFontSize = 12, LegendFontSize = 12, title = TRUE ) {
-                                     combo <- unlist( lapply( combn( c( SequenceA, SequenceB, SequenceC ), 2, simplify=FALSE ), function(x) paste( x, collapse=":" ) ) )
+                                     #combo <- unlist( lapply( combn( c( SequenceA, SequenceB, SequenceC ), 2, simplify=FALSE ), function(x) paste( x, collapse=":" ) ) )
+                                     combo <- unlist( lapply( combn( ContigNames, 2, simplify=FALSE ), function(x) paste( x, collapse=":" ) ) )
                                      similarities <- as.matrix( SSTable[ , 7:9] )
                                      plotting.frame <- data.frame( basepos = rep( as.numeric( SSTable[,4] ), 3 ),
                                                                    xrange = rep( c( 1:nrow( similarities ) ) ),
@@ -49,7 +52,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                        ylab("% Sequence Similarity")
                                      if( title == TRUE ) {
                                        plot <- plot + 
-                                         ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") ) +
+                                         ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") ) +
                                          theme( title = element_text(size = 14, colour = "black", face = "bold" ),
                                                 axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
                                                 axis.title.x = element_text( size = LabelFontSize, colour = "black" ), 
@@ -97,14 +100,14 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      frame$C_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[5]), as.numeric(x[6]) ), RefC ) )
                                      plottingFrame <- data.frame( X = frame$X, Y = rep( c(3, 2, 1), each = mosaicscale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
                                      if( exportDat == T ) {
-                                       return(plottingFrame)
+                                       return(frame)
                                      } else {
                                        bars <- ggplot(plottingFrame, aes(x = X, y = as.factor(Y)) ) +
                                          geom_raster( aes( fill = colour ) ) + scale_fill_identity() +
                                          xlab("Approximate Base Position") +
                                          ylab( "Sequence Name" ) +
                                          scale_x_continuous( breaks = c(seq( from = 1, to = mosaicscale, by = mosaicscale / 10 ), mosaicscale), labels = c(bpX[seq( from = 1, to = mosaicscale, by = mosaicscale / 10 )], max(bpX)) ) + 
-                                         scale_y_discrete( labels = c(Sequence3, Sequence2, Sequence1))
+                                         scale_y_discrete( labels = c(ContigNames[3], ContigNames[2], ContigNames[1]))
                                        if( xlabel == TRUE ){
                                          bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
                                                                axis.text.y = element_text( colour="black", size = 12 ),
@@ -121,7 +124,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                          )
                                        }
                                        if( title == T ) {
-                                         bars <- bars + ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", SequenceA, ":", SequenceB, ":", SequenceC, sep="") )
+                                         bars <- bars + ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") )
                                        }
                                        if( pyramidleg == T ) {
                                          legend <- readPNG( system.file( "extdata/rgblegend.png", package="HybRIDS" ), TRUE )
@@ -152,10 +155,10 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      } else {
                                        Thresholds <- list( manual.thresholds, manual.thresholds, manual.thresholds )
                                      }
-                                     names(Thresholds) <- c( paste( SequenceA, SequenceB ,sep=":" ), paste( SequenceA, SequenceC, sep=":" ), paste( SequenceB, SequenceC, sep=":" ) )
+                                     names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
                                      cat( "Now beginning Block Search...\n\n" )
                                      Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
-                                     names(Blocks) <<- names(Thresholds) <- c( paste( SequenceA , SequenceB, sep=":" ), paste( SequenceA, SequenceC, sep=":" ), paste( SequenceB, SequenceC, sep=":" ) )
+                                     names(Blocks) <<- names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep = ":" ), paste( ContigNames[1], ContigNames[3], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
                                    },
                                  
                                  # Method for testing significance and dating of blocks.
@@ -170,22 +173,32 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                    },
                                  
                                  returnPair =
-                                   function( sequence1, sequence2 ) {
-                                     pair <- c( which( c( SequenceA, SequenceB, SequenceC ) == sequence1 ), which( c( SequenceA, SequenceB, SequenceC ) == sequence2 ) )
-                                     if( all( pair == c(1, 2) ) ) {
-                                       return( SSTable[,7] )
-                                     } else {
-                                       if( all( pair == c(2,3) ) ) {
-                                         return( SSTable[,8] )
+                                   function( sequence1, sequence2, data = T ) {
+                                     pair <- c( which( ContigNames == sequence1 ), which( ContigNames == sequence2 ) )
+                                     #pair <- c( which( c( SequenceA, SequenceB, SequenceC ) == sequence1 ), which( c( SequenceA, SequenceB, SequenceC ) == sequence2 ) )
+                                     if( 1 %in% pair && 2 %in% pair ) {
+                                       if( data == T ) {
+                                         return( SSTable[,7] )
                                        } else {
-                                         if( all( pair == c(1, 3) ) ) {
-                                           return( SSTable[,9] )
+                                         return( c(1,2) )
+                                       }
+                                     } else {
+                                       if( 1 %in% pair && 3 %in% pair ) {
+                                         if( data ==T ) {
+                                           return( SSTable[,8] )
+                                         } else {
+                                           return( c(1,3) )
+                                         }
+                                       } else {
+                                         if( 2 %in% pair && 3 %in% pair ) {
+                                           if( data == T){
+                                             return( SSTable[,9] )
+                                           } else {
+                                             return( c(2,3) )
+                                           }
                                          }
                                        }
                                      }
-                                  
                                    }
-                                 
-                                 
                                  )
                                )
