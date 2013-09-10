@@ -9,6 +9,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                           BlockDetectionParams = "list",
                           BlockDatingParams = "list",
                           LastTripletSelection = "numeric",
+                          PlottingParams = "list",
                           Triplets = "list"
                           ),
                         
@@ -24,6 +25,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              length( BlockDetectionParams ) <<- 4
                                              BlockDetectionParams <<- list( ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2 )
                                              BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005 )
+                                             PlottingParams <<- list( What = c("Bars", "Lines"), Title = TRUE, CombinedTitle = FALSE, 
+                                                                      TitleSize = 14, XTicks = TRUE, YTicks = TRUE, 
+                                                                      XLabel = TRUE, YLabel = TRUE, Legends = TRUE )
                                              if( !is.null( dnafile ) ){
                                                DNA$InputDNA( dnafile, format )
                                              }
@@ -162,26 +166,70 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # GGplot method for HybRIDS object - activates submethods of triplets.
                                          plotSS =
-                                           function( Selections, What = c("Lines", "Bars"), Combine = TRUE ) {
-                                             if( !is.character( Selections ) ) stop( "option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                           function( Selections, What = c( "Lines", "Bars" ), Combine = TRUE, ... ) {
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             Parameters <- list( ... )
                                              for( i in Selections ) {
                                                cat("Selection", i)
                                                if( length( unlist( strsplit(i, ":") ) ) == 3 ) {
                                                  indexTriplets( i )
                                                  if( "Lines" %in% What && !"Bars" %in% What ) {
-                                                   outplot <- Triplets[[LastTripletSelection]]$plotLines()
+                                                   outplot <- Triplets[[LastTripletSelection]]$plotLines( ... )
                                                  }
                                                  if( !"Lines" %in% What && "Bars" %in% What ) {
-                                                   outplot <- Triplets[[LastTripletSelection]]$plotBars()
+                                                   outplot <- Triplets[[LastTripletSelection]]$plotBars( ... )
                                                  }
                                                  if( "Lines" %in% What && "Bars" %in% What ) {
-                                                   outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars(),
-                                                                Triplets[[LastTripletSelection]]$plotLines(),
+                                                   outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars( ... ),
+                                                                Triplets[[LastTripletSelection]]$plotLines( ... ),
                                                                 ncol = 1 )
                                                  }
+                                                 return(outplot)
                                                } else {
                                                  if( length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == TRUE ) {
                                                    indexTriplets( i )
+                                                   if("LabelFontSize" %in% names(Parameters)){
+                                                     if(!is.numeric(Parameters$LabelFontSize)) stop("Parameter LabelFontSize must be a number.")
+                                                     LabelFontSize <- Parameters$LabelFontSize
+                                                   } else {
+                                                     LabelFontSize <- 12
+                                                   }
+                                                   if("LegendFontSize" %in% names(Parameters)){
+                                                     if(!is.numeric(Parameters$LegendFontSize)) stop("Parameter LegendFontSize must be a number.")
+                                                     LegendFontSize <- Parameters$LabelFontSize
+                                                   } else {
+                                                     LegendFontSize <- 12
+                                                   }
+                                                   if( "Title" %in% names( Parameters ) ) {
+                                                     if( !is.logical( Parameters$Title ) ) stop( "Parameter Title must be logical." )
+                                                     Title <- Parameters$Title
+                                                   } else {
+                                                     Title <- TRUE
+                                                   }
+                                                   if( Title == TRUE && ("TitleSize" %in% names( Parameters ) || "CombinedTitle" %in% names(Parameters))) {
+                                                     if(!is.numeric(Parameters$TitleSize) || length(Parameters$TitleSize) > 1) stop("Parameter TitleSize must be a numeric values")
+                                                     TitleSize <- Parameters$TitleSize
+                                                   } else {
+                                                     TitleSize <- 12
+                                                   }
+                                                   if("CombinedTitle" %in% names(Parameters)){
+                                                     if(!is.logical(Parameters$CombinedTitle)) stop("Parameter CombinedTitle must be logical.")
+                                                     CombinedTitle <- Parameters$CombinedTitle
+                                                   } else {
+                                                     CombinedTitle <- FALSE
+                                                   }
+                                                   if("TickSize" %in% names(Parameters)){
+                                                     if(!is.numeric(Parameters$TickSize)) stop("Parameter TickSize must be a number.")
+                                                     TickSize <- Parameters$TickSize
+                                                   } else {
+                                                     TickSize <- 12
+                                                   }
+                                                   if("TickColour" %in% names(Parameters)){
+                                                     if(!is.character(Parameters$TickColour)) stop("Parameter TickSize must be a character string e.g. \"red\".")
+                                                     TickColour <- Parameters$TickColour
+                                                   } else {
+                                                     TickColour <- "black"
+                                                   }
                                                    if( "Lines" %in% What ){
                                                      dflength <- sum( unlist( lapply( Triplets[LastTripletSelection], function(x) nrow(x$SSTable) ) ) )
                                                      plotting.frame <- data.frame( matrix( nrow = dflength, ncol = 9 ) )
@@ -195,38 +243,78 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                      plotting.frame$ActualEnd <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualEnd ) )
                                                      plotting.frame$SSVals <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( Selections, ":" ) )[1], unlist( strsplit( Selections, ":" ) )[2] ) ) )
                                                      plotting.frame$TripletSet <- as.factor( unlist( lapply( Triplets[LastTripletSelection], function(x) rep( paste( c(x$ContigNames[1], x$ContigNames[2], x$ContigNames[3]), collapse=":" ), nrow( x$SSTable ) ) ) ) )
-                                                     outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
+                                                     outplotLines <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
                                                        geom_line( aes( colour = TripletSet ), show_guide = T, size = 0.8 ) +
                                                        ylab( "% Sequence Similarity" ) +
-                                                       xlab( "Base Position" )
+                                                       xlab( "Base Position" ) +
+                                                       theme( 
+                                                         title = element_text(size = 14, colour = "black", face = "bold" ),
+                                                         axis.title.y=element_text(size=LabelFontSize),
+                                                         axis.text.y=element_text(size=TickSize, colour=TickColour),
+                                                         axis.text.x=element_text(size=TickSize, colour=TickColour),
+                                                         axis.title.x=element_text(size=LabelFontSize))
+                                                     if(Title == TRUE){
+                                                       outplotLines <- outplotLines + ggtitle(paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ))
+                                                     }
                                                    }
-#                                                    if( "Bars" %in% What ){
-#                                                      bars <- lapply( Triplets[LastTripletSelection], function(x) plotBars() )
-#                                                      datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
-#                                                      plotting.frame <- data.frame( matrix( nrow = datasize ) )
-#                                                      names( plotting.frame ) <- c("AB","AC","BC", "X", "A_mix","B_mix","C_mix")
-#                                                      plotting.frame$AB <- unlist( lapply( bars, function(x) x$AB ) )
-#                                                      plotting.frame$AC <- unlist( lapply( bars, function(x) x$AC ) )
-#                                                      plotting.frame$BC <- unlist( lapply( bars, function(x) x$BC ) )
-#                                                      plotting.frame$X <- unlist( lapply( bars, function(x) x$X ) )
-#                                                      
-#                                                    }
-                                                   
-                                                   
+                                                   if( "Bars" %in% What ){
+                                                     if( "Mosaic.Scale" %in% names(Parameters) ) {
+                                                       if(!is.integer(Parameters$Mosaic.Scale) || length(Parameters$Mosaic.Scale)) stop("The Mosaic.Scale Parameter must be an integer (e.g. 500L)")
+                                                       Mosaic.Scale <- Parameters$Mosaic.Scale
+                                                     } else {
+                                                       Mosaic.Scale <- 500L
+                                                     }
+                                                     bars <- lapply( Triplets[LastTripletSelection], function(x) x$plotBars( exportDat = T, ... ) )
+                                                     pairs <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( i, ":" ) )[1], unlist( strsplit( i, ":" ) )[2], data = F ) ) )
+                                                     datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
+                                                     plotting.frame2 <- data.frame( matrix( nrow = datasize, ncol = 3 ) )
+                                                     names( plotting.frame2 ) <- c("X","Y","SequenceSimilarity")
+                                                     plotting.frame2$SequenceSimilarity <- unlist( lapply( 1:length( bars ), function(i) if( pairs[i] == 1 ){
+                                                       bars[[i]]$AB
+                                                     } else {
+                                                       if( pairs[i] == 2 ){
+                                                         bars[[i]]$AC
+                                                       } else {
+                                                         if( pairs[i] == 3 ){
+                                                           bars[[i]]$BC
+                                                         }
+                                                       }
+                                                     } ) )
+                                                     plotting.frame2$X <- unlist( lapply( bars, function(x) x$X ) )
+                                                     contignames <- unlist( lapply( Triplets[LastTripletSelection], function(x) paste( x$ContigNames[1], ":", x$ContigNames[2], ":", x$ContigNames[3], sep = "") ) )
+                                                     plotting.frame2$Y <- rep(1:length(bars), times = unlist(lapply(bars, function(x) nrow(x))))
+                                                     bpX <- bars[[1]]$bpX
+                                                     yaxislab <- unlist(lapply(Triplets[LastTripletSelection], function(x) paste(x$ContigNames[1],x$ContigNames[2],x$ContigNames[3],sep=":")))
+                                                     outplotBars <- ggplot( plotting.frame2, aes( x = X, y = as.factor(Y) ) ) +
+                                                       geom_raster( aes( fill = SequenceSimilarity ) ) +
+                                                       xlab( "Base Position" ) +
+                                                       scale_x_continuous( breaks = c(seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 ), Mosaic.Scale), labels = c(bpX[seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 )], max(bpX)) ) +
+                                                       scale_y_discrete( labels = as.character(yaxislab) ) +
+                                                       scale_fill_gradient2(high="red", low="blue", midpoint=33.3) +
+                                                       theme( 
+                                                         title = element_text(size = TitleSize, colour = "black", face = "bold" ),
+                                                         axis.title.y=element_blank(),
+                                                         axis.text.y=element_text(size=TickSize, colour=TickColour),
+                                                         axis.text.x=element_text(size=TickSize, colour=TickColour),
+                                                         axis.title.x=element_text(size=LabelFontSize))
+                                                     if( Title == TRUE || CombinedTitle == TRUE ){
+                                                       outplotBars <- outplotBars + ggtitle(paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ))
+                                                     }
+                                                   }
                                                    if( "Lines" %in% What && !"Bars" %in% What ) {
-                                                     outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
-                                                       geom_line( aes( colour = TripletSet ), show_guide = T, size = 0.8 ) +
-                                                       ylab( "% Sequence Similarity" ) +
-                                                       xlab( "Base Position" )
+                                                     return(outplotLines)
                                                    } else {
-#                                                      if( !"Lines" %in% What && "Bars" %in% What ) {
-#                                                        outplot <- ggplot( plotting.frame, aes( x = ActualCenter, y = TripletSet ) ) +
-#                                                          geom_line( aes( colour = SSVals ), show_guide = T, size = 0.8 )
+                                                     if( !"Lines" %in% What && "Bars" %in% What ) {
+                                                       return(outplotBars)
+                                                     } else {
+                                                       if( "Lines" %in% What && "Bars" %in% What) {
+                                                         return( arrangeGrob( outplotBars, outplotLines, ncol = 1 ) )
+                                                       }
                                                      }
                                                    }
                                                  }
-                                               } 
-                                               return( outplot )
+                                               }
+                                             }
                                              },
                                            
                                          
