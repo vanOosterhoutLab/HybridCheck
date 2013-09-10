@@ -95,5 +95,5 @@ dna.data.prepare <- function(x=NULL, method=1, RawThresh = 0.01) {
   croppedDNA <- completeDNA[, colSums(completeDNA[-1,] != completeDNA[-nrow(completeDNA), ]) > 0]
   contignames <- rownames(completeDNA)
   cat("\nAll Done!")
-  return(as.HybRIDSdna(list(Sequence=completeDNA, CroppedSequence=croppedDNA, Combinations=combos, ContigNames=contignames)))
+  return(list(Sequence=completeDNA, CroppedSequence=croppedDNA, Combinations=combos, ContigNames=contignames))
 }

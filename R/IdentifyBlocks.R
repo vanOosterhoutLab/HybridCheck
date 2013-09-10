@@ -2,24 +2,6 @@
 # Created by Ben J. Ward 30/04/2013.
 # Last Edited by Ben J. Ward on 19/07/2013.
 
-# Exported function to identify blocks.
-#' Function to identify blocks.
-#' @export
-Identify.Blocks <- function(similarity.data, manual.thresholds=90, autodetectThresholds=T, use.manual.fallback=T, standard.deviation.stringency=2) {
-  stopifnot(is.numeric(manual.thresholds),is.logical(autodetectThresholds),is.logical(use.manual.fallback), is.numeric(standard.deviation.stringency))
-  if("HybRIDSseqsim" %in% class(similarity.data)){
-    Blocks <- identify.blocks(similarity.data, manual.thresholds, autodetectThresholds, use.manual.fallback, standard.deviation.stringency)
-    return(Blocks)
-  } else {
-    if("HybRIDSseqsimSET" %in% class(similarity.data)){
-      Blocks <- lapply(similarity.data, function(x) identify.blocks(x, manual.thresholds, autodetectThresholds, use.manual.fallback, standard.deviation.stringency))
-      return(as.HybRIDSblockSET(Blocks))
-    } else {
-      stop("You did not enter a valid datatype as argument similarity.data")
-    }
-  }
-}
-
 
 # Internal function for detecting thresholds...
 autodetect.thresholds <- function(data, SDdiv, manual, manoveride) {
@@ -81,17 +63,15 @@ autodetect.thresholds <- function(data, SDdiv, manual, manoveride) {
 
 
 identify.blocks <- function(x, manual.thresholds, autodetect, manualfallback, SDstringency) {
-  stopifnot(is.logical(autodetect),is.logical(manualfallback),is.numeric(SDstringency),"HybRIDSseqsim" %in% class(x), is.numeric(manual.thresholds))
-  distances <- x$Distances
-  if(autodetect==T) {
+  if(autodetect == T) {
     cat("Using the autodetect thresholds method...\n")
     cat("Deciding on suitable thresholds...\n")
     # Autodetect the thresholds for block identification... uses internal function above.
-    Thresholds <- autodetect.thresholds(distances,SDstringency,manual.thresholds,manualfallback)
+    Thresholds <- autodetect.thresholds(x,SDstringency,manual.thresholds,manualfallback)
     names(Thresholds) <- c(paste(x$ContigNames[1],x$ContigNames[2],sep=":"),paste(x$ContigNames[1],x$ContigNames[3],sep=":"),paste(x$ContigNames[2],x$ContigNames[3],sep=":"))
   } else {
     Thresholds <- list(manual.thresholds, manual.thresholds, manual.thresholds)
-    names(Thresholds)<- c(paste(x$ContigNames[1],x$ContigNames[2],sep=":"),paste(x$ContigNames[1],x$ContigNames[3],sep=":"),paste(x$ContigNames[2],x$ContigNames[3],sep=":"))
+    names(Thresholds) <- c(paste(x$ContigNames[1],x$ContigNames[2],sep=":"),paste(x$ContigNames[1],x$ContigNames[3],sep=":"),paste(x$ContigNames[2],x$ContigNames[3],sep=":"))
   }
   cat("Now beginning Block Search...\n\n")
   Blocks <- lapply(1:3, function(i) block.find(distances[,c(1:6,6+i)], Thresholds[[i]]))
