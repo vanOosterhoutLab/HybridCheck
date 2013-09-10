@@ -26,8 +26,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              BlockDetectionParams <<- list( ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2 )
                                              BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005 )
                                              PlottingParams <<- list( What = c("Bars", "Lines"), Title = TRUE, CombinedTitle = FALSE, 
-                                                                      TitleSize = 14, XTicks = TRUE, YTicks = TRUE, 
-                                                                      XLabel = TRUE, YLabel = TRUE, Legends = TRUE )
+                                                                      TitleSize = 14, TitleColour = "black", XTicks = TRUE, YTicks = TRUE,
+                                                                      TickColour="black", XLabel = TRUE, YLabel = TRUE, Legends = TRUE, LegendFontSize = 12,
+                                                                      XLabelFontSize = 12, YLabelFontSize = 12)
                                              if( !is.null( dnafile ) ){
                                                DNA$InputDNA( dnafile, format )
                                              }
@@ -137,6 +138,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  BlockDatingParams$PValue <<- Parameters$PValue
                                                }
                                              }
+                                             if( Step == "Plotting" ) {
+                                               # Incorporate changes to plotting system here.
+                                             }
                                            },
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
@@ -188,48 +192,6 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                } else {
                                                  if( length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == TRUE ) {
                                                    indexTriplets( i )
-                                                   if("LabelFontSize" %in% names(Parameters)){
-                                                     if(!is.numeric(Parameters$LabelFontSize)) stop("Parameter LabelFontSize must be a number.")
-                                                     LabelFontSize <- Parameters$LabelFontSize
-                                                   } else {
-                                                     LabelFontSize <- 12
-                                                   }
-                                                   if("LegendFontSize" %in% names(Parameters)){
-                                                     if(!is.numeric(Parameters$LegendFontSize)) stop("Parameter LegendFontSize must be a number.")
-                                                     LegendFontSize <- Parameters$LabelFontSize
-                                                   } else {
-                                                     LegendFontSize <- 12
-                                                   }
-                                                   if( "Title" %in% names( Parameters ) ) {
-                                                     if( !is.logical( Parameters$Title ) ) stop( "Parameter Title must be logical." )
-                                                     Title <- Parameters$Title
-                                                   } else {
-                                                     Title <- TRUE
-                                                   }
-                                                   if( Title == TRUE && ("TitleSize" %in% names( Parameters ) || "CombinedTitle" %in% names(Parameters))) {
-                                                     if(!is.numeric(Parameters$TitleSize) || length(Parameters$TitleSize) > 1) stop("Parameter TitleSize must be a numeric values")
-                                                     TitleSize <- Parameters$TitleSize
-                                                   } else {
-                                                     TitleSize <- 12
-                                                   }
-                                                   if("CombinedTitle" %in% names(Parameters)){
-                                                     if(!is.logical(Parameters$CombinedTitle)) stop("Parameter CombinedTitle must be logical.")
-                                                     CombinedTitle <- Parameters$CombinedTitle
-                                                   } else {
-                                                     CombinedTitle <- FALSE
-                                                   }
-                                                   if("TickSize" %in% names(Parameters)){
-                                                     if(!is.numeric(Parameters$TickSize)) stop("Parameter TickSize must be a number.")
-                                                     TickSize <- Parameters$TickSize
-                                                   } else {
-                                                     TickSize <- 12
-                                                   }
-                                                   if("TickColour" %in% names(Parameters)){
-                                                     if(!is.character(Parameters$TickColour)) stop("Parameter TickSize must be a character string e.g. \"red\".")
-                                                     TickColour <- Parameters$TickColour
-                                                   } else {
-                                                     TickColour <- "black"
-                                                   }
                                                    if( "Lines" %in% What ){
                                                      dflength <- sum( unlist( lapply( Triplets[LastTripletSelection], function(x) nrow(x$SSTable) ) ) )
                                                      plotting.frame <- data.frame( matrix( nrow = dflength, ncol = 9 ) )
@@ -292,12 +254,12 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                        scale_y_discrete( labels = as.character(yaxislab) ) +
                                                        scale_fill_gradient2(high="red", low="blue", midpoint=33.3) +
                                                        theme( 
-                                                         title = element_text(size = TitleSize, colour = "black", face = "bold" ),
+                                                         title = element_text(size = PlottingParams$TitleSize, colour = PlottingParams$TitleColour, face = "bold" ),
                                                          axis.title.y=element_blank(),
-                                                         axis.text.y=element_text(size=TickSize, colour=TickColour),
-                                                         axis.text.x=element_text(size=TickSize, colour=TickColour),
-                                                         axis.title.x=element_text(size=LabelFontSize))
-                                                     if( Title == TRUE || CombinedTitle == TRUE ){
+                                                         axis.text.y=element_text(size=PlottingParams$TickSize, colour=PlottingParams$TickColour),
+                                                         axis.text.x=element_text(size=PlottingParams$TickSize, colour=PlottingParams$TickColour),
+                                                         axis.title.x=element_text(size=PlottingParams$LabelFontSize))
+                                                     if( PlottingParams$Title == TRUE || PlottingParams$CombinedTitle == TRUE ){
                                                        outplotBars <- outplotBars + ggtitle(paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ))
                                                      }
                                                    }
