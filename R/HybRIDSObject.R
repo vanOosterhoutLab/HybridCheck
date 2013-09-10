@@ -1,5 +1,10 @@
 # HybRIDS Reference Class Implementation. - Redesign the HybRIDS workflow around one central Reference (R5 Class).
 
+#' HybRIDS reference class
+#' 
+#' The HybRIDS reference class is the main class of object you interact with in the HybRIDS package.
+#' 
+#' @export
 HybRIDS <- setRefClass( "HybRIDS",
                         
                         fields = list( 
