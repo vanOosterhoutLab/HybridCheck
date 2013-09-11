@@ -5,7 +5,6 @@
   HybRIDS(...)
 }
 \description{
-  The HybRIDS reference class is the main class of object
-  you interact with in the HybRIDS package.
+  HybRIDS reference class
 }
 

@@ -1,0 +1,10 @@
+\name{col_deter}
+\alias{col_deter}
+\title{Internal function to determine colours for the bars.}
+\usage{
+  col_deter(invalues, reference)
+}
+\description{
+  Internal function to determine colours for the bars.
+}
+

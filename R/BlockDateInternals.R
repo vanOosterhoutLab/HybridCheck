@@ -1,7 +1,5 @@
 ## Internal functions for the block dating and significant values
 
-
-# Internal function that takes a dataframe of putative blocks between one sequence pair (e.g. A:B) for one threshold, detects significant blocks and dates them.
 date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh) {
   # Check there are blocks to date!
   if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters and does in fact contain more than one row.
@@ -82,7 +80,6 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh) {
   return( blockAges )
 }
 
-# Internal function to merge blocks and dates.
 mergeBandD <- function( block, date ) {
   output <- lapply( 1:3, function(i) combineDatesWBlocks( block[[i]], date[[i]] ) )
   names( output ) <- names( block )

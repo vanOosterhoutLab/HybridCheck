@@ -1,6 +1,5 @@
 # Internal functions for putative block detection.
 
-# Function that autodetects thresholds.
 autodetect.thresholds <- function( ssdatatable, SDdiv, manual, manoveride ) {
   
   # Internal function for finding interesting dips
@@ -60,7 +59,7 @@ autodetect.thresholds <- function( ssdatatable, SDdiv, manual, manoveride ) {
   return( Thresholds )
 }
 
-# Internal blocksdetection function.
+# Internal block detection function.
 block.find <- function( dist,thresh ) {
   thresh2 <- rev( thresh )                                                           # Reverse the order of thresholds.
   b1 <- list()                                                                     # Create and empty list called b1.
