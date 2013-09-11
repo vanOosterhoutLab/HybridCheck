@@ -1,4 +1,4 @@
-# Internal Function to takes a trio of sequences (dnain), and calculate the sequence similarity across a sliding window.
+
 seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp, verbose ) {
   if( verbose == T ) cat( "\nPreparing input DNA sequences...\n" )
   colnames( dnain ) <- cutbp

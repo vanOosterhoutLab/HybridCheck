@@ -1,4 +1,5 @@
-# Reference Class for DNA Sequence Information in HybRIDS 
+#' Reference Class for DNA Sequence Information in HybRIDS.
+#' @export 
 HybRIDSseq <- setRefClass( "HybRIDSseq",
                             fields = list( 
                               FullSequenceFile = "character",
@@ -26,16 +27,13 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                             methods = list( 
                               
                               initialize =
-                                function( sequenceFile = NULL, fileFormat = "FASTA") {
-                                  if( !is.null( sequenceFile ) ) {
-                                    InputDNA( sequenceFile, fileFormat )
-                                  }
+                                function( sequenceFile = NULL ) {
+                                  FullSequenceFile <<- tempfile( pattern = "FullSequence" )
+                                  InformativeSequenceFile <<- tempfile( pattern = "InformativeSequence" )
                                 },
                               
                               InputDNA =
                                 function( intarget, format = "FASTA" ) {
-                                  FullSequenceFile <<- tempfile( pattern = "FullSequence" )
-                                  InformativeSequenceFile <<- tempfile( pattern = "InformativeSequence" )
                                   if( format == "FASTA" ){
                                     FullSeq <- InputFasta( intarget )
                                     FullBp <<- as.numeric( colnames( FullSeq ) )

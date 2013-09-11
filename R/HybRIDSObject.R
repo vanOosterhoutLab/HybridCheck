@@ -1,9 +1,14 @@
-# HybRIDS Reference Class Implementation. - Redesign the HybRIDS workflow around one central Reference (R5 Class).
+#' @docType package
+#' ...
+#' @import ape ggplot2 grid gridExtra png
 
+
+#' HybRIDS reference class
+#' @export
 HybRIDS <- setRefClass( "HybRIDS",
                         
                         fields = list( 
-                          DNA = "HybRIDSseq",
+                          DNA = "ANY",
                           TripletParams = "list",
                           SSAnalysisParams = "list",
                           BlockDetectionParams = "list",
@@ -29,8 +34,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                                       TitleSize = 14, TitleColour = "black", XTicks = TRUE, YTicks = TRUE,
                                                                       TickColour="black", XLabel = TRUE, YLabel = TRUE, Legends = TRUE, LegendFontSize = 12,
                                                                       XLabelFontSize = 12, YLabelFontSize = 12)
+                                             DNA <<- HybRIDSseq$new()
                                              if( !is.null( dnafile ) ){
-                                               DNA$InputDNA( dnafile, format )
+                                               DNA$InputDNA( dnafile, format="FASTA")
                                              }
                                            },
                                          

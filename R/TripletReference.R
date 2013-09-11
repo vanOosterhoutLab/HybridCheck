@@ -1,4 +1,7 @@
 # Reference class for Triplets 
+
+#' HybRIDS Triplet Reference Class
+#' @export
 HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                fields = list( SSTableFile = "character",
                                               SSTable = function( value ) {
