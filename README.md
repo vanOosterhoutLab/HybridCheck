@@ -2,6 +2,7 @@ HybRIDS
 =======
 
 **An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
+**Visit the website ward9250.github.io/HybRIDS**
 
 # Introduction
 
