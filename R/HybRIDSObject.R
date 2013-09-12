@@ -30,10 +30,11 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              length( BlockDetectionParams ) <<- 4
                                              BlockDetectionParams <<- list( ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2 )
                                              BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005 )
-                                             PlottingParams <<- list( What = c("Bars", "Lines"), Title = TRUE, CombinedTitle = FALSE, 
-                                                                      TitleSize = 14, TitleColour = "black", XTicks = TRUE, YTicks = TRUE,
-                                                                      TickColour="black", XLabel = TRUE, YLabel = TRUE, Legends = TRUE, LegendFontSize = 12,
-                                                                      XLabelFontSize = 12, YLabelFontSize = 12, MosaicScale = 500)
+                                             PlottingParams <<- list( What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
+                                                                      TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
+                                                                      XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
+                                                                      YTitle = TRUE, YTitleFontSize = 12, YTitleColour = "black", YLabelSize = 10, YLabelColour = "black",
+                                                                      Legends = TRUE, LegendFontSize = 12, MosaicScale = 500)
                                              DNA <<- HybRIDSseq$new()
                                              if( !is.null( dnafile ) ){
                                                DNA$InputDNA( dnafile, format="FASTA")
@@ -92,60 +93,98 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                            },
                                          
+                                         # Method for displaying parameters.
+                                         showParameters = 
+                                           function( Step = "ALL") {
+                                             if( Step!= "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting" && Step != "ALL"){
+                                               stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are SSAnalysis, BlockDetection, BlockDating, and Plotting.\n")
+                                             }
+                                             if( Step == "SSAnalysis"){
+                                               cat("Parameters for the Sliding Window Sequence Similarity analysis are:\nSliding Window Size,\nWindow Step Size, and the Sequence Triplet Combinations.\nThey are printed below.\n\n")
+                                               print(SSAnalysisParams)
+                                             }
+                                             if( Step == "BlockDetection"){
+                                               cat("Parameters for the detection of putative recombination blocks are:\n\nA vector containing Manual Sequence Similarity Thresholds (%),\n\nWhether or not you want HybRIDS to autodetect the sequence similarity thresholds,
+                                                   \nWhether you want HybRIDS to fall back and rely on the manual thresholds should the threshold autodetection fail.
+                                                   \nand finally a value by which the Standard Deviation of all sequence similarity is divded by during threshold detection (lower values = more conservative detection).\n\nThey are printed below.\n\n")
+                                               print(BlockDetectionParams)
+                                             }
+                                             if( Step == "BlockDating"){
+                                               cat("Parameters for the signifcance testing and putative recombination blocks are:\n\nA mutation rate assumed to be the average mutation rate for the sequences in the triplet,
+                                                   \nA P-Value threshold - only putative recombination blocks that pass significance testing with a P-Value below the threshold are dated and output.\n\n")
+                                               print(BlockDatingParams)
+                                             }
+                                             if( Step == "TripletGeneration"){
+                                               cat("Parameters for the pre-SSAnalysis triplet generation are:\n\nThe method of triplet generation and the Sort Threshold for Method 2.
+                                                   \nTo learn more about the three methods consult the documentation or HybRIDS website.\n\n")
+                                               print(TripletParams)
+                                             }
+                                             if( Step == "Plotting"){
+                                               print(PlottingParams)
+                                             }
+                                           },
+                                         
                                          # Method for setting any parameter for any stage.
                                          setParameters =
                                            function( Step, ... ) {
-                                             if( Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" ){
-                                               stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are SSAnalysis, BlockDetection, and BlockDating.")
+                                             if( Step != "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting" ){
+                                               stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are TripletGeneration, SSAnalysis, BlockDetection, BlockDating, and Plotting.")
                                              }
                                              Parameters <- list( ... )
-                                             if( Step == "SSAnalysis" ) {
-                                               if( "WindowSize" %in% names( Parameters ) ) {
-                                                 if( !is.numeric( Parameters$WindowSize ) ) stop( "The Window Size parameter for Sequence Similarity analysis must be numeric..." )
-                                                 if( length( Parameters$WindowSize) > 1 ) stop( " The Window Size parameter for Sequence Similarity analysis must be a single number..." )
-                                                 SSAnalysisParams$WindowSize <<- Parameters$WindowSize
-                                               }
-                                               if( "StepSize" %in% names( Parameters ) ) {
-                                                 if( !is.numeric( Parameters$StepSize ) ) stop( "The Step Size parameter for Sequence Similarity analysis must be numeric..." )
-                                                 if( length( Parameters$StepSize) > 1 ) stop( " The Step Size parameter for Sequence Similarity analysis must be a single number..." )
-                                                 SSAnalysisParams$StepSize <<- Parameters$StepSize
+                                             if( Step == "TripletGeneration" ){
+                                               for( n in 1:length( Parameters ) ){
+                                                 whichparam <- which( names( TripletParams ) == names( Parameters )[[n]])
+                                                 if( class( TripletParams[[whichparam]] ) == class( Parameters[[n]] ) && length(TripletParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                                   TripletParams[[whichparam]] <<- Parameters[[n]]
+                                                 } else {
+                                                   warning( paste("Tried to re-assign Triplet Generation parameter ", names(TripletParams)[[whichparam]],
+                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                 }
                                                }
                                              }
+                                             if( Step == "SSAnalysis" ) {
+                                               for( n in 1:length( Parameters ) ){
+                                                 whichparam <- which( names( SSAnalysisParams ) == names( Parameters )[[n]])
+                                                 if( class( SSAnalysisParams[[whichparam]] ) == class( Parameters[[n]] ) && length(SSAnalysisParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                                   SSAnalysisParams[[whichparam]] <<- Parameters[[n]]
+                                                 } else {
+                                                   warning( paste("Tried to re-assign SSAnalysis parameter ", names(SSAnalysisParams)[[whichparam]],
+                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                 }
+                                               } 
+                                             }
                                              if( Step == "BlockDetection" ) {
-                                               if( "ManualThresholds" %in% names( Parameters ) ) {
-                                                 if( !is.numeric( Parameters$ManualThresholds ) ) stop( "The Manual Threshold parameter for block detection must be a vector of numeric values..." )
-                                                 BlockDetectionParams$ManualThresholds <<- Parameters$ManualThresholds
-                                               }
-                                               if( "AutoThresholds" %in% names( Parameters ) ) {
-                                                 if( !is.logical( Parameters$AutoThresholds ) ) stop( "The AutoThresholds parameter for block detection must be logical (TRUE or FALSE)..." )
-                                                 if( length( Parameters$AutoThresholds ) > 1 ) stop( "The AutoThresholds parameter for block detection must be a single logical value (TRUE or FALSE)..." )
-                                                 BlockDetectionParams$AutoThresholds <<- Parameters$AutoThresholds
-                                               }
-                                               if( "ManualFallBack" %in% names( Parameters ) ) {
-                                                 if( !is.logical( Parameters$ManualFallBack ) ) stop( "The ManualFallBack parameter for block detection must be logical (TRUE or FALSE)..." )
-                                                 if( length( Parameters$ManualFallBack ) > 1 ) stop( "The ManualFallBack parameter for block detection must be a single logical value (TRUE or FALSE)..." )
-                                                 BlockDetectionParams$ManualFallBack <<- Parameters$ManualFallBack
-                                               }
-                                               if( "SDstringency" %in% names( Parameters ) ) {
-                                                 if( !is.numeric( Parameters$SDstringency ) ) stop( "The SDstringency parameter for block detection must be a numeric value..." )
-                                                 if( length( Parameters$SDstringency ) > 1 ) stop( "The SDstringency parameter for block detection must be a single numeric value..." )
-                                                 BlockDetectionParams$ManualThresholds <<- Parameters$ManualThresholds
+                                               for( n in 1:length( Parameters ) ){
+                                                 whichparam <- which( names( BlockDetectionParams ) == names( Parameters )[[n]])
+                                                 if( class( BlockDetectionParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDetectionParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                                   BlockDetectionParams[[whichparam]] <<- Parameters[[n]]
+                                                 } else {
+                                                   warning( paste("Tried to re-assign Block Detection parameter ", names(BlockDetectionParams)[[whichparam]],
+                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                 }
                                                }
                                              }
                                              if( Step == "BlockDating" ) {
-                                               if( "MutationRate" %in% names( Parameters ) ) {
-                                                 if( !is.numeric( Parameters$MutationRate ) ) stop( "The Mutation Rate parameter for block dating must be a numeric value..." )
-                                                 if( length( Parameters$MutationRate ) > 1 ) stop( "The Mutation Rate parameter for block dating must be a single numeric value..." )
-                                                 BlockDatingParams$MutationRate <<- Parameters$MutationRate
-                                               }
-                                               if( "PValue" %in% names( Parameters ) ) {
-                                                 if( !is.numeric( Parameters$PValue ) ) stop( "The P Value threshold parameter for block dating must be a numeric value..." )
-                                                 if( length( Parameters$PValue ) > 1 ) stop( "The P Value threshold parameter for block dating must be a single numeric value..." )
-                                                 BlockDatingParams$PValue <<- Parameters$PValue
+                                               for( n in 1:length( Parameters ) ){
+                                                 whichparam <- which( names( BlockDatingParams ) == names( Parameters )[[n]])
+                                                 if( class( BlockDatingParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDatingParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                                   BlockDetectionParams[[whichparam]] <<- Parameters[[n]]
+                                                 } else {
+                                                   warning( paste("Tried to re-assign Block Detection parameter ", names(BlockDatingParams)[[whichparam]],
+                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                 }
                                                }
                                              }
                                              if( Step == "Plotting" ) {
-                                               # Incorporate changes to plotting system here.
+                                               for( n in 1:length( Parameters ) ){
+                                                 whichparam <- which( names( BlockDetectionParams ) == names( Parameters )[[n]])
+                                                 if( class( BlockDetectionParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDetectionParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                                   BlockDetectionParams[[whichparam]] <<- Parameters[[n]]
+                                                 } else {
+                                                   warning( paste("Tried to re-assign Plotting parameter ", names(PlottingParams)[[whichparam]],
+                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                 }
+                                               }
                                              }
                                            },
                                          
@@ -178,20 +217,29 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          plotSS =
                                            function( Selections, Combine = TRUE, ... ) {
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             Parameters <- list( ... )
+                                             newParameters <- list( ... )
+                                             for( n in 1:length(newParameters) ){
+                                               whichparam <- which(names(PlottingParams) == names(newParameters)[[n]])
+                                               if(class(PlottingParams[[whichparam]]) == class(newParameters[[n]])){
+                                                 PlottingParams[[whichparam]] <<- newParameters[[n]]
+                                               } else {
+                                                 warning( paste("Tried to re-assign plotting parameter ", names(PlottingParams)[[whichparam]],
+                                                                " but the class of the replacement parameter did not match, this parameter was not changed.", sep=""))
+                                               }
+                                             }
                                              for( i in Selections ) {
                                                cat("Selection", i)
                                                if( length( unlist( strsplit(i, ":") ) ) == 3 ) {
                                                  indexTriplets( i )
-                                                 if( "Lines" %in% What && !"Bars" %in% What ) {
-                                                   outplot <- Triplets[[LastTripletSelection]]$plotLines( ... )
+                                                 if( "Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What ) {
+                                                   outplot <- Triplets[[LastTripletSelection]]$plotLines( PlottingParams )
                                                  }
-                                                 if( !"Lines" %in% What && "Bars" %in% What ) {
-                                                   outplot <- Triplets[[LastTripletSelection]]$plotBars( ... )
+                                                 if( !"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
+                                                   outplot <- Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams )
                                                  }
-                                                 if( "Lines" %in% What && "Bars" %in% What ) {
-                                                   outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars( ... ),
-                                                                Triplets[[LastTripletSelection]]$plotLines( ... ),
+                                                 if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
+                                                   outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams ),
+                                                                Triplets[[LastTripletSelection]]$plotLines( PlottingParams ),
                                                                 ncol = 1 )
                                                  }
                                                  return(outplot)
@@ -212,27 +260,13 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                      plotting.frame$SSVals <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( Selections, ":" ) )[1], unlist( strsplit( Selections, ":" ) )[2] ) ) )
                                                      plotting.frame$TripletSet <- as.factor( unlist( lapply( Triplets[LastTripletSelection], function(x) rep( paste( c(x$ContigNames[1], x$ContigNames[2], x$ContigNames[3]), collapse=":" ), nrow( x$SSTable ) ) ) ) )
                                                      outplotLines <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
-                                                       geom_line( aes( colour = TripletSet ), show_guide = T, size = 0.8 ) +
+                                                       geom_line( aes( colour = TripletSet ), show_guide = PlottingParams$Legends, size = 0.8 ) +
                                                        ylab( "% Sequence Similarity" ) +
-                                                       xlab( "Base Position" ) +
-                                                       theme( 
-                                                         title = element_text(size = 14, colour = "black", face = "bold" ),
-                                                         axis.title.y=element_text(size=LabelFontSize),
-                                                         axis.text.y=element_text(size=TickSize, colour=TickColour),
-                                                         axis.text.x=element_text(size=TickSize, colour=TickColour),
-                                                         axis.title.x=element_text(size=LabelFontSize))
-                                                     if(Title == TRUE){
-                                                       outplotLines <- outplotLines + ggtitle(paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ))
-                                                     }
+                                                       xlab( "Base Position" )
+                                                     outplotLines <- applyPlottingParams( outplotLines, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
                                                    }
                                                    if( "Bars" %in% What ){
-                                                     if( "Mosaic.Scale" %in% names(Parameters) ) {
-                                                       if(!is.integer(Parameters$Mosaic.Scale) || length(Parameters$Mosaic.Scale)) stop("The Mosaic.Scale Parameter must be an integer (e.g. 500L)")
-                                                       Mosaic.Scale <- Parameters$Mosaic.Scale
-                                                     } else {
-                                                       Mosaic.Scale <- 500L
-                                                     }
-                                                     bars <- lapply( Triplets[LastTripletSelection], function(x) x$plotBars( exportDat = T, ... ) )
+                                                     bars <- lapply( Triplets[LastTripletSelection], function(x) x$plotBars( exportDat = T, PlottingParams ) )
                                                      pairs <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( i, ":" ) )[1], unlist( strsplit( i, ":" ) )[2], data = F ) ) )
                                                      datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
                                                      plotting.frame2 <- data.frame( matrix( nrow = datasize, ncol = 3 ) )
@@ -258,25 +292,24 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                        xlab( "Base Position" ) +
                                                        scale_x_continuous( breaks = c(seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 ), Mosaic.Scale), labels = c(bpX[seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 )], max(bpX)) ) +
                                                        scale_y_discrete( labels = as.character(yaxislab) ) +
-                                                       scale_fill_gradient2(high="red", low="blue", midpoint=33.3) +
-                                                       theme( 
-                                                         title = element_text(size = PlottingParams$TitleSize, colour = PlottingParams$TitleColour, face = "bold" ),
-                                                         axis.title.y=element_blank(),
-                                                         axis.text.y=element_text(size=PlottingParams$TickSize, colour=PlottingParams$TickColour),
-                                                         axis.text.x=element_text(size=PlottingParams$TickSize, colour=PlottingParams$TickColour),
-                                                         axis.title.x=element_text(size=PlottingParams$LabelFontSize))
-                                                     if( PlottingParams$Title == TRUE || PlottingParams$CombinedTitle == TRUE ){
-                                                       outplotBars <- outplotBars + ggtitle(paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ))
-                                                     }
+                                                       scale_fill_gradient2(high="red", low="blue", midpoint=33.3)
+                                                     outplotBars <- applyPlottingParams(outplotBars, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
                                                    }
-                                                   if( "Lines" %in% What && !"Bars" %in% What ) {
+                                                   if( "Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What ) {
                                                      return(outplotLines)
                                                    } else {
-                                                     if( !"Lines" %in% What && "Bars" %in% What ) {
+                                                     if( !"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
                                                        return(outplotBars)
                                                      } else {
-                                                       if( "Lines" %in% What && "Bars" %in% What) {
-                                                         return( arrangeGrob( outplotBars, outplotLines, ncol = 1 ) )
+                                                       if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE ) {
+                                                         if( PlottingParams$CombinedTitle == TRUE ){
+                                                           return( arrangeGrob( textGrob( paste( "Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ), x = unit(0.5, "npc"), y = unit(0.5, "npc"),
+                                                                                         just = "centre" ), outplotBars, outplotLines, ncol = 1) )
+                                                         } else {
+                                                           return( arrangeGrob( outplotBars, outplotLines, ncol = 1 ) )
+                                                         }
+                                                       } else {
+                                                         return( list( Barplot = outplotBars, Linesplot = outplotLines))
                                                        }
                                                      }
                                                    }

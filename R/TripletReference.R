@@ -34,100 +34,27 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
                                  plotLines =
-                                   function( ... ) {
-                                     Parameters <- list( ... )
-                                     if( "Title" %in% Parameters ) {
-                                       if(!is.logical(Parameters$Title)) stop("The Title parameter must be logical/boolean.")
-                                       Title <- Parameters$Title
-                                     } else {
-                                       Title <- TRUE
-                                     }
-                                     if( "LabelFontSize" %in% names(Parameters)) {
-                                       if(!is.numeric(Parameters$LabelFontSize)) stop("Parameter LabelFontSize must be numeric")
-                                       LabelFontSize <- Parameters$LabelFontSize
-                                     } else {
-                                       LabelFontSize <- 12
-                                     }
-                                     if( "LegendFontSize" %in% names(Parameters)) {
-                                       if(!is.numeric(Parameters$LegendFontSize)) stop("Parameter LegendFontSize must be numeric")
-                                       LegendFontSize <- Parameters$LegendFontSize
-                                     } else {
-                                       LegendFontSize <- 12
-                                     }
+                                   function(parameters) {
                                      combo <- unlist( lapply( combn( ContigNames, 2, simplify=FALSE ), function(x) paste( x, collapse=":" ) ) )
                                      similarities <- as.matrix( SSTable[ , 7:9] )
                                      plotting.frame <- data.frame( basepos = rep( as.numeric( SSTable[,4] ), 3 ),
                                                                    xrange = rep( c( 1:nrow( similarities ) ) ),
                                                                    yvalues = as.vector( similarities ),
                                                                    factors = rep( 1:3, each = nrow( similarities ) ) )
-                                     plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=T, size=0.8) +
+                                     plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=parameters$Legends, size=0.8) +
                                        ylim(0,100) + 
                                        scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
                                        xlab("Base Position") +
                                        ylab("% Sequence Similarity")
-                                     if( Title == TRUE ) {
-                                       plot <- plot + 
-                                         ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") ) +
-                                         theme( title = element_text(size = 14, colour = "black", face = "bold" ),
-                                                axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
-                                                axis.title.x = element_text( size = LabelFontSize, colour = "black" ), 
-                                                axis.text.x = element_text( size = LabelFontSize, colour = "black" ), 
-                                                legend.text = element_text( size = LegendFontSize ) )
-                                     } else {
-                                       plot <- plot + theme( axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
-                                                     axis.title.x = element_text( size = LabelFontSize, colour = "black" ), 
-                                                     axis.text.x = element_text( size = LabelFontSize, colour = "black" ), 
-                                                     legend.text = element_text( size = LegendFontSize ) )
-                                     }
+                                     
+                                     plot <- applyPlottingParams( plot, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") )
+                                     
                                      return( plot )
                                    },
                                  
                                  #Plotting method for the rainbow bars in ggplot2
                                  plotBars =
-                                   function( exportDat = FALSE, ... ) {
-                                     Parameters <- list( ... )
-                                     if( "Mosaic.Scale" %in% names(Parameters) ) {
-                                       if(!is.integer(Parameters$Mosaic.Scale) || length(Parameters$Mosaic.Scale)) stop("The Mosaic.Scale Parameter must be an integer (e.g. 500L)")
-                                       Mosaic.Scale <- Parameters$Mosaic.Scale
-                                     } else {
-                                       Mosaic.Scale <- 500L
-                                     }
-                                     if( "Legend" %in% names(Parameters) ) {
-                                       if( !is.logical( Parameters$Legend) || length(Parameters$Legend) > 1) stop("The Legend plot parameter must be a boolean value.")
-                                       Legend <- Parameters$Legend
-                                     } else {
-                                       Legend <- TRUE
-                                     }
-                                     if( "LabelFontSize" %in% names(Parameters) ) {
-                                       if( !is.numeric(Parameters$LabelFontSize) || length(Parameters$LabelFontSize) > 1) stop("LabelFontSize parameter must be a numerical value.")
-                                       LabelFontSize <- Parameters$LabelFontSize
-                                     } else {
-                                       LabelFontSize <- 12
-                                     }
-                                     if( "LabelBP" %in% names(Parameters) ) {
-                                       if( !is.logical(Parameters$LabelBP) || length(Parameters$LabelBP) > 1) stop("LabelBP parameter must be a boolean value.")
-                                       LabelBP <- Parameters$LabelBP
-                                     } else {
-                                       LabelBP <- TRUE
-                                     }
-                                     if( "Title" %in% names(Parameters) ) {
-                                       if( !is.logical(Parameters$Title) || length(Parameters$Title) > 1) stop("Title parameter must be a boolean value.")
-                                       Title <- Parameters$Title
-                                     } else {
-                                       Title <- TRUE
-                                     }
-                                     if( "TickSize" %in% names(Parameters) ) {
-                                       if( !is.numeric(Parameters$TickSize) || length(Parameters$TickSize) > 1 ) stop("Title TickSize must be a numerical value.")
-                                       TickSize <- Parameters$TickSize
-                                     } else {
-                                       TickSize <- 12
-                                     }
-                                     if( "TickColour" %in% names(Parameters) ) {
-                                       if( !is.character(Parameters$TickColour) || length(Parameters$TickColour) > 1 ) stop("Title TickColour must be a numerical value.")
-                                       TickColour <- Parameters$TickColour
-                                     } else {
-                                       TickColour <- "black"
-                                     }
+                                   function( exportDat = FALSE, parameters ) {
                                      # Now let's generate the reference colour palettes.
                                      RefA <- expand.grid(contigb = seq(0, 100, by = 1), contigc = seq(0, 100, by = 1))
                                      RefA <- within(RefA, mix <- rgb(green = contigb, red = 100, blue = contigc, maxColorValue = 100))
@@ -136,7 +63,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      RefC <- expand.grid(contiga = seq(0, 100, by = 1), contigb = seq(0, 100, by = 1))
                                      RefC <- within(RefC, mix <- rgb(green = contigb, red = contiga, blue = 100, maxColorValue = 100))
                                      # Now figure out the scale and data to go into each vertical bar:
-                                     div <- FullDNALength / Mosaic.Scale
+                                     div <- FullDNALength / parameters$MosaicScale
                                      bpstart <- seq(from = 1, to = FullDNALength, by = div)
                                      bpend <- seq(from=div, to = FullDNALength, by = div)
                                      bpX <- round( bpstart +  ( div / 2 ) )
@@ -156,7 +83,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      frame$A_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[4]), as.numeric(x[5]) ), RefA ) )
                                      frame$B_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[4]), as.numeric(x[6]) ), RefB ) )
                                      frame$C_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[5]), as.numeric(x[6]) ), RefC ) )
-                                     plottingFrame <- data.frame( X = frame$X, Y = rep( c(3, 2, 1), each = Mosaic.Scale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
+                                     plottingFrame <- data.frame( X = frame$X, Y = rep( c(3, 2, 1), each = parameters$MosaicScale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
                                      if( exportDat == T ) {
                                        return(frame)
                                      } else {
@@ -164,27 +91,12 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                          geom_raster( aes( fill = colour ) ) + scale_fill_identity() +
                                          xlab("Approximate Base Position") +
                                          ylab( "Sequence Name" ) +
-                                         scale_x_continuous( breaks = c(seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 ), Mosaic.Scale), labels = c(bpX[seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 )], max(bpX)) ) + 
-                                         scale_y_discrete( labels = c(ContigNames[3], ContigNames[2], ContigNames[1]))
-                                       if( LabelBP == TRUE ){
-                                         bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
-                                                               axis.text.y = element_text( colour=TickColour, size = TickSize ),
-                                                               axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
-                                                               axis.text.x = element_text( colour=TickColour, size = TickSize),
-                                                               axis.title.x = element_text( colour = "black", size = LabelFontSize)
-                                         )
-                                       } else {
-                                         bars <- bars + theme( title = element_text(size = 14, colour = "black", face = "bold" ),
-                                                               axis.text.y = element_text( colour=TickColour, size = TickSize ),
-                                                               axis.title.y = element_text( size = LabelFontSize, colour = "black" ),
-                                                               axis.text.x = element_blank(),
-                                                               axis.title.x = element_blank()
-                                         )
-                                       }
-                                       if( Title == T ) {
-                                         bars <- bars + ggtitle( paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") )
-                                       }
-                                       if( Legend == T ) {
+                                         scale_x_continuous( breaks = c(seq( from = 1, to = parameters$MosaicScale, by = parameters$MosaicScale / 10 ), parameters$MosaicScale), labels = c(bpX[seq( from = 1, to = parameters$MosaicScale, by = parameters$MosaicScale / 10 )], max(bpX)) ) + 
+                                         scale_y_discrete( labels = c(ContigNames[3], ContigNames[2], ContigNames[1]) )
+                                       
+                                       bars <- applyPlottingParams( bars, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") )
+                                       
+                                       if( parameters$Legends == T ) {
                                          legend <- readPNG( system.file( "extdata/rgblegend.png", package="HybRIDS" ), TRUE )
                                          if ( names( dev.cur() ) == "windows" ) {
                                            # windows device doesn’t support semi-transparency so we’ll need
