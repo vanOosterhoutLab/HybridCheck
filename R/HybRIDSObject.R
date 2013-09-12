@@ -248,7 +248,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                } else {
                                                  if( length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == TRUE ) {
                                                    indexTriplets( i )
-                                                   if( "Lines" %in% What ){
+                                                   if( "Lines" %in% PlottingParams$What ){
                                                      dflength <- sum( unlist( lapply( Triplets[LastTripletSelection], function(x) nrow(x$SSTable) ) ) )
                                                      plotting.frame <- data.frame( matrix( nrow = dflength, ncol = 9 ) )
                                                      names(plotting.frame) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", "SSVals", "TripletSet", "xvals")
@@ -267,7 +267,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                        xlab( "Base Position" )
                                                      outplotLines <- applyPlottingParams( outplotLines, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
                                                    }
-                                                   if( "Bars" %in% What ){
+                                                   if( "Bars" %in% PlottingParams$What ){
                                                      bars <- lapply( Triplets[LastTripletSelection], function(x) x$plotBars( exportDat = T, PlottingParams ) )
                                                      pairs <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( i, ":" ) )[1], unlist( strsplit( i, ":" ) )[2], data = F ) ) )
                                                      datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
@@ -292,7 +292,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                      outplotBars <- ggplot( plotting.frame2, aes( x = X, y = as.factor(Y) ) ) +
                                                        geom_raster( aes( fill = SequenceSimilarity ) ) +
                                                        xlab( "Base Position" ) +
-                                                       scale_x_continuous( breaks = c(seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 ), Mosaic.Scale), labels = c(bpX[seq( from = 1, to = Mosaic.Scale, by = Mosaic.Scale / 10 )], max(bpX)) ) +
+                                                       ylab( "Triplet Set" ) +
+                                                       scale_x_continuous( breaks = c(seq( from = 1, to = PlottingParams$MosaicScale, by = PlottingParams$MosaicScale / 10 ), PlottingParams$MosaicScale), labels = c(bpX[seq( from = 1, to = PlottingParams$MosaicScale, by = PlottingParams$MosaicScale / 10 )], max(bpX)) ) +
                                                        scale_y_discrete( labels = as.character(yaxislab) ) +
                                                        scale_fill_gradient2(high="red", low="blue", midpoint=33.3)
                                                      outplotBars <- applyPlottingParams(outplotBars, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
