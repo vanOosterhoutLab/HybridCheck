@@ -218,13 +218,15 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            function( Selections, Combine = TRUE, ... ) {
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              newParameters <- list( ... )
-                                             for( n in 1:length(newParameters) ){
-                                               whichparam <- which(names(PlottingParams) == names(newParameters)[[n]])
-                                               if(class(PlottingParams[[whichparam]]) == class(newParameters[[n]])){
-                                                 PlottingParams[[whichparam]] <<- newParameters[[n]]
-                                               } else {
-                                                 warning( paste("Tried to re-assign plotting parameter ", names(PlottingParams)[[whichparam]],
-                                                                " but the class of the replacement parameter did not match, this parameter was not changed.", sep=""))
+                                             if(length(newParameters) > 0){
+                                               for( n in 1:length(newParameters) ){
+                                                 whichparam <- which(names(PlottingParams) == names(newParameters)[[n]])
+                                                 if(class(PlottingParams[[whichparam]]) == class(newParameters[[n]])){
+                                                   PlottingParams[[whichparam]] <<- newParameters[[n]]
+                                                 } else {
+                                                   warning( paste("Tried to re-assign plotting parameter ", names(PlottingParams)[[whichparam]],
+                                                                  " but the class of the replacement parameter did not match, this parameter was not changed.", sep=""))
+                                                 }
                                                }
                                              }
                                              for( i in Selections ) {
