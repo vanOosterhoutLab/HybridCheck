@@ -33,7 +33,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              PlottingParams <<- list( What = c("Bars", "Lines"), Title = TRUE, CombinedTitle = FALSE, 
                                                                       TitleSize = 14, TitleColour = "black", XTicks = TRUE, YTicks = TRUE,
                                                                       TickColour="black", XLabel = TRUE, YLabel = TRUE, Legends = TRUE, LegendFontSize = 12,
-                                                                      XLabelFontSize = 12, YLabelFontSize = 12)
+                                                                      XLabelFontSize = 12, YLabelFontSize = 12, MosaicScale = 500)
                                              DNA <<- HybRIDSseq$new()
                                              if( !is.null( dnafile ) ){
                                                DNA$InputDNA( dnafile, format="FASTA")
@@ -174,9 +174,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                            },
                                          
-                                         # GGplot method for HybRIDS object - activates submethods of triplets.
+                                         # GGplot method for HybRIDS object - activates sub-methods of triplets.
                                          plotSS =
-                                           function( Selections, What = c( "Lines", "Bars" ), Combine = TRUE, ... ) {
+                                           function( Selections, Combine = TRUE, ... ) {
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              Parameters <- list( ... )
                                              for( i in Selections ) {
