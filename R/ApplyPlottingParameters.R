@@ -19,12 +19,12 @@ applyPlottingParams <- function( plot, parameters, title = "") {
   } else {
     plot <- plot + theme( axis.title.y = element_blank() )
   }
-  if( parameters$XLabel == TRUE ) {
+  if( parameters$XLabels == TRUE ) {
     plot <- plot + theme( axis.text.x = element_text( size = parameters$XLabelSize, colour = parameters$XLabelColour ) )
   } else {
     plot <- plot + theme( axis.text.x = element_blank() )
   }
-  if( parameters$YLabel == TRUE ) {
+  if( parameters$YLabels == TRUE ) {
     plot <- plot + theme( axis.text.y = element_text( size = parameters$YLabelSize, colour = parameters$YLabelColour ) )
   } else {
     plot <- plot + theme( axis.text.y = element_blank() )
