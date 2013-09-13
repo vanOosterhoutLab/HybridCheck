@@ -219,8 +219,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # GGplot method for HybRIDS object - activates sub-methods of triplets.
                                          plotSS =
-                                           function( Selections, Combine = TRUE, ... ) {
+                                           function( Selections, Combine = TRUE, ReplaceParams = TRUE, ... ) {
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             oldParameters <- PlottingParams
                                              newParameters <- list( ... )
                                              if(length(newParameters) > 0){
                                                for( n in 1:length(newParameters) ){
@@ -247,6 +248,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                    outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams ),
                                                                 Triplets[[LastTripletSelection]]$plotLines( PlottingParams ),
                                                                 ncol = 1 )
+                                                 }
+                                                 if(ReplaceParams == FALSE){
+                                                   PlottingParams <<- oldParameters
                                                  }
                                                  return(outplot)
                                                } else {
@@ -303,20 +307,35 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                      outplotBars <- applyPlottingParams(outplotBars, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
                                                    }
                                                    if( "Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What ) {
+                                                     if(ReplaceParams == FALSE){
+                                                       PlottingParams <<- oldParameters
+                                                     }
                                                      return(outplotLines)
                                                    } else {
                                                      if( !"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
+                                                       if(ReplaceParams == FALSE){
+                                                         PlottingParams <<- oldParameters
+                                                       }
                                                        return(outplotBars)
                                                      } else {
                                                        if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE ) {
                                                          if( PlottingParams$CombinedTitle == TRUE ){
+                                                           if(ReplaceParams == FALSE){
+                                                             PlottingParams <<- oldParameters
+                                                           }
                                                            return( arrangeGrob( textGrob( paste( "Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ), x = unit(0.5, "npc"), y = unit(0.5, "npc"),
                                                                                          just = "centre" ), outplotBars, outplotLines, ncol = 1) )
                                                          } else {
                                                            output <- arrangeGrob( outplotBars, outplotLines, ncol = 1 )
+                                                           if(ReplaceParams == FALSE){
+                                                             PlottingParams <<- oldParameters
+                                                           }
                                                            return( output )
                                                          }
                                                        } else {
+                                                         if(ReplaceParams == FALSE){
+                                                           PlottingParams <<- oldParameters
+                                                         }
                                                          return( list( Barplot = outplotBars, Linesplot = outplotLines) )
                                                        }
                                                      }
