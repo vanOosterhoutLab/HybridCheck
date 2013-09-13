@@ -97,7 +97,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          showParameters = 
                                            function( Step = "ALL") {
                                              if( Step!= "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting" && Step != "ALL"){
-                                               stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are SSAnalysis, BlockDetection, BlockDating, and Plotting.\n")
+                                               stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are TripletGeneration, SSAnalysis, BlockDetection, BlockDating, and Plotting.\n")
                                              }
                                              if( Step == "SSAnalysis"){
                                                cat("Parameters for the Sliding Window Sequence Similarity analysis are:\nSliding Window Size,\nWindow Step Size, and the Sequence Triplet Combinations.\nThey are printed below.\n\n")
@@ -346,7 +346,41 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                              # Now let's get rid of redunancies and assign the selection to LastTripletSelection.
                                              LastTripletSelection <<- unique( c( threes, twos, ones ) )
+                                           },
+                                         
+                                         # Show method.
+                                         show = function() {
+                                           cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------\nFull Sequence File Location: ", DNA$FullSequenceFile,
+                                               "\nInformative Sequence File Location: ", DNA$InformativeSequenceFile) 
+                                           if(length(DNA$SequenceNames) > 0){
+                                             cat("\nFull Length: ",DNA$SequenceLength,
+                                                 "\nInformative Length: ",DNA$InformativeLength,"\nSequence names: ",DNA$SequenceNames,"\n\n")
+                                           } else {
+                                             cat("\n\n A DNA sequence alignment file has not yet been loaded into the HybRIDS object.\n\n")
                                            }
+                                           cat("Triplet Generation Parameters:\n------------------------------\nTriplet Generation Method: ",TripletParams$Method,
+                                               "\nThreshold for method number 2: ",TripletParams$SortThreshold,
+                                               "\n\nSequence Similarity Analysis Parameters:\n----------------------------------------\n",
+                                               "Sliding Window Size: ",SSAnalysisParams$WindowSize,"\nSliding Window Step Size: ",SSAnalysisParams$StepSize,
+                                               "\n\nBlock Detection Parameters: \n---------------------------\nManual Thresholds: ",BlockDetectionParams$ManualThresholds,sep="")
+                                           if(BlockDetectionParams$AutoThresholds == TRUE){
+                                             cat("\nHybRIDS will attempt automatic detection of SS Thresholds for putative block searches.")
+                                             if(BlockDetectionParams$ManualFallback == TRUE){
+                                               cat("\nHybRIDS will fall back on user specified manual thresholds, should the autodetection fail.")
+                                             } else {
+                                               cat("\nHybRIDS will not fall back on user specified manual thresholds, should the autodetection fail.")
+                                             }
+                                           } else {
+                                             cat("\nHybRIDS will not attempt automatic detection of SS Thresholds for putative block searches.\nOnly the manually specified thresholds will be used.")
+                                           }
+                                           cat("\n\nBlock Dating Parameters:\n------------------------\nAssumed mutation rate: ",BlockDatingParams$MutationRate,
+                                               "\nP-Value for acceptance of putative blocks: ",BlockDatingParams$PValue,sep="")
+                                           if( length(Triplets) < 1 ){
+                                             cat("\n\nNo Triplets have been generated with the method makeTripletCombos yet.")
+                                           } else {
+                                             cat("\n\n",length(Triplets),"Triplet(s) have been generated for analysis.")
+                                           }  
+                                         }
                                          
 
 
@@ -355,6 +389,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                           )
                         
                         )
+
+
+
 
 
 
