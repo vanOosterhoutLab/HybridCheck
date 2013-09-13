@@ -177,12 +177,16 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                              if( Step == "Plotting" ) {
                                                for( n in 1:length( Parameters ) ){
-                                                 whichparam <- which( names( BlockDetectionParams ) == names( Parameters )[[n]])
-                                                 if( class( BlockDetectionParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDetectionParams[[whichparam]]) == length(Parameters[[n]] ) ) {
-                                                   BlockDetectionParams[[whichparam]] <<- Parameters[[n]]
+                                                 whichparam <- which( names( PlottingParams ) == names( Parameters )[[n]])
+                                                 if( names( Parameters )[[n]] == "What" && class( PlottingParams[[whichparam]] ) == class( Parameters[[n]] ) ){
+                                                   PlottingParams[[whichparam]] <<- Parameters[[n]]
                                                  } else {
-                                                   warning( paste("Tried to re-assign Plotting parameter ", names(PlottingParams)[[whichparam]],
-                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                   if( class( PlottingParams[[whichparam]] ) == class( Parameters[[n]] ) && length(PlottingParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                                     PlottingParams[[whichparam]] <<- Parameters[[n]]
+                                                   } else {
+                                                     warning( paste("Tried to re-assign Plotting parameter ", names(PlottingParams)[[whichparam]],
+                                                                    " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
+                                                   }
                                                  }
                                                }
                                              }
@@ -191,8 +195,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
                                            function( Selections = "all" ) {
-                                             if( !is.character( Selections ) ) stop( "option 'which' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( Selections == "all" ) {
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( length(Selections) == 1 && Selections == "all" ) {
                                                if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
                                                  cat( "Only one triplet to analyze the sequence similarity of..." )
                                                  seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = T )
@@ -309,10 +313,11 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                            return( arrangeGrob( textGrob( paste( "Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ), x = unit(0.5, "npc"), y = unit(0.5, "npc"),
                                                                                          just = "centre" ), outplotBars, outplotLines, ncol = 1) )
                                                          } else {
-                                                           return( arrangeGrob( outplotBars, outplotLines, ncol = 1 ) )
+                                                           output <- arrangeGrob( outplotBars, outplotLines, ncol = 1 )
+                                                           return( output )
                                                          }
                                                        } else {
-                                                         return( list( Barplot = outplotBars, Linesplot = outplotLines))
+                                                         return( list( Barplot = outplotBars, Linesplot = outplotLines) )
                                                        }
                                                      }
                                                    }
