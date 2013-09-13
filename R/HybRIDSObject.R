@@ -191,8 +191,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
                                            function( Selections = "all" ) {
-                                             if( !is.character( Selections ) ) stop( "option 'which' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( Selections == "all" ) {
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( length(Selections) == 1 && Selections == "all" ) {
                                                if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
                                                  cat( "Only one triplet to analyze the sequence similarity of..." )
                                                  seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = T )
