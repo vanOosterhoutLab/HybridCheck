@@ -80,9 +80,12 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      frame$BC <- BC
                                      frame$X <- 1:nrow(frame)
                                      rm( AB, AC, BC )
-                                     frame$A_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[4]), as.numeric(x[5]) ), RefA ) )
-                                     frame$B_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[4]), as.numeric(x[6]) ), RefB ) )
-                                     frame$C_mix <- apply( frame, 1, function(x) col_deter( c( as.numeric(x[5]), as.numeric(x[6]) ), RefC ) )
+                                     A_mix <- apply( frame, 1, function(x) col_deter( x[c(4,5)], RefA ) )
+                                     B_mix <- apply( frame, 1, function(x) col_deter( x[c(4,6)], RefB ) )
+                                     C_mix <- apply( frame, 1, function(x) col_deter( x[c(5,6)], RefC ) )
+                                     frame$A_mix <- A_mix
+                                     frame$B_mix <- B_mix
+                                     frame$C_mix <- C_mix
                                      plottingFrame <- data.frame( X = frame$X, Y = rep( c(3, 2, 1), each = parameters$MosaicScale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
                                      if( exportDat == T ) {
                                        return(frame)
