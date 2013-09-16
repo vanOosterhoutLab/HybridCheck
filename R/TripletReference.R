@@ -80,6 +80,12 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      frame$BC <- BC
                                      frame$X <- 1:nrow(frame)
                                      rm( AB, AC, BC )
+                                     if(any( is.nan( as.numeric(frame[,c(4,5,6)]) ) ) ){
+                                       warning("\nNot a numbers (NaNs)! have been detected in the plotting frame.\n
+The common cause of this is a small alignment or few informative sites in the data, 
+with a too high MosaicScale parameter.\nThis usually happens at either end of the 
+bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of them use a lower MosaicScale parameter.")
+                                     }
                                      A_mix <- apply( frame, 1, function(x) col_deter( x[c(4,5)], RefA ) )
                                      B_mix <- apply( frame, 1, function(x) col_deter( x[c(4,6)], RefB ) )
                                      C_mix <- apply( frame, 1, function(x) col_deter( x[c(5,6)], RefC ) )
