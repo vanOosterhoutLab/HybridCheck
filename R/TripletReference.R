@@ -81,7 +81,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      frame$X <- 1:nrow(frame)
                                      rm( AB, AC, BC )
                                      
-                                     if(any( is.nan( as.numeric(frame[,c(4,5,6)]))) ){
+                                     if(any(is.nan( as.numeric(frame$AB))) || any(is.nan( as.numeric(frame$AC))) || any(is.nan( as.numeric(frame$BC))) ){
                                        warning("\nNot a numbers (NaNs)! have been detected in the plotting frame.\n
 The common cause of this is a small alignment or few informative sites in the data, 
 with a too high MosaicScale parameter.\nThis usually happens at either end of the 
