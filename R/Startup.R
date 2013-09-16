@@ -1,21 +1,18 @@
 .onAttach <- function(...) {
-  cat('|================================================================================================|
-  |. ,-"-.   ,-"-. ,-"-. |``| |``| |^| |^| |````   |````, |*| |````  |`````| . ,-"-.   ,-"-. ,-"-. |
-  | X | | \\ / | | X | |  |  |_|  | | | | | |  & |  | ** , | | |  & | |  ___|  X | | \\ / | | X | | \\|
-  |/ \\| | |X| | |/ \\| |  |   _   |  `. .`  |  &  | | || | | | |  & | |___  | / \\| | |X| | |/ \\| | ||
-  |   `-!-` `-!-"   `-!- |__| |__|   |_|   |_____| |_||_| |_| |____` |_____|    `-!-` `-!-"   `-!-`|
-  |======================================== Version 1.0 ===========================================|
-  |                                                                                                |
-  |     HybRIDS - Hybridisation Recombination and Introgression Detection and Dating Package.      |
-  |                            Ben J. Ward & Cock van Oosterhout.                                  |
-  |                                                                                                |
-  |                                                                                                |
-  | Web:                                                                                           | 
-  |   http://ward9250.github.io/HybRIDS/                                                           | 
-  | GitHub:                                                                                        |
-  |   https://github.com/Ward9250/HybRIDS                                                          | 
-  |                                                                                                |
-  | Recent Changes:                                                                                |
-  |   None.                                                                                        |
-  |================================================================================================|\n\n')
+  cat("TACTTTGTACCTAAGTATGCATTACGTTACGTTAGTAGCTGGACCTAGTAAATCGGA     
+,--.  ,--.         ,--.   ,------. ,--.,------.   ,---.
+|  '--'  |,--. ,--.|  |-. |  .--. '|  ||  .-.  \\ '   .-'
+|  .--.  | \\  '  / | .-. '|  '--'.'|  ||  |  \\  :`.  `-.
+|  |  |  |  \\   '  | `-' ||  |\\  \\ |  ||  '--'  /.-'    |
+`--'  `--'.-'  /    `---' `--' '--'`--'`-------' `-----'
+          `---'
+ATGAAACATGGATTCATACG - Version 1.0 - CGACCTGGATCATTTAGCCT\n\n
+Hybridisation, Recombination and Introgression Detection
+                   and Dating Package.
+-----------------=========****=========------------------
+Cite: TBD
+Licence: GPL (Like R and most packages).
+http://ward9250.github.io/HybRIDS/
+-----------------=========****=========------------------")
+
 }
