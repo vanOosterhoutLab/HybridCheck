@@ -217,6 +217,57 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                            },
                                          
+                                         # Method to execute the putative block finds.
+                                         findBlocks =
+                                           function( Selections = "all" ){
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( length(Selections) == 1 && Selections == "all" ) {
+                                               if( length( Triplets ) < 2 ) {
+                                                 cat( "Only one triplet to find the potential blocks in...\n" )
+                                                 Triplets[[1]]$putativeBlockFind(BlockDetectionParams)
+                                               } else {
+                                                 cat( "Finding potential blocks in all the triplets...\n" )
+                                                 progress <- txtProgressBar( min = 0, max = length(Triplets), style = 3 )
+                                                 for( i in 1:length( Triplets ) ) {
+                                                   setTxtProgressBar( progress, i )
+                                                   Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
+                                                 }
+                                               }
+                                             } else {
+                                               indexTriplets( Selections )
+                                               for( i in LastTripletSelection ){
+                                                 cat( "Now finding potential blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
+                                                 Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
+                                               }
+                                             }
+                                           },
+                                         
+                                         # Method to Date the blocks found.
+                                         dateBlocks =
+                                           function( Selections = "all" ){
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( length(Selections) == 1 && Selections == "all" ) {
+                                               if( length( Triplets ) < 2 ) {
+                                                 cat( "Only one triplet to date blocks in...\n" )
+                                                 Triplets[[1]]$blockDate(DNA, BlockDatingParams)
+                                               } else {
+                                                 cat( "Dating blocks in all the triplets...\n" )
+                                                 progress <- txtProgressBar( min = 0, max = length(Triplets), style = 3 )
+                                                 for( i in 1:length( Triplets ) ) {
+                                                   setTxtProgressBar( progress, i )
+                                                   Triplets[[i]]$blockDate(DNA, BlockDatingParams)
+                                                 }
+                                               }
+                                             } else {
+                                               indexTriplets( Selections )
+                                               for( i in LastTripletSelection ){
+                                                 cat( "Now dating blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
+                                                 Triplets[[i]]$blockDate(DNA, BlockDatingParams)
+                                               }
+                                             }
+                                           },
+                                         
+                                         
                                          # GGplot method for HybRIDS object - activates sub-methods of triplets.
                                          plotSS =
                                            function( Selections, Combine = TRUE, ReplaceParams = TRUE, ... ) {
