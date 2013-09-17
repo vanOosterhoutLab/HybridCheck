@@ -74,13 +74,15 @@ seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp,
       colnames( Distances ) <- c( "WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist( lapply( pairs, function( x ) paste( LETTERS[ x ], collapse="" ) ) ) )
       Distances[ , c( 7, 8, 9 ) ] <- 100 - round( ( as.numeric( Distances[ , c( 7, 8, 9 ) ] ) / ( win.size + 1 ) ) * 100 )
       triplet$SSTable <- as.data.frame(Distances)
+      # Ok Triplet SS table made successfully so let's get rid of any error messages to do with it, since everything was fine.
+      triplet$SSError <- character()
       } else {
-        triplet$Error <- "The sliding window size is less than 1, this is not supposed to happen...\n"
+        triplet$SSError <- c(triplet$SSError,"The sliding window size is less than 1, this is not supposed to happen")
       }
     triplet$WindowSizeUsed <- win.size
     triplet$StepSizeUsed <- s.size
     triplet$InformativeDNALength <- dnaCutLength
     } else {
-      triplet$Error <- "There are no informative sites to work on - skipping analysis of this triplet...\n"
+      triplet$SSError <- c(triplet$SSError,"There are no informative sites to work on - skipping analysis of this triplet...")
     }
 }

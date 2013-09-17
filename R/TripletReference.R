@@ -30,6 +30,8 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                                              AB = NA, AC = NA, BC = NA )
                                      ContigNames <<- c( sequences[1], sequences[2], sequences[3] )
                                      FullDNALength <<- fullseqlength
+                                     SSError <<- "NO SS TABLE"
+                                     BlocksWarning <<- "NO PUTATIVE BLOCKS"
                                    },
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
@@ -126,28 +128,33 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  
                                  # Method for putative block detection.
                                  putativeBlockFind = 
-                                   function( autodetect = TRUE, sd.stringency = 2, manual.thresholds = c( 90 ), manual.fallback = T ) {
-                                     if( autodetect == TRUE ) {
-                                       cat( "Using the autodetect thresholds method...\n" )
-                                       cat( "Deciding on suitable thresholds...\n" )
-                                       Thresholds <- autodetect.thresholds( SSTable, sd.stringency, manual.thresholds, manual.fallback )
-                                       # Results in a list of thresholds for AB, AC and BC.
+                                   function(parameters) {
+                                     if(!any(SSError == "NO SS TABLE")){
+                                       if( parameters$AutoThresholds == TRUE ) {
+                                         cat( "Using the autodetect thresholds method...\n" )
+                                         cat( "Deciding on suitable thresholds...\n" )
+                                         Thresholds <- autodetect.thresholds( SSTable, parameters$SDstringency, parameters$ManualThresholds, parameters$ManualFallback )
+                                         # Results in a list of thresholds for AB, AC and BC.
+                                       } else {
+                                         Thresholds <- list( parameters$ManualThresholds, parameters$ManualThresholds, parameters$ManualThresholds )
+                                       }
+                                       names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
+                                       cat( "Now beginning Block Search...\n\n" )
+                                       Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
+                                       names(Blocks) <<- names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep = ":" ), paste( ContigNames[1], ContigNames[3], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
+                                       BlocksWarning <<- character()
                                      } else {
-                                       Thresholds <- list( manual.thresholds, manual.thresholds, manual.thresholds )
+                                      warning("No SSTable for this triplet yet, can't identify blocks.\nMake sure you've analysed the sequence similarity first.") 
                                      }
-                                     names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
-                                     cat( "Now beginning Block Search...\n\n" )
-                                     Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
-                                     names(Blocks) <<- names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep = ":" ), paste( ContigNames[1], ContigNames[3], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
                                    },
                                  
                                  # Method for testing significance and dating of blocks.
                                  blockDate =
-                                   function( dnaobj, mutation.rate = 10e-8, required.p = 0.005 ) {
+                                   function( dnaobj, parameters ) {
                                      cat( "Now dating blocks" )
-                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, mutation.rate, 1, required.p ) )
-                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, mutation.rate, 2, required.p ) )
-                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, mutation.rate, 3, required.p ) )
+                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue ) )
+                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue ) )
+                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue ) )
                                      out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
                                    },
