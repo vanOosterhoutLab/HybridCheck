@@ -228,7 +228,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                } else {
                                                  cat( "Finding potential blocks in all the triplets...\n" )
                                                  for( i in 1:length( Triplets ) ) {
-                                                   cat( "Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i], "\n")
+                                                   cat( "Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i], "\n") )
                                                    Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
                                                  }
                                                }
