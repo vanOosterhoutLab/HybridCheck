@@ -192,23 +192,26 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  
                                  tabulateBlocks = function() {
                                    if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
+                                     cat("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":"), "\n")
+                                     temps <- lapply(1:3, function(i) do.call(rbind, Blocks[[i]]))
+                                     SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                     pair <- lapply(1:3, function(i) rep(names(Blocks)[[i]], nrow(temps[[i]])))
                                      if("BLOCKS DATED" %in% BlocksWarning){
-                                       combinedframes <- data.frame(matrix(ncol=13, nrow=sum(unlist(lapply(Blocks, function(x) lapply(x, function(y) nrow(y))))))) 
-                                       unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y))))
-                                       cumsum(unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y)))))
+                                       combinedframes <- data.frame(matrix(ncol=13, nrow=sum(unlist(lapply(Blocks, function(x) lapply(x, function(y) nrow(y)))))))
                                        names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
-                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
-                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
                                        combinedframes[,3:13] <- do.call(rbind, temps)
                                        combinedframes[,2] <- unlist(SS)
                                        combinedframes[,1] <- unlist(pair)
                                      } else {
-                                       
+                                       combinedframes <- data.frame(matrix(ncol=8, nrow=sum(unlist(lapply(Blocks, function(x) lapply(x, function(y) nrow(y)))))))
+                                       names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
+                                       combinedframes[,3:8] <- do.call(rbind, temps)
+                                       combinedframes[,2] <- unlist(SS)
+                                       combinedframes[,1] <- unlist(pair)
                                      }
-                                    
-                                     
-                                     
+                                     return(combinedframes)
+                                   } else {
+                                     warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }
                                  }
                                  )
