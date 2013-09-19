@@ -22,6 +22,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               Blocks = "list"
                                               ),
                                methods = list(
+                                 
                                  initialize = 
                                    function( sequences, fullseqlength ) {
                                      SSTableFile <<- tempfile( pattern = "SSTable" )
@@ -157,6 +158,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                      bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue ) )
                                      out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
+                                     BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
                                    },
                                  
                                  returnPair =
@@ -186,6 +188,28 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                          }
                                        }
                                      }
+                                   },
+                                 
+                                 tabulateBlocks = function() {
+                                   if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
+                                     if("BLOCKS DATED" %in% BlocksWarning){
+                                       combinedframes <- data.frame(matrix(ncol=13, nrow=sum(unlist(lapply(Blocks, function(x) lapply(x, function(y) nrow(y))))))) 
+                                       unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y))))
+                                       cumsum(unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y)))))
+                                       names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
+                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                                       combinedframes[,3:13] <- do.call(rbind, temps)
+                                       combinedframes[,2] <- unlist(SS)
+                                       combinedframes[,1] <- unlist(pair)
+                                     } else {
+                                       
+                                     }
+                                    
+                                     
+                                     
                                    }
+                                 }
                                  )
                                )
