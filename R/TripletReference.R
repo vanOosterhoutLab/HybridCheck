@@ -191,19 +191,41 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                    },
                                  
                                  tabulateBlocks = function() {
+                                   blocks <- Blocks
                                    if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
                                      cat("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":"), "\n")
-                                     temps <- lapply(1:3, function(i) do.call(rbind, Blocks[[i]]))
-                                     SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-                                     pair <- lapply(1:3, function(i) rep(names(Blocks)[[i]], nrow(temps[[i]])))
+                                     # Check that the tables are present, if they are, turn them into blank data.frames.
+                                     for(i in 1:3) {
+                                       for(n in 1:length(blocks[[i]])) {
+                                         if( class(blocks[[i]][[n]]) == "data.frame" ){
+                                           next
+                                         } else {
+                                           if( class(blocks[[i]][[n]]) == "character" ){
+                                             if("BLOCKS DATED" %in% BlocksWarning ){
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=13, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
+                                             } else {
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=8, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }
                                      if("BLOCKS DATED" %in% BlocksWarning){
-                                       combinedframes <- data.frame(matrix(ncol=13, nrow=sum(unlist(lapply(Blocks, function(x) lapply(x, function(y) nrow(y)))))))
+                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                                       combinedframes <- data.frame(matrix(ncol=13, nrow=sum(unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y)))))))
                                        names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
                                        combinedframes[,3:13] <- do.call(rbind, temps)
                                        combinedframes[,2] <- unlist(SS)
                                        combinedframes[,1] <- unlist(pair)
                                      } else {
-                                       combinedframes <- data.frame(matrix(ncol=8, nrow=sum(unlist(lapply(Blocks, function(x) lapply(x, function(y) nrow(y)))))))
+                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                                       combinedframes <- data.frame(matrix(ncol=8, nrow=sum(unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y)))))))
                                        names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
                                        combinedframes[,3:8] <- do.call(rbind, temps)
                                        combinedframes[,2] <- unlist(SS)

@@ -39,11 +39,9 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh) {
       cutSeq <- as.matrix(Seq[,Seq[1,] != Seq[2,]])
       # Calculate the maximum number of SNPs
       maxSNPs <- ncol( cutSeq )
-      
       # p-value calculation is a binomial distribution, taking into account number of SNP's in the block, 
       pValue <- pbinom( maxSNPs, B, wholeSequenceDist )
-      if(pValue > pthresh) next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration. 
-      
+      if(pValue > pthresh) next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
       blockAges[i,5] <- maxSNPs  
       blockAges[i,6] <- pValue
       t <- 0

@@ -398,11 +398,27 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                }
                                              }
                                              },
-                                           
                                          
+                                         # Method to put the data from detected blocks in triplets into a data format.
+                                         tabulateDetectedBlocks =
+                                           function( Selection, OneTable = FALSE ) {
+                                             outputTables <- list()
+                                             len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
+                                             ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
+                                             tabs <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
+                                             
+#                                              for( i in Selection ){
+#                                                indexTriplets( i )
+#                                                table <- lapply(Triplets[LastTripletSelection], function(x) x$tabulateBlocks() )
+#                                                outputTables <- append(table,outputTables)
+#                                              }
+                                             
+                                             return(list(len,ind, tabs))
+                                           },
+                                                        
                                          # Method for indexing triplets.
                                          indexTriplets =
-                                           function( selections ) {
+                                           function( selections, output = F ) {
                                              if( !is.character( selections ) ) stop( "option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              processedSelections <- strsplit( selections, split=":" )
                                              threes <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 3 )]
@@ -424,6 +440,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                              # Now let's get rid of redunancies and assign the selection to LastTripletSelection.
                                              LastTripletSelection <<- unique( c( threes, twos, ones ) )
+                                             if(output == T){
+                                               return(LastTripletSelection)
+                                             }
                                            },
                                          
                                          # Show method.
