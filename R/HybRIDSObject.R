@@ -405,15 +405,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              outputTables <- list()
                                              len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
                                              ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
-                                             tabs <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
+                                             tables <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
+                                                                                
                                              
-#                                              for( i in Selection ){
-#                                                indexTriplets( i )
-#                                                table <- lapply(Triplets[LastTripletSelection], function(x) x$tabulateBlocks() )
-#                                                outputTables <- append(table,outputTables)
-#                                              }
-                                             
-                                             return(list(len,ind, tabs))
+                                             return(tables)
                                            },
                                                         
                                          # Method for indexing triplets.
