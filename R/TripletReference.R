@@ -152,7 +152,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  # Method for testing significance and dating of blocks.
                                  blockDate =
                                    function( dnaobj, parameters ) {
-                                     cat( "Now dating blocks" )
+                                     cat( "Now dating blocks\n" )
                                      ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue ) )
                                      ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue ) )
                                      bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue ) )
@@ -216,8 +216,6 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-                                       #combinedframes <- data.frame(matrix(ncol=13, nrow=sum(unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y)))))))
-                                       #names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
                                        temp2 <- do.call(rbind, temps)
                                        temp2["SequenceSimilarityThreshold"] <- unlist(SS)
                                        temp2["SequencePair"] <- unlist(pair)
@@ -225,8 +223,6 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-                                       #combinedframes <- data.frame(matrix(ncol=8, nrow=sum(unlist(lapply(blocks, function(x) lapply(x, function(y) nrow(y)))))))
-                                       #names(combinedframes) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
                                        temp2 <- do.call(rbind, temps)
                                        combinedframes[,2] <- unlist(SS)
                                        combinedframes[,1] <- unlist(pair)

@@ -228,7 +228,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                } else {
                                                  cat( "Finding potential blocks in all the triplets...\n" )
                                                  for( i in 1:length( Triplets ) ) {
-                                                   cat( "Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i], "\n") )
+                                                   cat( "Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
                                                    Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
                                                  }
                                                }
@@ -251,16 +251,15 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  Triplets[[1]]$blockDate(DNA, BlockDatingParams)
                                                } else {
                                                  cat( "Assessing and dating blocks in all the triplets...\n" )
-                                                
                                                  for( i in 1:length( Triplets ) ) {
-                                                   cat( "Now assessing and dating blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i], "\n"))
+                                                   cat( "Now assessing and dating blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n")
                                                    Triplets[[i]]$blockDate(DNA, BlockDatingParams)
                                                  }
                                                }
                                              } else {
                                                indexTriplets( Selections )
                                                for( i in LastTripletSelection ){
-                                                 cat( "Now assessing and dating blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
+                                                 cat( "Now assessing and dating blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n\n" )
                                                  Triplets[[i]]$blockDate(DNA, BlockDatingParams)
                                                }
                                              }
@@ -406,8 +405,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
                                              ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
                                              tables <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
-                                                                                
-                                             
+                                             tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]) ) ))                                
+                                             tables <- do.call(rbind, tables)
+                                             tables["Triplet"] <- tripletlabels
+                                             #output <- data.frame( tables$Triplet, )
                                              return(tables)
                                            },
                                                         

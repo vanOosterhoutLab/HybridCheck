@@ -1,9 +1,12 @@
 ## Internal functions for the block dating and significant values
 
-date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh) {
+date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect = TRUE) {
   # Check there are blocks to date!
-  if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters and does in fact contain more than one row.
+  if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
     blocksobj <- as.matrix(blocksobj)
+    if( bonfcorrect == TRUE ){ # Bonferoni correction of the pvalue threshold.
+      pthresh <- pthresh/nrow(blocksobj)
+    }
     blockAges <- matrix(nrow=nrow(blocksobj),ncol=6) #ncol was 5 before p-value accomodation.
     colnames(blockAges) <- c("5%","50%","95%","BlockSize","SNPs","p-value")
     # For each significant block...
@@ -17,19 +20,16 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh) {
         Seq <- dnaobj$InformativeSequence[c(1,2),c(BlockStart:BlockEnd)]
         wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,2),]), model="N")[1] # Get the raw sequence distance.
         wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence) # Divide by the sequence length.
-        #wholeSequenceDist <- wholeSequenceDist*100 # Multiply by 100 to get divergence of two sequences as a percentage.
       } else {
         if(pair == 2){
           Seq <- dnaobj$InformativeSequence[c(1,3),c(BlockStart:BlockEnd)]
           wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,3),]), model="N")[1]
           wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
-          #wholeSequenceDist <- wholeSequenceDist*100
         } else {
           if(pair == 3){
             Seq <- dnaobj$InformativeSequence[c(2,3),c(BlockStart:BlockEnd)]
             wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(2,3),]), model="N")[1]
             wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
-            #wholeSequenceDist <- wholeSequenceDist*100
           }
         }
       }
