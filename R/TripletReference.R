@@ -22,6 +22,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               Blocks = "list"
                                               ),
                                methods = list(
+                                 
                                  initialize = 
                                    function( sequences, fullseqlength ) {
                                      SSTableFile <<- tempfile( pattern = "SSTable" )
@@ -151,12 +152,13 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  # Method for testing significance and dating of blocks.
                                  blockDate =
                                    function( dnaobj, parameters ) {
-                                     cat( "Now dating blocks" )
+                                     cat( "Now dating blocks\n" )
                                      ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue ) )
                                      ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue ) )
                                      bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue ) )
                                      out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
+                                     BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
                                    },
                                  
                                  returnPair =
@@ -186,6 +188,50 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                          }
                                        }
                                      }
+                                   },
+                                 
+                                 tabulateBlocks = function() {
+                                   blocks <- Blocks
+                                   if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
+                                     cat("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":"), "\n")
+                                     # Check that the tables are present, if they are, turn them into blank data.frames.
+                                     for(i in 1:3) {
+                                       for(n in 1:length(blocks[[i]])) {
+                                         if( class(blocks[[i]][[n]]) == "data.frame" ){
+                                           next
+                                         } else {
+                                           if( class(blocks[[i]][[n]]) == "character" ){
+                                             if("BLOCKS DATED" %in% BlocksWarning ){
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=13, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
+                                             } else {
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=8, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
+                                             }
+                                           }
+                                         }
+                                       }
+                                     }
+                                     if("BLOCKS DATED" %in% BlocksWarning){
+                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                                       temp2 <- do.call(rbind, temps)
+                                       temp2["SequenceSimilarityThreshold"] <- unlist(SS)
+                                       temp2["SequencePair"] <- unlist(pair)
+                                     } else {
+                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                                       temp2 <- do.call(rbind, temps)
+                                       combinedframes[,2] <- unlist(SS)
+                                       combinedframes[,1] <- unlist(pair)
+                                       combinedframes[,3:13] <- temp2
+                                     }
+                                     return(temp2)
+                                   } else {
+                                     warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }
+                                 }
                                  )
                                )
