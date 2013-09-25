@@ -1,6 +1,6 @@
 ## Internal functions for the block dating and significant values
 
-date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect = TRUE) {
+date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect = FALSE) {
   # Check there are blocks to date!
   if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
     blocksobj <- as.matrix(blocksobj)

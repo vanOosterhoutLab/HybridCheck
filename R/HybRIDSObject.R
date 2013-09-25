@@ -400,7 +400,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
-                                           function( Selection, OneTable = FALSE ) {
+                                           function( Selection, OneTable = FALSE, Neat = TRUE ) {
                                              outputTables <- list()
                                              len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
                                              ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
@@ -408,8 +408,15 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]) ) ))                                
                                              tables <- do.call(rbind, tables)
                                              tables["Triplet"] <- tripletlabels
-                                             #output <- data.frame( tables$Triplet, )
-                                             return(tables)
+                                             if( "PValue" %in% names(tables) ){
+                                               output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
+                                                                     tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$fiveAge, tables$fiftyAge,
+                                                                     tables$ninetyfiveAge, tables$PValue )
+                                             } else {
+                                               output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
+                                                                     tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength )
+                                             }
+                                             return(output)
                                            },
                                                         
                                          # Method for indexing triplets.
