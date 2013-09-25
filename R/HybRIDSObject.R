@@ -412,9 +412,17 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
                                                                      tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$fiveAge, tables$fiftyAge,
                                                                      tables$ninetyfiveAge, tables$PValue )
+                                               if( Neat == TRUE ) {
+                                                 output <- output[,-c(4,5,6)]
+                                                 names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value")
+                                               }
                                              } else {
                                                output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
                                                                      tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength )
+                                               if( Neat == TRUE ) {
+                                                 output <-output[,-c(4,5,6)]
+                                                 names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP")
+                                               }
                                              }
                                              return(output)
                                            },
