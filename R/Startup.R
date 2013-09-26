@@ -13,6 +13,6 @@ Hybridisation, Recombination and Introgression Detection
 Cite: TBD
 Licence: GPL (Like R and most packages).
 http://ward9250.github.io/HybRIDS/
------------------=========****=========------------------")
+-----------------=========****=========------------------\n")
 
 }
