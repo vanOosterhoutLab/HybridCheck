@@ -168,7 +168,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                for( n in 1:length( Parameters ) ){
                                                  whichparam <- which( names( BlockDatingParams ) == names( Parameters )[[n]])
                                                  if( class( BlockDatingParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDatingParams[[whichparam]]) == length(Parameters[[n]] ) ) {
-                                                   BlockDetectionParams[[whichparam]] <<- Parameters[[n]]
+                                                   BlockDatingParams[[whichparam]] <<- Parameters[[n]]
                                                  } else {
                                                    warning( paste("Tried to re-assign Block Detection parameter ", names(BlockDatingParams)[[whichparam]],
                                                                   " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))

@@ -4,6 +4,12 @@ HybRIDS
 **An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
 **Visit the website ward9250.github.io/HybRIDS**
 
+# Recent Major Changes:
+
+1. The HybRIDS optional GUI has been re-written to be simpler to use and more compatible with the latest incarnation of the HybRIDS object system, which now uses reference objects
+instead of the S3 object system. The GUI is functional and has been tested but there may be bugs.
+
+
 # Introduction
 
 HybRIDS is an R package that began life as some code to allow colleagues to attractively visualize the mosaic structure of
@@ -124,4 +130,4 @@ Be descriptive and detailed in what you did so as the error can be reproduced, a
 
 # Known issues:
 
-1. Bug in block detection algorithm which finds smaller blocks at consecutively smaller thresholds at the edges of true larger blocks at higher thresholds. - We have a fix for this, but just needs to be implemented.
+1. There is an error that occurs for some datasets particularity if the number of informative sites is too low - usually HybRIDS produces a descriptive error when this happens but sometimes another error is produced - we know what this is and how to fix it, it's on my TODO list.
