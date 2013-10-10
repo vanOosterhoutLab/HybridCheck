@@ -15,11 +15,12 @@ HybRIDS <- setRefClass( "HybRIDS",
                           BlockDatingParams = "list",
                           LastTripletSelection = "numeric",
                           PlottingParams = "list",
+                          InGUI = "logical",
                           Triplets = "list"
                           ),
                         
                          methods = list( initialize = 
-                                           function( dnafile = NULL, format = "FASTA" ) {
+                                           function( dnafile = NULL, format = "FASTA", inGUI = FALSE ) {
                                              TripletParams <<- list(
                                                Method = 1,
                                                SortThreshold = 0.01 )
@@ -35,6 +36,11 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                                       XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
                                                                       YTitle = TRUE, YTitleFontSize = 12, YTitleColour = "black", YLabelSize = 10, YLabelColour = "black",
                                                                       Legends = TRUE, LegendFontSize = 12, MosaicScale = 500)
+                                             if(inGUI == TRUE){
+                                               InGUI <<- TRUE
+                                             } else {
+                                               InGUI <<- FALSE
+                                             }
                                              DNA <<- HybRIDSseq$new()
                                              if( !is.null( dnafile ) ){
                                                DNA$InputDNA( dnafile, format="FASTA")
@@ -44,17 +50,37 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          # Method for generating the Triplet Combinations...
                                          makeTripletCombos =
                                            function() {
-                                             if( nrow( DNA$InformativeSequence ) < 3 ){
-                                               stop( "After Removing duplicated there are not enough sequences to make any triplets...\nWe can't do much with these sequences...\nAborting.\n" )
-                                             } else {
-                                               SSAnalysisParams$TripletCombinations <<- combn( c( 1:nrow( DNA$InformativeSequence ) ), 3, simplify=FALSE )
-                                               pairs <- combn( c( 1:nrow( DNA$InformativeSequence ) ), 2, simplify=FALSE )
-                                               if( TripletParams$Method > 1 && length( combos ) > 1 ) {
-                                                 # Implements the method whereby distance information is used to reject pairs which would likeley be pointless.
-                                                 cat( "\nTrimming number of triplet comparrisons..." )
-                                                 if( TripletParams$Method == 2 ) {                                                    
-                                                   distances <- dist.dna( as.DNAbin( DNA$FullSequence ), model = "raw" )
-                                                   rejectpairs <- pairs[ which( distances < RawThresh ) ]
+                                             if(nrow(DNA$InformativeSequence) < 3){
+                                               if(InGUI == TRUE) gmessage("Not enough sequences to make any triplets", icon="error")
+                                               stop("Not enough sequences to make any triplets, most likely the removal of duplicate sequences has resulted in too few sequences.")
+                                             }
+                                             SSAnalysisParams$TripletCombinations <<- combn( c( 1:nrow( DNA$InformativeSequence ) ), 3, simplify=FALSE )
+                                             pairs <- combn( c( 1:nrow( DNA$InformativeSequence ) ), 2, simplify=FALSE )
+                                             if( TripletParams$Method > 1 && length( combos ) > 1 ) {
+                                               # Implements the method whereby distance information is used to reject pairs which would likeley be pointless.
+                                               cat( "\nTrimming number of triplet comparrisons..." )
+                                               if( TripletParams$Method == 2 ) {                                                    
+                                                 distances <- dist.dna( as.DNAbin( DNA$FullSequence ), model = "raw" )
+                                                 rejectpairs <- pairs[ which( distances < RawThresh ) ]
+                                                 removals <- list()
+                                                 for( i in 1:length( TripletCombinations ) ) {
+                                                   for( n in 1:length( rejectpairs ) ) {
+                                                     if( all( rejectpairs[[n]] %in% TripletCombinations[[i]] ) ) {
+                                                       removals <- append( removals, i )
+                                                       break
+                                                     }
+                                                   }
+                                                 }
+                                                 SSAnalysisParams$TripletCombinations <<- SSAnalysisParams$TripletCombinations[ -unlist( removals ) ]
+                                               } else {
+                                                 # Decide pairs to exclude by considering troughs in density distribution.
+                                                 if( TripletParams$Method == 3 ){
+                                                   distances <- dist.dna( as.DNAbin( DNA$FullSequence ), model="raw" )
+                                                   distances_density <- density( distances )
+                                                   Lows <- cbind( distances_density$x[ which( diff( sign( diff( distances_density$y ) ) ) == 2 ) ], distances_density$y[ which( diff( sign( diff( distances_density$y ) ) ) == 2 ) ] )
+                                                   Lowest <- Lows[ which( Lows[ ,1 ] == min( Lows[ ,1 ] ) ) , ]
+                                                   plot( distances_density )
+                                                   rejectpairs <- pairs[ which( distances < Lowest[ 1 ] ) ]
                                                    removals <- list()
                                                    for( i in 1:length( TripletCombinations ) ) {
                                                      for( n in 1:length( rejectpairs ) ) {
@@ -64,33 +90,13 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                        }
                                                      }
                                                    }
+                                                   cat( "\nRemoving",length( removals ),"triplets" )
                                                    SSAnalysisParams$TripletCombinations <<- SSAnalysisParams$TripletCombinations[ -unlist( removals ) ]
-                                                 } else {
-                                                   # Decide pairs to exclude by considering troughs in density distribution.
-                                                   if( TripletParams$Method == 3 ){
-                                                     distances <- dist.dna( as.DNAbin( DNA$FullSequence ), model="raw" )
-                                                     distances_density <- density( distances )
-                                                     Lows <- cbind( distances_density$x[ which( diff( sign( diff( distances_density$y ) ) ) == 2 ) ], distances_density$y[ which( diff( sign( diff( distances_density$y ) ) ) == 2 ) ] )
-                                                     Lowest <- Lows[ which( Lows[ ,1 ] == min( Lows[ ,1 ] ) ) , ]
-                                                     plot( distances_density )
-                                                     rejectpairs <- pairs[ which( distances < Lowest[ 1 ] ) ]
-                                                     removals <- list()
-                                                     for( i in 1:length( TripletCombinations ) ) {
-                                                       for( n in 1:length( rejectpairs ) ) {
-                                                         if( all( rejectpairs[[n]] %in% TripletCombinations[[i]] ) ) {
-                                                           removals <- append( removals, i )
-                                                           break
-                                                         }
-                                                       }
-                                                     }
-                                                     cat( "\nRemoving",length( removals ),"triplets" )
-                                                     SSAnalysisParams$TripletCombinations <<- SSAnalysisParams$TripletCombinations[ -unlist( removals ) ]
-                                                   }
                                                  }
                                                }
-                                               Triplets <<- lapply( SSAnalysisParams$TripletCombinations, function(x) HybRIDStriplet$new( sequences = c( DNA$SequenceNames[x[1]], DNA$SequenceNames[x[2]], DNA$SequenceNames[x[3]] ), fullseqlength = DNA$SequenceLength ) )
-                                               names( Triplets ) <<- unlist( lapply( SSAnalysisParams$TripletCombinations, function(x) paste( DNA$SequenceNames[x[1]], DNA$SequenceNames[x[2]], DNA$SequenceNames[x[3]], sep = ":" ) ) )
                                              }
+                                             Triplets <<- lapply( SSAnalysisParams$TripletCombinations, function(x) HybRIDStriplet$new( sequences = c( DNA$SequenceNames[x[1]], DNA$SequenceNames[x[2]], DNA$SequenceNames[x[3]] ), fullseqlength = DNA$SequenceLength ) )
+                                             names( Triplets ) <<- unlist( lapply( SSAnalysisParams$TripletCombinations, function(x) paste( DNA$SequenceNames[x[1]], DNA$SequenceNames[x[2]], DNA$SequenceNames[x[3]], sep = ":" ) ) )
                                            },
                                          
                                          # Method for displaying parameters.
@@ -287,16 +293,24 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                cat("Selection", i)
                                                if( length( unlist( strsplit(i, ":") ) ) == 3 ) {
                                                  indexTriplets( i )
+                                                 if(length(LastTripletSelection) == 0){
+                                                   warning(paste("Can't plot selection", i, "it does not exist..."))
+                                                   next
+                                                 }
                                                  if( "Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What ) {
                                                    outplot <- Triplets[[LastTripletSelection]]$plotLines( PlottingParams )
                                                  }
                                                  if( !"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
                                                    outplot <- Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams )
                                                  }
-                                                 if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
+                                                 if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE ) {
                                                    outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams ),
                                                                 Triplets[[LastTripletSelection]]$plotLines( PlottingParams ),
                                                                 ncol = 1 )
+                                                 } else {
+                                                   if("Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == FALSE ){
+                                                     outplot <- list( bars = Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams ), lines = Triplets[[LastTripletSelection]]$plotLines( PlottingParams ))  
+                                                   }
                                                  }
                                                  if(ReplaceParams == FALSE){
                                                    PlottingParams <<- oldParameters
@@ -391,7 +405,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                    }
                                                  } else {
                                                    if(length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == FALSE){
-                                                     
+                                            
                                                    }
                                                  }
                                                }
