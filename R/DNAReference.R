@@ -22,7 +22,8 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                               SequenceLength = "numeric",
                               InformativeLength = "numeric",
                               FullBp = "numeric",
-                              InformativeBp = "numeric" ),
+                              InformativeBp = "numeric",
+                              NoDNA = "logical"),
                               
                             methods = list( 
                               
@@ -30,21 +31,28 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                                 function( sequenceFile = NULL ) {
                                   FullSequenceFile <<- tempfile( pattern = "FullSequence" )
                                   InformativeSequenceFile <<- tempfile( pattern = "InformativeSequence" )
+                                  NoDNA <<- TRUE
                                 },
                               
                               InputDNA =
                                 function( intarget, format = "FASTA" ) {
                                   if( format == "FASTA" ){
+                                    cat("\nLoading in DNA data from FASTA format...")
                                     FullSeq <- InputFasta( intarget )
                                     FullBp <<- as.numeric( colnames( FullSeq ) )
+                                    cat("\nMaking finding the informative segregating sites...")
                                     InformativeSeq <- FullSeq[, colSums( FullSeq[-1,] != FullSeq[-nrow( FullSeq ), ] ) > 0]
                                     InformativeBp <<- as.numeric( colnames( InformativeSeq ) )
-                                    FullSequence <<- FullSeq
-                                    InformativeSequence <<- InformativeSeq
                                   }
-                                  SequenceNames <<- rownames( FullSequence )
-                                  SequenceLength <<- ncol( FullSequence )
-                                  InformativeLength <<- ncol( InformativeSequence )
+                                  SequenceLength <<- ncol( FullSeq )
+                                  InformativeLength <<- ncol( InformativeSeq )
+                                  SequenceNames <<- rownames( FullSeq )
+                                  cat("\nDone, now saving data internally")
+                                  cat(" :Full Sequence")
+                                  FullSequence <<- FullSeq
+                                  cat(" :Informative bases only")
+                                  InformativeSequence <<- InformativeSeq
+                                  cat("\nFinished DNA input.")
                                 }
                             ))
 
@@ -59,5 +67,6 @@ InputFasta <- function( infile ) {
     cat( "\nSome duplicated sequences were found! - We will get rid of these..." )
     dna <- dna[!dups,]
   }
+  cat( "\nDone...")
   return( dna )
 }
