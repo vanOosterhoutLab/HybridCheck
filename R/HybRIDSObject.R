@@ -43,13 +43,14 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                              DNA <<- HybRIDSseq$new()
                                              if( !is.null( dnafile ) ){
-                                               DNA$InputDNA( dnafile, format="FASTA")
+                                               DNA$InputDNA( dnafile )
                                              }
                                            },
                                          
                                          # Method for generating the Triplet Combinations...
                                          makeTripletCombos =
                                            function() {
+                                             if(DNA$NoDNA == TRUE) stop("No DNA data is loaded into this HybRIDS object")
                                              if(nrow(DNA$InformativeSequence) < 3){
                                                if(InGUI == TRUE) gmessage("Not enough sequences to make any triplets", icon="error")
                                                stop("Not enough sequences to make any triplets, most likely the removal of duplicate sequences has resulted in too few sequences.")
