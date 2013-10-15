@@ -20,7 +20,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                           ),
                         
                          methods = list( initialize = 
-                                           function( dnafile = NULL, format = "FASTA", inGUI = FALSE ) {
+                                           function( dnafile = NULL, formatForce = NULL, storageOpt = "default", inGUI = FALSE ) {
                                              TripletParams <<- list(
                                                Method = 1,
                                                SortThreshold = 0.01 )
@@ -41,9 +41,17 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              } else {
                                                InGUI <<- FALSE
                                              }
-                                             DNA <<- HybRIDSseq$new()
+                                             if(storageOpt == "default"){
+                                               DNA <<- HybRIDSseq$new()
+                                             } else {
+                                               if(storageOpt == "fasta_files"){
+                                                 DNA <<- HybRIDSseq_fastadisk$new()
+                                               } else {
+                                                 stop("You haven't specified a valid mode of storage for the DNA data")
+                                               }
+                                             }
                                              if( !is.null( dnafile ) ){
-                                               DNA$InputDNA( dnafile )
+                                               DNA$InputDNA( dnafile, formatForce )
                                              }
                                            },
                                          
