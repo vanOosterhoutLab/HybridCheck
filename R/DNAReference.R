@@ -35,6 +35,7 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                                   FullSequence <<- FullSeq
                                   cat(" :Informative bases only")
                                   InformativeSequence <<- InformativeSeq
+                                  NoDNA <<- FALSE
                                   cat("\nFinished DNA input.")
                                 }
                             ))
