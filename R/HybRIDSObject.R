@@ -30,7 +30,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                TripletCombinations = list () )
                                              length( BlockDetectionParams ) <<- 4
                                              BlockDetectionParams <<- list( ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2 )
-                                             BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005 )
+                                             BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE )
                                              PlottingParams <<- list( What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
                                                                       TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
                                                                       XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
@@ -209,25 +209,16 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
-                                           function( Selections = "all" ) {
+                                           function( Selections = "ALL" ) {
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( length(Selections) == 1 && Selections == "all" ) {
-                                               if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
-                                                 message( "Only one triplet to analyze the sequence similarity of..." )
-                                                 seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp )
-                                               } else {
-                                                 message( "Analyzing the sequence similarity of all the triplets..." )
-                                                 progress <- txtProgressBar( min = 0, max = length(SSAnalysisParams$TripletCombinations), style = 3 )
-                                                 for( i in 1:length( SSAnalysisParams$TripletCombinations ) ) {
-                                                   setTxtProgressBar( progress, i )
-                                                   suppressMessages( seq.similarity( DNA$InformativeSequence[ SSAnalysisParams$TripletCombinations[[i]], ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
-                                                 }
-                                               }
-                                             } else {
-                                               indexTriplets( Selections )
-                                               for( i in LastTripletSelection ){
-                                                 message("Now analysing sequence similarity of triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
-                                                 suppressMessages( seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
+                                             if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
+                                                message( "Only one triplet to analyze the sequence similarity of..." )
+                                                seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp )
+                                              } else {
+                                                indexTriplets( Selections )
+                                                for( i in LastTripletSelection ){
+                                                  message("Now analysing sequence similarity of triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
+                                                  suppressMessages( seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
                                                } 
                                              }
                                            },
@@ -451,29 +442,30 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                if(output==T){
                                                  return(LastTripletSelection)
                                                }
-                                             }
-                                             processedSelections <- strsplit( selections, split=":" )
-                                             threes <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 3 )]
-                                             twos <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 2 )]
-                                             ones <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 1 )]
-                                             threes <- lapply( threes, function(x) which( DNA$SequenceNames %in% x ) )
-                                             twos <- lapply( twos, function(x) which( DNA$SequenceNames %in% x ) )
-                                             ones <- lapply( ones, function(x) which( DNA$SequenceNames %in% x ) )
-                                             threes <- which( SSAnalysisParams$TripletCombinations %in% threes )
-                                             if( length(twos) > 0 ) {
-                                               twos <- which( unlist( lapply( twos, function(y) lapply( SSAnalysisParams$TripletCombinations, function(x) all( y %in% x ) ) ) ) )
                                              } else {
-                                               twos <- c()
-                                             }
-                                             if( length(ones) > 0 ) {
-                                               ones <- which( unlist( lapply( ones, function(y) lapply( SSAnalysisParams$TripletCombinations, function(x) any( y %in% x ) ) ) ) )
-                                             } else {
-                                               ones <- c()
-                                             }
-                                             # Now let's get rid of redunancies and assign the selection to LastTripletSelection.
-                                             LastTripletSelection <<- unique( c( threes, twos, ones ) )
-                                             if(output == T){
-                                               return(LastTripletSelection)
+                                               processedSelections <- strsplit( selections, split=":" )
+                                               threes <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 3 )]
+                                               twos <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 2 )]
+                                               ones <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 1 )]
+                                               threes <- lapply( threes, function(x) which( DNA$SequenceNames %in% x ) )
+                                               twos <- lapply( twos, function(x) which( DNA$SequenceNames %in% x ) )
+                                               ones <- lapply( ones, function(x) which( DNA$SequenceNames %in% x ) )
+                                               threes <- which( SSAnalysisParams$TripletCombinations %in% threes )
+                                               if( length(twos) > 0 ) {
+                                                 twos <- which( unlist( lapply( twos, function(y) lapply( SSAnalysisParams$TripletCombinations, function(x) all( y %in% x ) ) ) ) )
+                                               } else {
+                                                 twos <- c()
+                                               }
+                                               if( length(ones) > 0 ) {
+                                                 ones <- which( unlist( lapply( ones, function(y) lapply( SSAnalysisParams$TripletCombinations, function(x) any( y %in% x ) ) ) ) )
+                                               } else {
+                                                 ones <- c()
+                                               }
+                                               # Now let's get rid of redunancies and assign the selection to LastTripletSelection.
+                                               LastTripletSelection <<- unique( c( threes, twos, ones ) )
+                                               if(output == T){
+                                                 return(LastTripletSelection)
+                                               } 
                                              }
                                            },
                                          

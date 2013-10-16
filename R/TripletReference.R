@@ -154,9 +154,9 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  blockDate =
                                    function( dnaobj, parameters ) {
                                      message("Now dating blocks")
-                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue ) )
-                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue ) )
-                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue ) )
+                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue, parameters$BonfCorrection ) )
+                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue, parameters$BonfCorrection ) )
+                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue, parameters$BonfCorrection ) )
                                      out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
                                      BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
