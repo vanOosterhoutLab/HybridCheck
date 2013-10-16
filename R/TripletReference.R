@@ -143,7 +143,8 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                        message("Now beginning Block Search...")
                                        Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
                                        names(Blocks) <<- names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep = ":" ), paste( ContigNames[1], ContigNames[3], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
-                                       BlocksWarning <<- character()
+                                       BlocksWarning <<- c(BlocksWarning, "BLOCKS: NOT DATED")
+                                       BlocksWarning <<- BlocksWarning[-which(BlocksWarning=="NO PUTATIVE BLOCKS")]
                                      } else {
                                       warning("No SSTable for this triplet yet, can't identify blocks.\nMake sure you've analysed the sequence similarity first.") 
                                      }
@@ -159,6 +160,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                      out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
                                      BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
+                                     BlocksWarning <<- BlocksWarning[-which(BlocksWarning=="BLOCKS: NOT DATED")]
                                    },
                                  
                                  returnPair =
@@ -193,7 +195,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                    blocks <- Blocks
                                    if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
                                      message(paste("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":")))
-                                     # Check that the tables are present, if they are, turn them into blank data.frames.
+                                     # Check that the tables are present, if they aren't, turn them into blank data.frames.
                                      for(i in 1:3) {
                                        for(n in 1:length(blocks[[i]])) {
                                          if( class(blocks[[i]][[n]]) == "data.frame" ){
@@ -211,24 +213,32 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                          }
                                        }
                                      }
-                                     if("BLOCKS DATED" %in% BlocksWarning){
-                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
-                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-                                       temp2 <- do.call(rbind, temps)
-                                       temp2["SequenceSimilarityThreshold"] <- unlist(SS)
-                                       temp2["SequencePair"] <- unlist(pair)
-                                       return(temp2)
-                                     } else {
-                                       temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
-                                       SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-                                       pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-                                       temp2 <- do.call(rbind, temps)
-                                       [,2] <- unlist(SS)
-                                       combinedframes[,1] <- unlist(pair)
-                                       combinedframes[,3:13] <- temp2
-                                       return(combinedframes)
+                                     temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                                     SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                                     pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                                     temp2 <- do.call(rbind, temps)
+                                     otherframe <- data.frame(SequenceSimilarityThreshold = unlist(SS), SequencePair = unlist(pair))
+                                     if("BLOCKS: NOT DATED" %in% BlocksWarning){
+                                       temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2))))
                                      }
+                                     return(cbind(otherframe, temp2))
+#                                      if("BLOCKS DATED" %in% BlocksWarning){
+#                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+#                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+#                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+#                                        temp2 <- do.call(rbind, temps)
+#                                        temp2["SequenceSimilarityThreshold"] <- unlist(SS)
+#                                        temp2["SequencePair"] <- unlist(pair)
+#                                        return(temp2)
+#                                      } else {
+#                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+#                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+#                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+#                                        temp2 <- do.call(rbind, temps)
+#                                        otherdframe <- data.frame(SequenceSimilarityThreshold = unlist(SS), SequencePair = unlist(pair))
+#                                        
+#                                        return(combinedframes)
+#                                      }
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }

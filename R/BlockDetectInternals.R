@@ -27,19 +27,19 @@ autodetect.thresholds <- function( ssdatatable, SDdiv, manual, manoveride ) {
       thresholds <- thresholds[which( thresholds > noisemean )]
       if( length( thresholds ) < 1 ) {
         if( manfall==T ) {
-          cat( "Falling back to manual thresholds...\n" )
+          message( "Falling back to manual thresholds..." )
           thresholds <- floor( man )
         } else {
-          cat( "Valid thresholds could not be auto determined from suitable peaks\nfallback to manual thresholds is off" )
+          message( "Valid thresholds could not be auto determined from suitable peaks, fallback to manual thresholds is off" )
           thresholds <- "VALID THRESHOLDS COULD NOT BE AUTO DETERMINED FROM SUITABLE PEAKS\nFALLBACK TO MANUAL THRESHOLDS IS OFF"
         }
       }
     } else {
       if( manfall == T ) {
-        cat( "Falling back to manual thresholds...\n" )
+        message( "Falling back to manual thresholds..." )
         thresholds <- floor( man )
       } else {
-        cat( "Interesting peaks was of length zero, and manual falback is off, couldn't determine thresholds\n" )
+        message( "Interesting peaks was of length zero, and manual falback is off, couldn't determine thresholds" )
         thresholds <- "INTERESTING PEAKS WAS OF LENGTH ZERO, AND MANUAL FALLBACK IS OFF COULDN'T DETERMINE THRESHOLDS"
       }
     }

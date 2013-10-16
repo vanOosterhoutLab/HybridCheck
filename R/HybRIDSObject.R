@@ -423,29 +423,20 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
-                                           function( Selection, OneTable = FALSE, Neat = TRUE ) {
+                                           function( Selection = NULL, OneTable = FALSE, Neat = TRUE ) {
                                              outputTables <- list()
-                                             len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
+                                             #len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
                                              ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
                                              tables <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
                                              tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]) ) ))                                
                                              tables <- do.call(rbind, tables)
                                              tables["Triplet"] <- tripletlabels
-                                             if( "PValue" %in% names(tables) ){
-                                               output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
-                                                                     tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$fiveAge, tables$fiftyAge,
-                                                                     tables$ninetyfiveAge, tables$PValue )
-                                               if( Neat == TRUE ) {
-                                                 output <- output[,-c(4,5,6)]
-                                                 names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value")
-                                               }
-                                             } else {
-                                               output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
-                                                                     tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength )
-                                               if( Neat == TRUE ) {
-                                                 output <-output[,-c(4,5,6)]
-                                                 names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP")
-                                               }
+                                             output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
+                                                                   tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$fiveAge, tables$fiftyAge,
+                                                                   tables$ninetyfiveAge, tables$PValue )
+                                             if( Neat == TRUE ) {
+                                               output <- output[,-c(4,5,6)]
+                                               names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value")
                                              }
                                              return(output)
                                            },
@@ -454,6 +445,13 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          indexTriplets =
                                            function( selections, output = F ) {
                                              if( !is.character( selections ) ) stop( "option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if(any(selections == "ALL")){
+                                               message("One of the selections is 'ALL', any other selections provided are redundant...")
+                                               LastTripletSelection <<- 1:length(Triplets)
+                                               if(output==T){
+                                                 return(LastTripletSelection)
+                                               }
+                                             }
                                              processedSelections <- strsplit( selections, split=":" )
                                              threes <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 3 )]
                                              twos <- processedSelections[which( lapply( processedSelections, function(x) length(x) ) == 2 )]
