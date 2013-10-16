@@ -1,12 +1,12 @@
 
-seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp, verbose ) {
-  if( verbose == T ) cat( "\nPreparing input DNA sequences...\n" )
+seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp ) {
+  message( "Preparing input DNA sequences..." )
   colnames( dnain ) <- cutbp
   cutDNA <- dnain[ , colSums( dnain[ -1, ] != dnain[ -nrow( dnain ), ] ) > 0 ]
   dnaCutLength <- ncol( cutDNA )     # Measure number of bases in cut data.
   if( dnaCutLength >= 1 ) {   # Only continue with analysis if there is actually some informative sites.
     # First make sure a safe set of sliding windows is calculated for the analysis.
-    if( verbose == T ) cat( "Checking the sliding window parameters\n" )
+    message( "Checking the sliding window parameters" )
     # 1). Make sure the sliding window size is not some stupid value that will mess up the program loops...
     # Make sure that the window.size value entered by the user is a whole number integer.
     # If not, make it an integer.
@@ -23,20 +23,20 @@ seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp,
       win.size <- as.integer( ( dnaCutLength / 100 ) * 10 )
       if( win.size == 0 ) {
         win.size <- 1L
-        cat( "The set sliding window size is bigger than the length of the actual informative sites of the contig!\n" )
+        message( "The set sliding window size is bigger than the length of the actual informative sites of the contig!" )
         triplet$SSWarning <- "Sliding Window Size Warning #2: Window Size was set to 1\n"
-        cat( "Default behaviour in this case is to set the sliding window to 10%
+        message( "Default behaviour in this case is to set the sliding window to 10%
             of the sequence length, but since this value is below 1, instead HybRIDS is
-            setting the sliding window length to 1...\n" )
+            setting the sliding window length to 1..." )
       } else {
-        cat( "The set sliding window size is bigger than the length of the actual informative sites of the contig!\n" )
-        cat( "Default behaviour in this case is to set the sliding window to 10%
-            of the sequence length... \n" )
-        cat( "This is equal to", as.integer( ( dnaCutLength / 100 ) * 10 ), sep=" " )
+        message( "The set sliding window size is bigger than the length of the actual informative sites of the contig!" )
+        message( "Default behaviour in this case is to set the sliding window to 10%
+            of the sequence length... " )
+        message("This is equal to ", as.integer( ( dnaCutLength / 100 ) * 10 ))
         triplet$SSWarning <- paste( "Sliding Window Size Warning #1: Window Size was set to", as.integer( ( dnaCutLength / 100 ) * 10 ), "." )
       }
     }
-    if( verbose == T ) cat( "Making all the window frames...\n" )
+    message( "Making all the window frames..." )
     if( win.size >= 1 ) {
       allstepsfrom <- 1 + as.integer( win.size / 2 )
       allstepsto <- ( ncol( cutDNA ) - as.integer( win.size / 2 ) ) + 1
@@ -59,14 +59,14 @@ seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp,
       Distances[ , 6 ] <- as.numeric( colnames( cutDNA )[ windowp2 ] ) # Actual BP End
       rm( windowp1, windowp2, allsteps, allstepsto, allstepsfrom )
       # Set up the loop for calculation.
-      if( verbose == T ) cat( "Analysing Now!\n" )
-      if( verbose == T ) prog <- txtProgressBar( min = 0, max = nrow( Distances ), style = 3 )
+      message( "Analysing Now!" )
+      prog <- txtProgressBar( min = 0, max = nrow( Distances ), style = 3 )
       n1 <- 0
       #Do the loop - Calculates all the hammind distances for all contig pairs, in all window frames. 
       for( i in seq( nrow( Distances ) ) ) {
         n1 <- n1 + 1
         dnaStretch <- cutDNA[ , Distances[ n1, 2 ] : Distances[ n1, 3 ] ]
-        if( verbose == T ) setTxtProgressBar( prog, n1 )
+        setTxtProgressBar( prog, n1 )
         Distances[ n1, 7 ] <- sum( dnaStretch[ 1, ] != dnaStretch[ 2, ] )
         Distances[ n1, 8 ] <- sum( dnaStretch[ 1, ] != dnaStretch[ 3, ] )
         Distances[ n1, 9 ] <- sum( dnaStretch[ 2, ] != dnaStretch[ 3, ] )

@@ -132,15 +132,15 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                    function(parameters) {
                                      if(!any(SSError == "NO SS TABLE")){
                                        if( parameters$AutoThresholds == TRUE ) {
-                                         cat( "Using the autodetect thresholds method...\n" )
-                                         cat( "Deciding on suitable thresholds...\n" )
+                                         message("Using the autodetect thresholds method...")
+                                         message("Deciding on suitable thresholds...")
                                          Thresholds <- autodetect.thresholds( SSTable, parameters$SDstringency, parameters$ManualThresholds, parameters$ManualFallback )
                                          # Results in a list of thresholds for AB, AC and BC.
                                        } else {
                                          Thresholds <- list( parameters$ManualThresholds, parameters$ManualThresholds, parameters$ManualThresholds )
                                        }
                                        names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
-                                       cat( "Now beginning Block Search...\n\n" )
+                                       message("Now beginning Block Search...")
                                        Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
                                        names(Blocks) <<- names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep = ":" ), paste( ContigNames[1], ContigNames[3], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
                                        BlocksWarning <<- character()
@@ -152,7 +152,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  # Method for testing significance and dating of blocks.
                                  blockDate =
                                    function( dnaobj, parameters ) {
-                                     cat( "Now dating blocks\n" )
+                                     message("Now dating blocks")
                                      ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue ) )
                                      ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue ) )
                                      bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue ) )
@@ -164,7 +164,6 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  returnPair =
                                    function( sequence1, sequence2, data = T ) {
                                      pair <- c( which( ContigNames == sequence1 ), which( ContigNames == sequence2 ) )
-                                     #pair <- c( which( c( SequenceA, SequenceB, SequenceC ) == sequence1 ), which( c( SequenceA, SequenceB, SequenceC ) == sequence2 ) )
                                      if( 1 %in% pair && 2 %in% pair ) {
                                        if( data == T ) {
                                          return( SSTable[,7] )
@@ -193,7 +192,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  tabulateBlocks = function() {
                                    blocks <- Blocks
                                    if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
-                                     cat("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":"), "\n")
+                                     message(paste("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":")))
                                      # Check that the tables are present, if they are, turn them into blank data.frames.
                                      for(i in 1:3) {
                                        for(n in 1:length(blocks[[i]])) {
@@ -219,16 +218,17 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                        temp2 <- do.call(rbind, temps)
                                        temp2["SequenceSimilarityThreshold"] <- unlist(SS)
                                        temp2["SequencePair"] <- unlist(pair)
+                                       return(temp2)
                                      } else {
                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
                                        temp2 <- do.call(rbind, temps)
-                                       combinedframes[,2] <- unlist(SS)
+                                       [,2] <- unlist(SS)
                                        combinedframes[,1] <- unlist(pair)
                                        combinedframes[,3:13] <- temp2
+                                       return(combinedframes)
                                      }
-                                     return(temp2)
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }

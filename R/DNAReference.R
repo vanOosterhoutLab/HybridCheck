@@ -24,19 +24,19 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                                 function( intarget, forceFormat = NULL) {
                                   FullSeq <- InputSequences(intarget, forceFormat)
                                   FullBp <<- as.numeric( colnames( FullSeq ) )
-                                  cat("\nSubsetting the informative segregating sites...")
+                                  message("Subsetting the informative segregating sites...")
                                   InformativeSeq <- FullSeq[, colSums( FullSeq[-1,] != FullSeq[-nrow( FullSeq ), ] ) > 0]
                                   InformativeBp <<- as.numeric( colnames( InformativeSeq ) )
                                   SequenceLength <<- ncol( FullSeq )
                                   InformativeLength <<- ncol( InformativeSeq )
                                   SequenceNames <<- rownames( FullSeq )
-                                  cat("\nDone, now saving data internally")
-                                  cat(" :Full Sequence")
+                                  message("Done, now saving data internally")
+                                  message(" :Full Sequence")
                                   FullSequence <<- FullSeq
-                                  cat(" :Informative bases only")
+                                  message(" :Informative bases only")
                                   InformativeSequence <<- InformativeSeq
                                   NoDNA <<- FALSE
-                                  cat("\nFinished DNA input.")
+                                  message("Finished DNA input.")
                                 }
                             ))
 
@@ -76,30 +76,30 @@ HybRIDSseq_fastadisk <- setRefClass( "HybRIDSseq_fastadisk",
 # Internal function For reading in sequence files, based on the format deteted.
 InputSequences <- function( infile, Format ) {
   if(exists(infile)){
-    cat("\nFound a variable of that name in the R workspace, now checking it's type...\n")
+    message("\nFound a variable of that name in the R workspace, now checking it's type...")
     classofobj <- class(get(infile))
     if(classofobj == "DNAbin"){
-      cat("Detected type of object is DNAbin from the ape package, converting to HybRIDSdna object...\n")
+      message("Detected type of object is DNAbin from the ape package, converting to HybRIDSdna object...")
       dna <- as.character(get(infile))
     }
   } else {
     if(is.null(Format)){
       if(!grepl(".", infile)) stop("The provided filename has no extention, you need to specify a format with the forceFormat option.")
       if(grepl(".fas", infile)){
-        cat("Detected file is supposed to be a FASTA format file...\n")
+        message("Detected file is supposed to be a FASTA format file...")
         Format <- "fasta"
       }
     }
-    cat("Reading in DNA sequence file...")
+    message("Reading in DNA sequence file...")
     dna <- as.character( read.dna( file = infile, format = Format, as.matrix = TRUE ) )
   }
   colnames( dna ) <- 1:ncol( dna )
-  cat( "\nLooking for duplicates..." )
+  message( "Looking for duplicates..." )
   dups <- duplicated( dna )
   if( any( dups ) ){
-    cat( "\nSome duplicated sequences were found! - We will get rid of these..." )
+    message( "Some duplicated sequences were found! - We will get rid of these..." )
     dna <- dna[!dups,]
   }
-  cat( "\nDone...")
+  message( "Done...")
   return( dna )
 }
