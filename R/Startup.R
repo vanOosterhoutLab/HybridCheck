@@ -51,7 +51,6 @@ HybRIDS_gui_generator <- setRefClass(
     StatusBar = "ANY",
     # Data
     HybRIDS_Sessions = "list",
-    CommandHistory = "list",
     CurrentPlot = "ANY"
   ),
   methods = list(

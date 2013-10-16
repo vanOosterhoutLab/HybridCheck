@@ -67,7 +67,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              pairs <- combn( c( 1:nrow( DNA$InformativeSequence ) ), 2, simplify=FALSE )
                                              if( TripletParams$Method > 1 && length( combos ) > 1 ) {
                                                # Implements the method whereby distance information is used to reject pairs which would likeley be pointless.
-                                               cat( "\nTrimming number of triplet comparrisons..." )
+                                               message("Trimming number of triplet comparrisons...")
                                                if( TripletParams$Method == 2 ) {                                                    
                                                  distances <- dist.dna( as.DNAbin( DNA$FullSequence ), model = "raw" )
                                                  rejectpairs <- pairs[ which( distances < RawThresh ) ]
@@ -99,7 +99,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                        }
                                                      }
                                                    }
-                                                   cat( "\nRemoving",length( removals ),"triplets" )
+                                                   message("Removing ",length( removals )," triplets")
                                                    SSAnalysisParams$TripletCombinations <<- SSAnalysisParams$TripletCombinations[ -unlist( removals ) ]
                                                  }
                                                }
@@ -213,21 +213,21 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              if( length(Selections) == 1 && Selections == "all" ) {
                                                if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
-                                                 cat( "Only one triplet to analyze the sequence similarity of..." )
-                                                 seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = T )
+                                                 message( "Only one triplet to analyze the sequence similarity of..." )
+                                                 seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp )
                                                } else {
-                                                 cat( "Analyzing the sequence similarity of all the triplets...\n" )
+                                                 message( "Analyzing the sequence similarity of all the triplets..." )
                                                  progress <- txtProgressBar( min = 0, max = length(SSAnalysisParams$TripletCombinations), style = 3 )
                                                  for( i in 1:length( SSAnalysisParams$TripletCombinations ) ) {
                                                    setTxtProgressBar( progress, i )
-                                                   seq.similarity( DNA$InformativeSequence[ SSAnalysisParams$TripletCombinations[[i]], ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = F )
+                                                   suppressMessages( seq.similarity( DNA$InformativeSequence[ SSAnalysisParams$TripletCombinations[[i]], ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
                                                  }
                                                }
                                              } else {
                                                indexTriplets( Selections )
                                                for( i in LastTripletSelection ){
-                                                 cat( "Now analysing sequence similarity of triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
-                                                 seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp, verbose = F )
+                                                 message("Now analysing sequence similarity of triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
+                                                 suppressMessages( seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
                                                } 
                                              }
                                            },
@@ -238,19 +238,19 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              if( length(Selections) == 1 && Selections == "all" ) {
                                                if( length( Triplets ) < 2 ) {
-                                                 cat( "Only one triplet to find the potential blocks in...\n" )
+                                                 message("Only one triplet to find the potential blocks in...")
                                                  Triplets[[1]]$putativeBlockFind(BlockDetectionParams)
                                                } else {
-                                                 cat( "Finding potential blocks in all the triplets...\n" )
+                                                 message("Finding potential blocks in all the triplets...")
                                                  for( i in 1:length( Triplets ) ) {
-                                                   cat( "Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
+                                                   message(paste("Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
                                                    Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
                                                  }
                                                }
                                              } else {
                                                indexTriplets( Selections )
                                                for( i in LastTripletSelection ){
-                                                 cat( "Now finding potential blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n" )
+                                                 message(paste("Now finding potential blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
                                                  Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
                                                }
                                              }
@@ -262,19 +262,19 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              if( length(Selections) == 1 && Selections == "all" ) {
                                                if( length( Triplets ) < 2 ) {
-                                                 cat( "Only one triplet to date blocks in...\n" )
+                                                 message("Only one triplet to date blocks in...")
                                                  Triplets[[1]]$blockDate(DNA, BlockDatingParams)
                                                } else {
-                                                 cat( "Assessing and dating blocks in all the triplets...\n" )
+                                                 message("Assessing and dating blocks in all the triplets...")
                                                  for( i in 1:length( Triplets ) ) {
-                                                   cat( "Now assessing and dating blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n")
+                                                   message(paste("Now assessing and dating blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
                                                    Triplets[[i]]$blockDate(DNA, BlockDatingParams)
                                                  }
                                                }
                                              } else {
                                                indexTriplets( Selections )
                                                for( i in LastTripletSelection ){
-                                                 cat( "Now assessing and dating blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i]), "\n\n" )
+                                                 message( paste("Now assessing and dating blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
                                                  Triplets[[i]]$blockDate(DNA, BlockDatingParams)
                                                }
                                              }
@@ -481,8 +481,12 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Show method.
                                          show = function() {
-                                           cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------\nFull Sequence File Location: ", DNA$FullSequenceFile,
-                                               "\nInformative Sequence File Location: ", DNA$InformativeSequenceFile) 
+                                           if(class(DNA)=="HybRIDSseq_fastadisk"){
+                                             cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------\nFull Sequence File Location: ", DNA$FullSequenceFile,
+                                                 "\nInformative Sequence File Location: ", DNA$InformativeSequenceFile)
+                                           } else {
+                                             cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------")
+                                           } 
                                            if(length(DNA$SequenceNames) > 0){
                                              cat("\nFull Length: ",DNA$SequenceLength,
                                                  "\nInformative Length: ",DNA$InformativeLength,"\nSequence names: ",DNA$SequenceNames,"\n\n")
