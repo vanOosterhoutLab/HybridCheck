@@ -60,13 +60,13 @@ seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp 
       rm( windowp1, windowp2, allsteps, allstepsto, allstepsfrom )
       # Set up the loop for calculation.
       message( "Analysing Now!" )
-      prog <- txtProgressBar( min = 0, max = nrow( Distances ), style = 3 )
+      #prog <- txtProgressBar( min = 0, max = nrow( Distances ), style = 3 )
       n1 <- 0
       #Do the loop - Calculates all the hammind distances for all contig pairs, in all window frames. 
       for( i in seq( nrow( Distances ) ) ) {
         n1 <- n1 + 1
         dnaStretch <- cutDNA[ , Distances[ n1, 2 ] : Distances[ n1, 3 ] ]
-        setTxtProgressBar( prog, n1 )
+        #setTxtProgressBar( prog, n1 )
         Distances[ n1, 7 ] <- sum( dnaStretch[ 1, ] != dnaStretch[ 2, ] )
         Distances[ n1, 8 ] <- sum( dnaStretch[ 1, ] != dnaStretch[ 3, ] )
         Distances[ n1, 9 ] <- sum( dnaStretch[ 2, ] != dnaStretch[ 3, ] )

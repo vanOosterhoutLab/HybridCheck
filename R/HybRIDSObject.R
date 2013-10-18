@@ -221,6 +221,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                   suppressMessages( seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
                                                } 
                                              }
+                                             message("Finished Sequence Similarity Analysis.")
                                            },
                                          
                                          # Method to execute the putative block finds.
