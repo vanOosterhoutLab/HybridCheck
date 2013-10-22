@@ -30,7 +30,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                TripletCombinations = list () )
                                              length( BlockDetectionParams ) <<- 4
                                              BlockDetectionParams <<- list( ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2 )
-                                             BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE )
+                                             BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE )
                                              PlottingParams <<- list( What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
                                                                       TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
                                                                       XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",

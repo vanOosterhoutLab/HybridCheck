@@ -27,7 +27,7 @@ comb <- function(B,D){
 
 binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
 
-date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect) {
+date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway) {
   # Check there are blocks to date!
   if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
     blocksobj <- as.matrix(blocksobj)
@@ -68,15 +68,18 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect) {
       maxSNPs <- ncol( cutSeq )
       # p-value calculation is a binomial distribution, taking into account number of SNP's in the block, 
       pValue <- pbinom( maxSNPs, N, wholeSequenceDist )
-      if(pValue > pthresh) next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
-      blockAges[i,5] <- maxSNPs  
-      blockAges[i,6] <- pValue
-      soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
-      soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B = maxSNPs, N = N)
-      soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B = maxSNPs, N = N)
-      blockAges[i,3] <- soln5[["root"]]/mut
-      blockAges[i,2] <- soln50[["root"]]/mut
-      blockAges[i,1] <- soln95[["root"]]/mut
+      if(pValue > pthresh && danyway == FALSE) {
+        next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
+      } else {
+        blockAges[i,5] <- maxSNPs  
+        blockAges[i,6] <- pValue
+        soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
+        soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B = maxSNPs, N = N)
+        soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B = maxSNPs, N = N)
+        blockAges[i,3] <- soln5[["root"]]/mut
+        blockAges[i,2] <- soln50[["root"]]/mut
+        blockAges[i,1] <- soln95[["root"]]/mut
+      }
     }
   } else {
     blockAges <- "NO BLOCKS TO DATE"
