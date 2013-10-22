@@ -95,7 +95,7 @@ InputSequences <- function( infile, Format ) {
   }
   message( "Looking for duplicates..." )
   distances <- dist.dna(dna, model="N")
-  if( any( distances ) == 0 ){
+  if( any( distances == 0) ){
     message( "Some duplicated sequences were found! - We will get rid of these..." )
     indicies <- distrowcol(which(distances == 0), attr(distances, "Size"))
     dna <- dna[-indicies[,2],]
