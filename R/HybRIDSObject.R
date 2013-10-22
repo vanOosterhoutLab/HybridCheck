@@ -210,7 +210,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
                                            function( Selections = "ALL" ) {
-                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
                                                 message( "Only one triplet to analyze the sequence similarity of..." )
                                                 seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp )
@@ -226,48 +226,32 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to execute the putative block finds.
                                          findBlocks =
-                                           function( Selections = "all" ){
-                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( length(Selections) == 1 && Selections == "all" ) {
-                                               if( length( Triplets ) < 2 ) {
-                                                 message("Only one triplet to find the potential blocks in...")
-                                                 Triplets[[1]]$putativeBlockFind(BlockDetectionParams)
-                                               } else {
-                                                 message("Finding potential blocks in all the triplets...")
-                                                 for( i in 1:length( Triplets ) ) {
-                                                   message(paste("Now finding potential blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
-                                                   Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
-                                                 }
-                                               }
+                                           function( Selections = "ALL" ){
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( length( Triplets ) < 2 ) {
+                                               message("Only one triplet to find the potential blocks in...")
+                                               Triplets[[1]]$putativeBlockFind(BlockDetectionParams)
                                              } else {
                                                indexTriplets( Selections )
                                                for( i in LastTripletSelection ){
-                                                 message(paste("Now finding potential blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
-                                                 Triplets[[i]]$putativeBlockFind(BlockDetectionParams)
+                                                 message("Now finding potential blocks for triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
+                                                 suppressMessages(Triplets[[i]]$putativeBlockFind(BlockDetectionParams))
                                                }
                                              }
                                            },
                                          
                                          # Method to Date the blocks found.
                                          dateBlocks =
-                                           function( Selections = "all" ){
+                                           function( Selections = "ALL" ){
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( length(Selections) == 1 && Selections == "all" ) {
-                                               if( length( Triplets ) < 2 ) {
-                                                 message("Only one triplet to date blocks in...")
-                                                 Triplets[[1]]$blockDate(DNA, BlockDatingParams)
-                                               } else {
-                                                 message("Assessing and dating blocks in all the triplets...")
-                                                 for( i in 1:length( Triplets ) ) {
-                                                   message(paste("Now assessing and dating blocks for triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
-                                                   Triplets[[i]]$blockDate(DNA, BlockDatingParams)
-                                                 }
-                                               }
+                                             if( length( Triplets ) < 2 ) {
+                                               message("Only one triplet to date blocks in...")
+                                               Triplets[[1]]$blockDate(DNA, BlockDatingParams)
                                              } else {
                                                indexTriplets( Selections )
                                                for( i in LastTripletSelection ){
-                                                 message( paste("Now assessing and dating blocks in triplet", unlist(SSAnalysisParams$TripletCombinations[i])))
-                                                 Triplets[[i]]$blockDate(DNA, BlockDatingParams)
+                                                 message("Now assessing and dating blocks for triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
+                                                 suppressMessages(Triplets[[i]]$blockDate(DNA, BlockDatingParams))
                                                }
                                              }
                                            },

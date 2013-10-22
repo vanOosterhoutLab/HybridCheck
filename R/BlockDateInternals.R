@@ -68,7 +68,7 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       maxSNPs <- ncol( cutSeq )
       # p-value calculation is a binomial distribution, taking into account number of SNP's in the block, 
       pValue <- pbinom( maxSNPs, N, wholeSequenceDist )
-      if(pValue > pthresh && danyway == FALSE) {
+      if( pValue > pthresh && danyway == FALSE ) {
         next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
       } else {
         blockAges[i,5] <- maxSNPs  
