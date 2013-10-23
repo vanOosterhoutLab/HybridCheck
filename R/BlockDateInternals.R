@@ -1,83 +1,5 @@
 ## Internal functions for the block dating and significant values
 
-date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect = FALSE) {
-  # Check there are blocks to date!
-  if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
-    blocksobj <- as.matrix(blocksobj)
-    if( bonfcorrect == TRUE ){ # Bonferoni correction of the pvalue threshold.
-      pthresh <- pthresh/nrow(blocksobj)
-    }
-    blockAges <- matrix(nrow=nrow(blocksobj),ncol=6) #ncol was 5 before p-value accomodation.
-    colnames(blockAges) <- c("5%","50%","95%","BlockSize","SNPs","p-value")
-    # For each significant block...
-    for(i in 1:nrow(blocksobj)){
-      # Pick the correct sequences for the blocks...
-      blockAges[i,4] <- blocksobj[i,6]
-      BlockStart <- which(dnaobj$InformativeBp == blocksobj[i,4])
-      BlockEnd <- which(dnaobj$InformativeBp == blocksobj[i,5])
-      # Figure out what sort of pair comparrison this comparrison is, then extract the two sequences required...
-      if(pair == 1){
-        Seq <- dnaobj$InformativeSequence[c(1,2),c(BlockStart:BlockEnd)]
-        wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,2),]), model="N")[1] # Get the raw sequence distance.
-        wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence) # Divide by the sequence length.
-      } else {
-        if(pair == 2){
-          Seq <- dnaobj$InformativeSequence[c(1,3),c(BlockStart:BlockEnd)]
-          wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,3),]), model="N")[1]
-          wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
-        } else {
-          if(pair == 3){
-            Seq <- dnaobj$InformativeSequence[c(2,3),c(BlockStart:BlockEnd)]
-            wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(2,3),]), model="N")[1]
-            wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
-          }
-        }
-      }
-      # Get block length
-      B <- blocksobj[i,6]
-      # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
-      cutSeq <- as.matrix(Seq[,Seq[1,] != Seq[2,]])
-      # Calculate the maximum number of SNPs
-      maxSNPs <- ncol( cutSeq )
-      # p-value calculation is a binomial distribution, taking into account number of SNP's in the block, 
-      pValue <- pbinom( maxSNPs, B, wholeSequenceDist )
-      if(pValue > pthresh) next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
-      blockAges[i,5] <- maxSNPs  
-      blockAges[i,6] <- pValue
-      t <- 0
-      continue <- T
-      flag5 <- F
-      flag50 <- F
-      flag95 <- F
-      while( continue == T ) {
-        p <- mut * t
-        sumprobs <- pbinom( maxSNPs, B, p ) * 1000
-        if(sumprobs<=50L && flag5==F){
-          blockAges[i,3] <- t
-          flag5 <- T
-        } else {
-          if( sumprobs <= 500L && flag50 == F ) {
-            blockAges[i,2] <- t
-            flag50 <- T
-          } else {
-            if(sumprobs<=950L && flag95==F){
-              blockAges[i,1] <- t
-              flag95 <- T
-            }
-          }
-        }
-        if( all( c( flag5, flag50, flag95 ) == TRUE) ) {
-          continue <- F
-        }
-        t <- t+100
-      }
-    }
-  } else {
-    blockAges <- "NO BLOCKS TO DATE"
-  }
-  return( blockAges )
-}
-
 mergeBandD <- function( block, date ) {
   output <- lapply( 1:3, function(i) combineDatesWBlocks( block[[i]], date[[i]] ) )
   names( output ) <- names( block )
@@ -101,4 +23,68 @@ comb <- function(B,D){
     B <- "NO BLOCKS DETECTED OR DATED"
   }
   return( B )
+}
+
+binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
+
+date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway) {
+  # Check there are blocks to date!
+  if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
+    blocksobj <- as.matrix(blocksobj)
+    if( bonfcorrect == TRUE ){ # Bonferoni correction of the pvalue threshold.
+      pthresh <- pthresh/nrow(blocksobj)
+    }
+    blockAges <- matrix(nrow=nrow(blocksobj),ncol=6) #ncol was 5 before p-value accomodation.
+    colnames(blockAges) <- c("5%","50%","95%","BlockSize","SNPs","p-value")
+    # For each significant block...
+    for(i in 1:nrow(blocksobj)){
+      # Pick the correct sequences for the blocks...
+      blockAges[i,4] <- blocksobj[i,6]
+      BlockStart <- which(dnaobj$InformativeBp == blocksobj[i,4])
+      BlockEnd <- which(dnaobj$InformativeBp == blocksobj[i,5])
+      #Extract the two sequences required...
+      Seq <- dnaobj$InformativeSequence[pair,c(BlockStart:BlockEnd)]
+      wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="N")[1])/ncol(dnaobj$FullSequence) # Get the raw sequence distance.
+#       if(pair == 1){
+#         Seq <- dnaobj$InformativeSequence[c(1,2),c(BlockStart:BlockEnd)]
+#         wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,2),]), model="N")[1] # Get the raw sequence distance.
+#         wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence) # Divide by the sequence length.
+#       } else {
+#         if(pair == 2){
+#           Seq <- dnaobj$InformativeSequence[c(1,3),c(BlockStart:BlockEnd)]
+#           wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,3),]), model="N")[1]
+#           wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
+#         } else {
+#           if(pair == 3){
+#             Seq <- dnaobj$InformativeSequence[c(2,3),c(BlockStart:BlockEnd)]
+#             wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(2,3),]), model="N")[1]
+#             wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
+#           }
+#         }
+#       }
+      # Get block length
+      N <- blocksobj[i,6]
+      # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
+      #cutSeq <- as.matrix(Seq[,Seq[1,] != Seq[2,]])
+      #maxSNPs <- ncol( cutSeq )
+      maxSNPs <- length(seg.sites(as.DNAbin(Seq)))
+      # Probability of observing this many SNPs in the block given the divergence of the whole sequence divergence of the sequences. 
+      pValue <- pbinom( maxSNPs, N, wholeSequenceDist )
+      if( pValue > pthresh && danyway == FALSE ) {
+        next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
+      } else {
+        blockAges[i,5] <- maxSNPs  
+        blockAges[i,6] <- pValue
+        soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
+        soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B = maxSNPs, N = N)
+        soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B = maxSNPs, N = N)
+        blockAges[i,3] <- soln5[["root"]]/mut
+        blockAges[i,2] <- soln50[["root"]]/mut
+        blockAges[i,1] <- soln95[["root"]]/mut
+      }
+    }
+  } else {
+    blockAges <- "NO BLOCKS TO DATE"
+  }
+  return(blockAges)
 }

@@ -6,7 +6,9 @@ HybRIDS
 
 # Recent Major Changes:
 
-1. The HybRIDS optional GUI has been re-written to be simpler to use and more compatible with the latest incarnation of the HybRIDS object system, which now uses reference objects
+1. A Major BUG fix changing how DNA sequences are passed to the recombination block dating process - removed many error messages that would occur with some datasets - we recommend not to use any versions before this commit with datasets of more than 3 sequences.
+
+2. The HybRIDS optional GUI has been re-written to be simpler to use and more compatible with the latest incarnation of the HybRIDS object system, which now uses reference objects
 instead of the S3 object system. The GUI is functional and has been tested but there may be bugs.
 
 

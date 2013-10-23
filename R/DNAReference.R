@@ -80,7 +80,7 @@ InputSequences <- function( infile, Format ) {
     classofobj <- class(get(infile))
     if(classofobj == "DNAbin"){
       message("Detected type of object is DNAbin from the ape package, converting to HybRIDSdna object...")
-      dna <- as.character(get(infile))
+      dna <- get(infile)
     }
   } else {
     if(is.null(Format)){
@@ -91,15 +91,26 @@ InputSequences <- function( infile, Format ) {
       }
     }
     message("Reading in DNA sequence file...")
-    dna <- as.character( read.dna( file = infile, format = Format, as.matrix = TRUE ) )
+    dna <- read.dna( file = infile, format = Format, as.matrix = TRUE ) 
   }
-  colnames( dna ) <- 1:ncol( dna )
   message( "Looking for duplicates..." )
-  dups <- duplicated( dna )
-  if( any( dups ) ){
+  distances <- dist.dna(dna, model="N")
+  if( any( distances == 0) ){
     message( "Some duplicated sequences were found! - We will get rid of these..." )
-    dna <- dna[!dups,]
+    indicies <- distrowcol(which(distances == 0), attr(distances, "Size"))
+    dna <- dna[-indicies[,2],]
+    message( "Double Checking fro duplicated sequences again to be safe..." )
+    distances <- dist.dna(dna, model="N")
+    if(any(distances == 0) ) stop("Duplicates were still found in the sequences - this should not happen - aborting. Inform package maintainer.")
   }
+  dna <- as.character(dna)
+  colnames( dna ) <- 1:ncol( dna )
   message( "Done...")
   return( dna )
+}
+
+distrowcol <- function(ix,n){
+  nr <- ceiling(n-(1+sqrt(1+4*(n^2-n-2*ix)))/2)
+  nc <- n-(2*n-nr+1)*nr/2+ix+nr
+  return(cbind(nr,nc))
 }
