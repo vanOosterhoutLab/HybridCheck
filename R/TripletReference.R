@@ -14,6 +14,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               InformativeDNALength = "numeric",
                                               FullDNALength = "numeric",
                                               ContigNames = "character",
+                                              ContigNumbers = "list",
                                               WindowSizeUsed = "numeric",
                                               StepSizeUsed = "numeric",
                                               SSError = "character",
@@ -24,7 +25,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                methods = list(
                                  
                                  initialize = 
-                                   function( sequences, fullseqlength ) {
+                                   function( sequencenumbers, sequences, fullseqlength ) {
                                      SSTableFile <<- tempfile( pattern = "SSTable" )
                                      SSTable <<- data.frame( WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
                                                              ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
@@ -33,6 +34,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      FullDNALength <<- fullseqlength
                                      SSError <<- "NO SS TABLE"
                                      BlocksWarning <<- "NO PUTATIVE BLOCKS"
+                                     ContigNumbers <<- combn(sequencenumbers, 2, simplify=F)
                                    },
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
@@ -154,9 +156,9 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  blockDate =
                                    function( dnaobj, parameters ) {
                                      message("Now dating blocks")
-                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 1, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 2, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, 3, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
+                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
+                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
+                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
                                      out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
                                      BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
