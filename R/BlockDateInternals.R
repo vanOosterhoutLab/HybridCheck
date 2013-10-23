@@ -1,4 +1,4 @@
-## Internal functions for the block dating and significant values
+## Internal functions for the block dating and significant values.
 
 mergeBandD <- function( block, date ) {
   output <- lapply( 1:3, function(i) combineDatesWBlocks( block[[i]], date[[i]] ) )
@@ -45,28 +45,9 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       #Extract the two sequences required...
       Seq <- dnaobj$InformativeSequence[pair,c(BlockStart:BlockEnd)]
       wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="N")[1])/ncol(dnaobj$FullSequence) # Get the raw sequence distance.
-#       if(pair == 1){
-#         Seq <- dnaobj$InformativeSequence[c(1,2),c(BlockStart:BlockEnd)]
-#         wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,2),]), model="N")[1] # Get the raw sequence distance.
-#         wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence) # Divide by the sequence length.
-#       } else {
-#         if(pair == 2){
-#           Seq <- dnaobj$InformativeSequence[c(1,3),c(BlockStart:BlockEnd)]
-#           wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(1,3),]), model="N")[1]
-#           wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
-#         } else {
-#           if(pair == 3){
-#             Seq <- dnaobj$InformativeSequence[c(2,3),c(BlockStart:BlockEnd)]
-#             wholeSequenceDist <- dist.dna(as.DNAbin(dnaobj$FullSequence[c(2,3),]), model="N")[1]
-#             wholeSequenceDist <- wholeSequenceDist/ncol(dnaobj$FullSequence)
-#           }
-#         }
-#       }
       # Get block length
       N <- blocksobj[i,6]
       # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
-      #cutSeq <- as.matrix(Seq[,Seq[1,] != Seq[2,]])
-      #maxSNPs <- ncol( cutSeq )
       maxSNPs <- length(seg.sites(as.DNAbin(Seq)))
       # Probability of observing this many SNPs in the block given the divergence of the whole sequence divergence of the sequences. 
       pValue <- pbinom( maxSNPs, N, wholeSequenceDist )
