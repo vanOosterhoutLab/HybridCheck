@@ -313,8 +313,20 @@ HybRIDS_gui_generator <- setRefClass(
         })
         BlocksFrame <- gframe("Detected Blocks", cont=MainGroup)
         BlocksButton <- gbutton("Display Table", cont=BlocksFrame, handler=function(h,...){
+          TABLE <- HybRIDS_Sessions[[sel]]$tabulateDetectedBlocks(svalue(TripletFilter))
           FrameWin <- gwindow(paste("Blocks Detected for session", sel), visible=FALSE)
-          
+          Table <- gtable(TABLE, cont=FrameWin)
+          PrintButton <- gbutton("Print to Console", cont=FrameWin, handler = function(h,...){
+            print(TABLE)
+          })
+          ExportButton <- gbutton("Export", cont=FrameWin, handler = function(h,...){
+            switch(svalue(ExportRadio),
+                   "CSV" = write.csv(TABLE, file=gfile(type="save")),
+                   "Workspace" = assign(paste(sel, svalue(TripletFilter), paste(sample(c(LETTERS,letters), 5), collapse=""), sep="_"), pos=".GlobalEnv", value=TABLE)
+            )
+          })
+          ExportLabel <- glabel("Export to:", cont=FrameWin)
+          ExportRadio <- gradio(c("CSV","Workspace"), cont=FrameWin)
           visible(FrameWin) <- TRUE
         })
         visible(DataWindow) <- TRUE
