@@ -44,11 +44,11 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       BlockEnd <- which(dnaobj$InformativeBp == blocksobj[i,5])
       #Extract the two sequences required...
       Seq <- dnaobj$InformativeSequence[pair,c(BlockStart:BlockEnd)]
-      wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="N")[1])/ncol(dnaobj$FullSequence) # Get the raw sequence distance.
+      wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="raw")[1])
       # Get block length
       N <- blocksobj[i,6]
       # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
-      maxSNPs <- length(seg.sites(as.DNAbin(Seq)))
+      maxSNPs <- dist.dna(as.DNAbin(Seq), model="N")[1]
       # Probability of observing this many SNPs in the block given the divergence of the whole sequence divergence of the sequences. 
       pValue <- pbinom( maxSNPs, N, wholeSequenceDist )
       if( pValue > pthresh && danyway == FALSE ) {
