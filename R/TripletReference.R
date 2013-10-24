@@ -224,23 +224,6 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                        temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2))))
                                      }
                                      return(cbind(otherframe, temp2))
-#                                      if("BLOCKS DATED" %in% BlocksWarning){
-#                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
-#                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-#                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-#                                        temp2 <- do.call(rbind, temps)
-#                                        temp2["SequenceSimilarityThreshold"] <- unlist(SS)
-#                                        temp2["SequencePair"] <- unlist(pair)
-#                                        return(temp2)
-#                                      } else {
-#                                        temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
-#                                        SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-#                                        pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-#                                        temp2 <- do.call(rbind, temps)
-#                                        otherdframe <- data.frame(SequenceSimilarityThreshold = unlist(SS), SequencePair = unlist(pair))
-#                                        
-#                                        return(combinedframes)
-#                                      }
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }

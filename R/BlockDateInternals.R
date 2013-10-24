@@ -59,9 +59,9 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
         soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
         soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B = maxSNPs, N = N)
         soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B = maxSNPs, N = N)
-        blockAges[i,3] <- soln5[["root"]]/mut
-        blockAges[i,2] <- soln50[["root"]]/mut
-        blockAges[i,1] <- soln95[["root"]]/mut
+        blockAges[i,3] <- round(soln5[["root"]]/mut)
+        blockAges[i,2] <- round(soln50[["root"]]/mut)
+        blockAges[i,1] <- round(soln95[["root"]]/mut)
       }
     }
   } else {

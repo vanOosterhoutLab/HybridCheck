@@ -401,18 +401,17 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          tabulateDetectedBlocks =
                                            function( Selection = NULL, OneTable = FALSE, Neat = TRUE ) {
                                              outputTables <- list()
-                                             #len <- length( unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) ) )
                                              ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
                                              tables <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
-                                             tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]) ) ))                                
+                                             tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]))))                                
                                              tables <- do.call(rbind, tables)
                                              tables["Triplet"] <- tripletlabels
                                              output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
-                                                                   tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$fiveAge, tables$fiftyAge,
+                                                                   tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$SNPnum, tables$fiveAge, tables$fiftyAge,
                                                                    tables$ninetyfiveAge, tables$PValue )
                                              if( Neat == TRUE ) {
                                                output <- output[,-c(4,5,6)]
-                                               names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value")
+                                               names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value")
                                              }
                                              return(output)
                                            },
