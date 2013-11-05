@@ -5,6 +5,6 @@
   HybRIDS(...)
 }
 \description{
-  HybRIDS reference class
+  boop
 }
 

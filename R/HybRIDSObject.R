@@ -1,9 +1,12 @@
 #' @docType package
 #' ...
 #' @import ape ggplot2 grid gridExtra png
+NULL
 
-
-#' HybRIDS reference class
+#' @title HybRIDS reference class
+#' @name HybRIDS
+#' @description 
+#' The HybRIDS reference class is the main class that is used
 #' @export
 HybRIDS <- setRefClass( "HybRIDS",
                         
