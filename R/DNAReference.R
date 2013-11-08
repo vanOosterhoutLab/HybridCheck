@@ -9,6 +9,7 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                               InformativeLength = "numeric",
                               FullBp = "numeric",
                               InformativeBp = "numeric",
+                              InformativeLoci = "numeric",
                               NoDNA = "logical"),
                               
                             methods = list( 
@@ -37,6 +38,31 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                                   InformativeSequence <<- InformativeSeq
                                   NoDNA <<- FALSE
                                   message("Finished DNA input.")
+                                },
+                              
+                              plotInf =
+                                function(parameters, which="hist") {
+                                  if (which == "bars"){
+                                    # Figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
+                                    div <- FullBp[SequenceLength] / parameters$MosaicScale
+                                    bpstart <- seq(from = 1, to = FullBp[SequenceLength], by = div)
+                                    bpend <- seq(from=div, to = FullBp[SequenceLength], by = div)
+                                    bpX <- round(bpstart + (div / 2))
+                                    frame <- data.frame(bpstart = bpstart, bpend = bpend, bpX = bpX)
+                                    rm(bpstart, bpend)
+                                    Bar <- round(apply(frame, 1, function(x) vertbar_create2(InformativeBp, x)))
+                                    plotFrame <- data.frame(bpstart = frame$bpstart, bpend = frame$bpend, X = frame$bpX, numberSNPs = Bar)
+                                    thePlot <- ggplot(plotFrame, aes(x = X, y = 1)) + geom_raster(aes(fill = numberSNPs))
+                                    thePlot <- applyPlottingParams(thePlot, parameters, title="Number of SNP Polymorphisms Between All Sequences")
+                                    thePlot <- thePlot + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+                                  } else {
+                                    thePlot <- ggplot(data.frame(InformativeBP = InformativeBp), aes(x = InformativeBP)) + geom_histogram(aes(fill=..count..)) +
+                                      scale_fill_gradient2("SNP Count", low="white", high="red")
+                                    thePlot <- applyPlottingParams(thePlot, parameters, title="Number of SNP Polymorphisms Between All Sequences")
+                                    thePlot <- thePlot + ylab("Count")
+                                  }
+                                  thePlot <- thePlot + xlab("Base Pair Position")
+                                  return(thePlot)
                                 }
                             ))
 

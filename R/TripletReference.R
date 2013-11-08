@@ -67,7 +67,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      RefB <- within(RefB, mix <- rgb(green = 100, red = contiga, blue = contigc, maxColorValue = 100))
                                      RefC <- expand.grid(contiga = seq(0, 100, by = 1), contigb = seq(0, 100, by = 1))
                                      RefC <- within(RefC, mix <- rgb(green = contigb, red = contiga, blue = 100, maxColorValue = 100))
-                                     # Now figure out the scale and data to go into each vertical bar:
+                                     # Now figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
                                      div <- FullDNALength / parameters$MosaicScale
                                      bpstart <- seq(from = 1, to = FullDNALength, by = div)
                                      bpend <- seq(from=div, to = FullDNALength, by = div)
