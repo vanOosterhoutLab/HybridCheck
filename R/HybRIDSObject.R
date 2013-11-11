@@ -492,7 +492,12 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            } else {
                                              cat("\n\n",length(Triplets),"Triplet(s) have been generated for analysis.")
                                            }  
-                                         }
+                                         },
+                                         
+                                         plotInformative =
+                                           function(what = "hist") {
+                                             return(DNA$plotInf(PlottingParams, what))
+                                           }
                                          
 
 

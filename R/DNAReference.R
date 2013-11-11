@@ -42,6 +42,7 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                               
                               plotInf =
                                 function(parameters, which="hist") {
+                                  if(which != "hist" && which != "bars") stop("You need to specify either 'bars' or 'hist' as the which option!")
                                   if (which == "bars"){
                                     # Figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
                                     div <- FullBp[SequenceLength] / parameters$MosaicScale
