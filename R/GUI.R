@@ -322,7 +322,7 @@ HybRIDS_gui_generator <- setRefClass(
           ExportButton <- gbutton("Export", cont=FrameWin, handler = function(h,...){
             switch(svalue(ExportRadio),
                    "CSV" = write.csv(TABLE, file=gfile(type="save")),
-                   "Workspace" = assign(paste(sel, svalue(TripletFilter), paste(sample(c(LETTERS,letters), 5), collapse=""), sep="_"), pos=".GlobalEnv", value=TABLE)
+                   "Workspace" = assign(ginput("Give a name to the datatable - it will appear as a variable with this name in the R Workspace"), pos=".GlobalEnv", value=TABLE)
             )
           })
           ExportLabel <- glabel("Export to:", cont=FrameWin)

@@ -44,24 +44,25 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       BlockEnd <- which(dnaobj$InformativeBp == blocksobj[i,5])
       #Extract the two sequences required...
       Seq <- dnaobj$InformativeSequence[pair,c(BlockStart:BlockEnd)]
-      wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="N")[1])/ncol(dnaobj$FullSequence) # Get the raw sequence distance.
+      wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="raw")[1])
       # Get block length
       N <- blocksobj[i,6]
       # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
-      maxSNPs <- length(seg.sites(as.DNAbin(Seq)))
+      maxSNPs <- dist.dna(as.DNAbin(Seq), model="N")[1]
       # Probability of observing this many SNPs in the block given the divergence of the whole sequence divergence of the sequences. 
       pValue <- pbinom( maxSNPs, N, wholeSequenceDist )
       if( pValue > pthresh && danyway == FALSE ) {
         next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
       } else {
+        if(N == maxSNPs || pValue == 1) next
         blockAges[i,5] <- maxSNPs  
         blockAges[i,6] <- pValue
         soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
         soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B = maxSNPs, N = N)
         soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B = maxSNPs, N = N)
-        blockAges[i,3] <- soln5[["root"]]/mut
-        blockAges[i,2] <- soln50[["root"]]/mut
-        blockAges[i,1] <- soln95[["root"]]/mut
+        blockAges[i,3] <- round(soln5[["root"]]/mut)
+        blockAges[i,2] <- round(soln50[["root"]]/mut)
+        blockAges[i,1] <- round(soln95[["root"]]/mut)
       }
     }
   } else {
