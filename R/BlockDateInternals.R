@@ -54,6 +54,7 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       if( pValue > pthresh && danyway == FALSE ) {
         next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
       } else {
+        if(N == maxSNPs || pValue == 1) next
         blockAges[i,5] <- maxSNPs  
         blockAges[i,6] <- pValue
         soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
