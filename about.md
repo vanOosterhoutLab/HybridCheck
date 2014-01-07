@@ -3,7 +3,6 @@ layout: default
 title: About HybRIDS
 permalink: about.html
 mainpage: true
-navname: About
 ---
 
 What is HybRIDS? 
