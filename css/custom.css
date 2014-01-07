@@ -57,6 +57,8 @@ body {
 
 /* Styling for the side menubar and affixed navbar for the pages */
 
+
+
 #sidemenu.affix {
 	position: fixed;
 	top: 70px;
