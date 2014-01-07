@@ -1,17 +1,25 @@
 		{% include header.html %}
-		<section id="maincontent" data-speed="5" data-type="background">
-			<div class="container">
+		<section id="content">
+			<div class="container whitep">
 				<div class="row">
-					<div class="col-md-4">
-						<ul>
-							{% for post in site.categories.man %}
-    						<li><a href="{{ post.url }}">{{ post.title }}</a></li>
-  							{% endfor %}
+					<div class="col-md-2">
+						<ul id="sidemenu" class="nav nav-stacked nav-pills affix-top" data-spy="affix" data-offset-top="450">
+							{% assign sorted_pages = site.pages | sort:"name" %}
+							{% for item in sorted_pages %}
+								{% if item.manual == true %}
+									{% if item.url == page.url %}
+    									<li class="active"><a href="{{ item.url }}">{{ item.title }}</a></li>
+    								{% else %}
+    									<li><a href="{{ item.url }}">{{ item.title }}</a></li>
+    								{% endif %}
+    							{% endif %}
+    						{% endfor %}
 						</ul>
 					</div>
+					<div class="col-md-10">
+						{{ content }}
+					</div>
 				</div>
-				
-				{{ content }}
 			</div>
 		</section>
 		{% include footer.html %}
