@@ -2,7 +2,7 @@
 layout: manualsection
 title: Viewing and altering settings
 manual: true
-permalink: 2.html
+permalink: 02-manual.html
 ---
 
 A word on HybRIDS various analysis settings

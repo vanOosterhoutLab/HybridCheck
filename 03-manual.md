@@ -2,7 +2,7 @@
 layout: manualsection
 title: Descriptions of all HybRIDS settings
 manual: true
-permalink: 3.html
+permalink: 03-manual.html
 ---
 
 Triplet Generation Step Settings

@@ -1,11 +1,8 @@
 ---
 layout: manualsection
 title: Manual Home
-permalink: manual.html
+permalink: 00-manual.html
 manual: true
-weight: 1
-mainpage: true
-navname: HybRIDS Manual
 ---
 
 The HybRIDS manual

@@ -2,7 +2,7 @@
 layout: manualsection
 title: Executing Analysis Steps
 manual: true
-permalink: 4.html
+permalink: 04-manual.html
 ---
 
 The previous two manual sections dealt with the viewing and setting of the parameters of the HybRIDS analysis stages.

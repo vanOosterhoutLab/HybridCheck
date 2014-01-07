@@ -1,9 +1,8 @@
 ---
 layout: manualsection
 title: Loading HybRIDS and Data Read In
-permalink: 1.html
+permalink: 01-manual.html
 manual: true
-weight: 2
 ---
 
 Starting HybRIDS and Loading in Data
