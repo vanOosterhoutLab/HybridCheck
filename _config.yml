@@ -1,0 +1,10 @@
+name: "HybRIDS"
+description: "Site for the HybRIDS R package for analysing recombination signal in DNA sequences"   
+
+paginate: 10
+
+url: "ward9250.github.io/HybRIDS"
+
+markdown: rdiscount
+permalink: pretty
+pygments: true
