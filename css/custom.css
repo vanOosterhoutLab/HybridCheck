@@ -1,0 +1,64 @@
+body {
+	background-color: #333333;
+	padding-bottom: 100px;
+}
+
+/* Alter class for navbar to give format and special behaviour */
+.navbar {
+	position: sticky;
+}
+/* Customization of the carouel */
+.carousel {
+	max-width: 100%;
+}
+.carousel-caption{
+	z-index: 10;
+}
+.carousel .item {
+	height: 600px;
+}
+.carousel .img{
+	max-width: 100%;
+}
+
+/* Putting non-home body into place */
+.container-fluid .main{
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+.whitep {
+	color: white;
+}
+
+.jumbotron {
+	margin-bottom: 0px;
+	background-image: url(../images/carouelbackground.jpg);
+	background-position: 0% 25%;
+	background-size: cover;
+	background-repeat: no-repeat;
+	color: white;
+	text-shadow: black 0.3em 0.3em 0.3em;
+}
+
+/* Styling for the side menubar and affixed navbar for the pages */
+#sidemenu a {
+	color: white;
+}
+#sidemenu.affix {
+	position: fixed;
+	top: 70px;
+	left: auto;
+	right: auto;
+}
+#menubar.affix {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+}
+
+
+
+	
