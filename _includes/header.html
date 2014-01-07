@@ -70,16 +70,16 @@
 		<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
 				{% if page.navname == "Home" %}
-					<li class="active"><a href="{{site.url}}/index.html">Home</a></li>
+					<li class="active"><a href="{{site.url}}">Home</a></li>
 				{% else %}
-					<li><a href="{{site.url}}/index.html">Home</a></li>
+					<li><a href="{{site.url}}">Home</a></li>
 				{% endif %}
 				{% for item in site.pages %}
 					{% if item.mainpage == true %}
 						{% if item.url == page.url %}
-							<li class ="active"><a href="/HybRIDS/{{item.url}}">{{item.navname}}</a></li>
+							<li class ="active"><a href="{{item.url}}">{{item.navname}}</a></li>
 						{% else %}
-							<li><a href="/HybRIDS/{{item.url}}">{{item.navname}}</a></li>
+							<li><a href="{{item.url}}">{{item.navname}}</a></li>
 						{% endif %}
 					{% endif %}
 				{% endfor %}
