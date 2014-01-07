@@ -45,14 +45,22 @@ body {
 	padding: 20px 0;
 }
 
+#content {
+	background: url('../img/backgroundgrey.jpg') 50% 0 fixed;
+	height: auto;
+	margin: 0 auto;
+	width: 100%;
+	position: relative;
+	box-shadow: 0 0 50px rgba(0,0,0,0.8);
+	padding: 20px 0;
+}
 
 /* Styling for the side menubar and affixed navbar for the pages */
-#sidemenu a {
-	color: white;
-}
+
 #sidemenu.affix {
 	position: fixed;
 	top: 70px;
+	width: 160px;
 }
 
 
