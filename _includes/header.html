@@ -77,9 +77,9 @@
 				{% for item in site.pages %}
 					{% if item.mainpage == true %}
 						{% if item.url == page.url %}
-							<li class ="active"><a href="{{site.url}}/{{item.url}}">{{item.navname}}</a></li>
+							<li class ="active"><a href="/HybRIDS/{{item.url}}">{{item.navname}}</a></li>
 						{% else %}
-							<li><a href="{{site.url}}/{{item.url}}">{{item.navname}}</a></li>
+							<li><a href="/HybRIDS/{{item.url}}">{{item.navname}}</a></li>
 						{% endif %}
 					{% endif %}
 				{% endfor %}
