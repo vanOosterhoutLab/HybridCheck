@@ -30,7 +30,7 @@ In this case, and indeed even in the case where you need general R help, I encou
 An Introduction to HybRIDS's structure
 --------------------------------------
 
-If you are unfamiliar or not interested in how HybRIDS works or R as a language you can safely ignore this:
+If you are unfamiliar how R works as a language or not interested in how HybRIDS works you can safely ignore this, you should still be able to use it:
 
 HybRIDS revolves around several reference classes. Reference classes are a relatively recent addition to R and violate the traditional 
 R mindset as a functional language, if you're not used to programming terminology and this means nothing to you: 
