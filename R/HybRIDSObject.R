@@ -68,7 +68,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                              SSAnalysisParams$TripletCombinations <<- combn( c( 1:nrow( DNA$InformativeSequence ) ), 3, simplify=FALSE )
                                              pairs <- combn( c( 1:nrow( DNA$InformativeSequence ) ), 2, simplify=FALSE )
-                                             if( TripletParams$Method > 1 && length( combos ) > 1 ) {
+                                             if( TripletParams$Method > 1 && length( SSAnalysisParams$TripletCombinations ) > 1 ) {
                                                # Implements the method whereby distance information is used to reject pairs which would likeley be pointless.
                                                message("Trimming number of triplet comparrisons...")
                                                if( TripletParams$Method == 2 ) {                                                    
