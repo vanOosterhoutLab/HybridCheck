@@ -19,10 +19,10 @@ comb <- function(B,D){
   B$SNPnum <- D[,5]
   B$PValue <- D[,6] # Incorporate the p-value into output
   B <- as.data.frame(na.omit(B))
-  if( nrow( B ) == 0 ) {
+  if(nrow(B) == 0) {
     B <- "NO BLOCKS DETECTED OR DATED"
   }
-  return( B )
+  return(B)
 }
 
 binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
@@ -60,9 +60,9 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
         soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B = maxSNPs, N = N)
         soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B = maxSNPs, N = N)
         soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B = maxSNPs, N = N)
-        blockAges[i,3] <- round(soln5[["root"]]/mut)
-        blockAges[i,2] <- round(soln50[["root"]]/mut)
-        blockAges[i,1] <- round(soln95[["root"]]/mut)
+        blockAges[i,3] <- round(soln5[["root"]]/(mut*2))
+        blockAges[i,2] <- round(soln50[["root"]]/(mut*2))
+        blockAges[i,1] <- round(soln95[["root"]]/(mut*2))
       }
     }
   } else {
