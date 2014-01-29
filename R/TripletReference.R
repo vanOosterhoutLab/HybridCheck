@@ -20,7 +20,9 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               SSError = "character",
                                               SSWarning = "character",
                                               BlocksWarning = "character",
-                                              Blocks = "list"
+                                              UserBlocksWarning = "character",
+                                              Blocks = "list",
+                                              UserBlocks = "list"
                                               ),
                                methods = list(
                                  
@@ -34,7 +36,12 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      FullDNALength <<- fullseqlength
                                      SSError <<- "NO SS TABLE"
                                      BlocksWarning <<- "NO PUTATIVE BLOCKS"
+                                     UserBlocksWarning <<- "NO USER DEFINED BLOCKS"
                                      ContigNumbers <<- combn(sequencenumbers, 2, simplify=F)
+                                     UserBlocks <<- list(data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()),
+                                                         data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()),
+                                                         data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()))
+                                     names(UserBlocks) <<- c(paste(ContigNames[1],ContigNames[2], sep=":"), paste(ContigNames[1],ContigNames[3], sep=":"), paste(ContigNames[2],ContigNames[3], sep=":"))
                                    },
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
@@ -51,9 +58,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                        scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
                                        xlab("Base Position") +
                                        ylab("% Sequence Similarity")
-                                     
                                      plot <- applyPlottingParams( plot, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") )
-                                     
                                      return( plot )
                                    },
                                  
@@ -227,6 +232,18 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }
+                                 },
+                                 
+                                 userBlockAdd = function(first, last, pair) {
+                                   selections <- unlist(strsplit(pair,":"))
+                                   if(length(selections) != 2){ stop("You must specify two sequences, between which your recombination event occured.") }
+                                   options <- strsplit(names(UserBlocks),":")
+                                   index <- which(unlist(lapply(lapply(options, function(x) selections %in% x), function(y) all(y))))
+                                   if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
+                                   bplength <- abs(last-first)
+                                   UserBlocks[[index]] <<- rbind(UserBlocks[[index]], c(first, last, bplength))
+                                   names(UserBlocks[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength")
+                                   UserBlocksWarning <<- character()
                                  }
                                  )
                                )

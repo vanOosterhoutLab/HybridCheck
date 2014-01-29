@@ -494,10 +494,14 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            }  
                                          },
                                          
-                                         plotInformative =
-                                           function(what = "hist") {
-                                             return(DNA$plotInf(PlottingParams, what))
+                                         addBlock = function(selection, firstbase, lastbase){
+                                           if(length(unlist(strsplit(selection, ":"))) != 2) { stop("You need to specify a pair of sequences, between which you wish to specify a recombination event") }
+                                           indexTriplets(selection)
+                                           for(i in LastTripletSelection) {
+                                             Triplets[[i]]$userBlockAdd(firstbase, lastbase, selection)
                                            }
+                                           message("Added manually defined block to all triplets containing the specified pair.")
+                                         }
                                          
 
 
