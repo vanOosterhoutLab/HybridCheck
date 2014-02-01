@@ -161,10 +161,10 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  blockDate =
                                    function( dnaobj, parameters ) {
                                      message("Now dating blocks")
-                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
+                                     ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                                     ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                                     bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                                     out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
                                      BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
                                      BlocksWarning <<- BlocksWarning[-which(BlocksWarning=="BLOCKS: NOT DATED")]
@@ -232,18 +232,6 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }
-                                 },
-                                 
-                                 userBlockAdd = function(first, last, pair) {
-                                   selections <- unlist(strsplit(pair,":"))
-                                   if(length(selections) != 2){ stop("You must specify two sequences, between which your recombination event occured.") }
-                                   options <- strsplit(names(UserBlocks),":")
-                                   index <- which(unlist(lapply(lapply(options, function(x) selections %in% x), function(y) all(y))))
-                                   if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
-                                   bplength <- abs(last-first)
-                                   UserBlocks[[index]] <<- rbind(UserBlocks[[index]], c(first, last, bplength))
-                                   names(UserBlocks[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength")
-                                   UserBlocksWarning <<- character()
                                  }
-                                 )
+                               )  
                                )
