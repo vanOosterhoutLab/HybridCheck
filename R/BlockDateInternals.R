@@ -40,14 +40,14 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
     # For each significant block...
     for(i in 1:nrow(blocksobj)){
       # Pick the correct sequences for the blocks...
-      blockAges[i,4] <- blocksobj[i,6]
-      BlockStart <- which(dnaobj$InformativeBp == blocksobj[i,4])
-      BlockEnd <- which(dnaobj$InformativeBp == blocksobj[i,5])
+      blockAges[i,4] <- blocksobj[i,"ApproxBpLength"]
+      BlockStart <- which(dnaobj$FullBp == blocksobj[i,"FirstBP"]) # Was Informativebp
+      BlockEnd <- which(dnaobj$FullBp == blocksobj[i,"LastBP"]) # Was informative bp
       #Extract the two sequences required...
-      Seq <- dnaobj$InformativeSequence[pair,c(BlockStart:BlockEnd)]
+      Seq <- dnaobj$FullSequence[pair,c(BlockStart:BlockEnd)]
       wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="raw")[1])
       # Get block length
-      N <- blocksobj[i,6]
+      N <- ncol(Seq)
       # Make sure to remove any non-polymorphic sites and calculate the number of SNP's
       maxSNPs <- dist.dna(as.DNAbin(Seq), model="N")[1]
       # Probability of observing this many SNPs in the block given the divergence of the whole sequence divergence of the sequences. 

@@ -250,9 +250,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to Date the blocks found.
                                          dateBlocks =
-                                           function( Selections = "ALL" ){
-                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( length( Triplets ) < 2 ) {
+                                           function(Selections = "ALL"){
+                                             if(!is.character(Selections)) stop("option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
+                                             if(length(Triplets) < 2){
                                                message("Only one triplet to date blocks in...")
                                                Triplets[[1]]$blockDate(DNA, BlockDatingParams)
                                              } else {
@@ -407,10 +407,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
-                                           function( Selection = NULL, OneTable = FALSE, Neat = TRUE ) {
+                                           function(Selection = "ALL", OneTable = FALSE, Neat = TRUE) {
                                              outputTables <- list()
-                                             ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
-                                             tables <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
+                                             ind <- unlist(lapply(Selection, function(x) indexTriplets(x, output = TRUE)))
+                                             tables <- lapply(Triplets[ind], function(x) x$tabulateBlocks())
                                              tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]))))                                
                                              tables <- do.call(rbind, tables)
                                              tables["Triplet"] <- tripletlabels
@@ -499,33 +499,16 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            }  
                                          },
                                          
-                                         defineBlock = function(selection, firstbase, lastbase){
-                                           if(length(unlist(strsplit(selection, ":"))) != 2) { stop("You need to specify a pair of sequences, between which you wish to specify a recombination event") }
-                                           options <- strsplit(names(UserBlocks),":")
-                                           index <- which(unlist(lapply(lapply(options, function(x) selections %in% x), function(y) all(y))))
-                                           if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
-                                           bplength <- abs(last-first)
-                                           UserBlocks[[index]] <<- rbind(UserBlocks[[index]], c(first, last, bplength))
-                                           names(UserBlocks[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength")
-                                           
-                                           
-                                           
-                                         },
-                                         
-                                         
                                          userBlockAdd = function(first, last, pair) {
                                            selections <- unlist(strsplit(pair,":"))
                                            if(length(selections) != 2){ stop("You must specify two sequences, between which your recombination event occured.") }
                                            options <- strsplit(names(UserBlocks),":")
                                            index <- which(unlist(lapply(lapply(options, function(x) selections %in% x), function(y) all(y))))
                                            if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
-                                           bplength <- abs(last-first)
+                                           bplength <- abs(last-first)+1
                                            UserBlocks[[index]] <<- rbind(UserBlocks[[index]], c(first, last, bplength))
                                            names(UserBlocks[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength")
                                          },
-                                         
-                                         
-                                         
                                          userBlockBlank = function(selection){
                                            selections <- unlist(strsplit(pair,":"))
                                            if(length(selections) != 2){ stop("You must specify two sequences, between which your recombination event occured.") }
@@ -534,37 +517,14 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
                                            UserBlocks[[index]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric())
                                          },
-                                         
-                                         
-                                         
-                                         clearDefinedBlocks = function(selection){
-                                           if(length(unlist(strsplit(selection, ":"))) != 2) { stop("You need to specify a pair of sequences, between which you wish to specify a recombination event") }
-                                           indexTriplets(selection)
-                                           for(i in LastTripletSelection) {
-                                             Triplets[[i]]$userBlockBlank(selection)
+                                         dateCustomBlocks = function(){
+                                           for(i in 1:length(UserBlocks)){
+                                             if(nrow(UserBlocks[[i]]) > 0){
+                                                Pair <- which(DNA$SequenceNames %in% unlist(strsplit(names(UserBlocks)[i], ":")))
+                                                dated <- date.blocks(UserBlocks[[i]], DNA, BlockDatingParams$MutationRate, Pair, BlockDatingParams$PValue, BlockDatingParams$BonfCorrection, BlockDatingParams$DateAnyway)
+                                                UserBlocks[[i]] <<- cbind(UserBlocks[[i]], dated)
                                            }
                                          }
-                                         
-                                         
-
-
-
-                                          
+                                         }
                           )
-                        
                         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                          
