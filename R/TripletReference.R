@@ -210,11 +210,11 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                          } else {
                                            if( class(blocks[[i]][[n]]) == "character" ){
                                              if("BLOCKS DATED" %in% BlocksWarning ){
-                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=13, nrow=0))
-                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=15, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue", "PThresh","MeanAge","CorrectedSNPs")
                                              } else {
-                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=8, nrow=0))
-                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=9, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","MeanAge","CorrectedSNPs")
                                              }
                                            }
                                          }
@@ -224,11 +224,12 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                      SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
                                      pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
                                      temp2 <- do.call(rbind, temps)
-                                     otherframe <- data.frame(SequenceSimilarityThreshold = unlist(SS), SequencePair = unlist(pair))
+                                     temp2["SequencePair"] <- unlist(pair)
+                                     temp2["SequenceSimilarityThreshold"] <- unlist(SS)
                                      if("BLOCKS: NOT DATED" %in% BlocksWarning){
-                                       temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2))))
+                                       temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2)), MeanAge = rep(NA, times=nrow(temp2)), CorrectedSNPs = rep(NA, times=nrow(temp2))))
                                      }
-                                     return(cbind(otherframe, temp2))
+                                     return(temp2)
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }
