@@ -19,7 +19,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                           LastTripletSelection = "numeric",
                           PlottingParams = "list",
                           InGUI = "logical",
-                          Triplets = "list"
+                          Triplets = "list",
+                          UserBlocks = "list"
                           ),
                         
                          methods = list( initialize = 
@@ -32,8 +33,8 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                StepSize = 1,
                                                TripletCombinations = list () )
                                              length( BlockDetectionParams ) <<- 4
-                                             BlockDetectionParams <<- list( ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2 )
-                                             BlockDatingParams <<- list( MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE )
+                                             BlockDetectionParams <<- list(ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2)
+                                             BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
                                              PlottingParams <<- list( What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
                                                                       TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
                                                                       XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
@@ -55,6 +56,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              }
                                              if( !is.null( dnafile ) ){
                                                DNA$InputDNA( dnafile, formatForce )
+                                               pairs <- unlist(lapply(combn(unique(DNA$SequenceNames),2, simplify=F), function(x) paste(x[1], x[2], sep=":")))
+                                               lapply(pairs, function(x) UserBlocks[[x]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()))
+                                             } else {
+                                               stop("You haven't provided a path to a DNa file or the name of an object of class DNAbin")
                                              }
                                            },
                                          
@@ -245,9 +250,9 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to Date the blocks found.
                                          dateBlocks =
-                                           function( Selections = "ALL" ){
-                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'all' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( length( Triplets ) < 2 ) {
+                                           function(Selections = "ALL"){
+                                             if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
+                                             if(length(Triplets) < 2){
                                                message("Only one triplet to date blocks in...")
                                                Triplets[[1]]$blockDate(DNA, BlockDatingParams)
                                              } else {
@@ -402,19 +407,19 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
-                                           function( Selection = NULL, OneTable = FALSE, Neat = TRUE ) {
+                                           function(Selection = "ALL", OneTable = FALSE, Neat = TRUE) {
                                              outputTables <- list()
-                                             ind <- unlist( lapply( Selection, function(x) indexTriplets( x, output = TRUE ) ) )
-                                             tables <- lapply( Triplets[ind], function(x) x$tabulateBlocks() )
+                                             ind <- unlist(lapply(Selection, function(x) indexTriplets(x, output = TRUE)))
+                                             tables <- lapply(Triplets[ind], function(x) x$tabulateBlocks())
                                              tripletlabels <- unlist(lapply(1:length(tables), function(i) rep(names(tables)[[i]], nrow(tables[[i]]))))                                
                                              tables <- do.call(rbind, tables)
                                              tables["Triplet"] <- tripletlabels
-                                             output <- data.frame( tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
-                                                                   tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$SNPnum, tables$fiveAge, tables$fiftyAge,
-                                                                   tables$ninetyfiveAge, tables$PValue )
-                                             if( Neat == TRUE ) {
+                                             output <- data.frame(tables$SequencePair, tables$SequenceSimilarityThreshold, tables$Triplet, tables$Length,
+                                                                  tables$First, tables$Last, tables$FirstBP, tables$LastBP, tables$ApproxBpLength, tables$SNPnum, tables$fiveAge, tables$fiftyAge,
+                                                                  tables$ninetyfiveAge, tables$PValue , tables$PThresh, tables$MeanAge, tables$CorrectedSNPs)
+                                             if(Neat == TRUE) {
                                                output <- output[,-c(4,5,6)]
-                                               names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value")
+                                               names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh", "Mean_Age", "Corrected_Number_of_SNPs")
                                              }
                                              return(output)
                                            },
@@ -494,30 +499,32 @@ HybRIDS <- setRefClass( "HybRIDS",
                                            }  
                                          },
                                          
-                                         plotInformative =
-                                           function(what = "hist") {
-                                             return(DNA$plotInf(PlottingParams, what))
+                                         userBlockAdd = function(first, last, pair) {
+                                           selections <- unlist(strsplit(pair,":"))
+                                           if(length(selections) != 2){ stop("You must specify two sequences, between which your recombination event occured.") }
+                                           options <- strsplit(names(UserBlocks),":")
+                                           index <- which(unlist(lapply(lapply(options, function(x) selections %in% x), function(y) all(y))))
+                                           if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
+                                           bplength <- abs(last-first)+1
+                                           UserBlocks[[index]] <<- rbind(UserBlocks[[index]], c(first, last, bplength))
+                                           names(UserBlocks[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength")
+                                         },
+                                         userBlockBlank = function(selection){
+                                           selections <- unlist(strsplit(pair,":"))
+                                           if(length(selections) != 2){ stop("You must specify two sequences, between which your recombination event occured.") }
+                                           options <- strsplit(names(UserBlocks),":")
+                                           index <- which(unlist(lapply(lapply(options, function(x) selections %in% x), function(y) all(y))))
+                                           if(length(index) != 1){ stop("Something has gone wrong indexing pairs in triplets - this scenario should not happen, the index of more than or less than one pair should not be possible, contact package maintainer.")}
+                                           UserBlocks[[index]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric())
+                                         },
+                                         dateCustomBlocks = function(){
+                                           for(i in 1:length(UserBlocks)){
+                                             if(nrow(UserBlocks[[i]]) > 0){
+                                                Pair <- which(DNA$SequenceNames %in% unlist(strsplit(names(UserBlocks)[i], ":")))
+                                                dated <- date.blocks(UserBlocks[[i]], DNA, BlockDatingParams$MutationRate, Pair, BlockDatingParams$PValue, BlockDatingParams$BonfCorrection, BlockDatingParams$DateAnyway)
+                                                UserBlocks[[i]] <<- cbind(UserBlocks[[i]], dated)
                                            }
-                                         
-
-
-
-                                          
+                                         }
+                                         }
                           )
-                        
                         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                          
