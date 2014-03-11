@@ -35,10 +35,10 @@ If you are unfamiliar how R works as a language or not interested in how HybRIDS
 HybRIDS revolves around several reference classes. Reference classes are a relatively recent addition to R and violate the traditional 
 R mindset as a functional language, if you're not used to programming terminology and this means nothing to you: 
 The pass by reference mechanism - in a nutshell - helps us get around issues with the way R normally works as a 
-functional language: In R passing data to a function results in a copying of it once it is modified, resulting in 
-large memory uses where there need not be. Note thought for many statistical tasks tis is good - you don't want your origional dataset sullied and so having a copy that is changes is safer.
+functional language: In R, passing data to a function results in a copying of it once it is modified, resulting in 
+large memory uses where there need not be. Note however, for many statistical tasks the origional copy mechanism is good - you don't want your origional dataset sullied and so passing a copy of the data that is changed in a function is safer.
 
-DNA data can be large, as can the data HybRIDS generates, so passing by reference, which makes changes to the original data without copy, makes sense and also feels more like programming in other languages like C++ or Java.
+DNA data can be large, as can the data HybRIDS generates, so passing by reference, which makes changes to the original data without copy, makes more sense and also feels more like programming in other languages like C++ or Java.
 
 It also makes using the HybRIDS library a bit easier to use for the non R enthusiast. All the commands and steps of a HybRIDS analysis are done by calling the methods of a single HybRIDS object. So you only have one object/variable in your R workspace to worry about, and it contains everything you should need for using HybRIDS core functionality.
 
