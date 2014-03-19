@@ -421,6 +421,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                output <- output[,-c(4,5,6)]
                                                names(output) <- c("Sequence_Pair","Sequence_Similarity_Threshold","Triplet","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh", "Mean_Age", "Corrected_Number_of_SNPs")
                                              }
+                                             class(output) <- c(class(output), "HybRIDStable")   
                                              return(output)
                                            },
                                                         
