@@ -526,6 +526,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                 UserBlocks[[i]] <<- cbind(UserBlocks[[i]], dated)
                                            }
                                          }
+                                         },
+                                         
+                                         recombinationExtent = function(){
+                                           return((sum(tabulateDetectedBlocks()$Approximate_Length_BP)/DNA$SequenceLength)*100)
                                          }
                           )
                         )
