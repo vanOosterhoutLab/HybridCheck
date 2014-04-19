@@ -21,3 +21,15 @@ col_deter <- function( invalues, reference )
   }
   return( cols )
 }
+
+vertbar_create2 <- function( bp, plotframerow )
+{
+  # Which base positions fall before or equal to the last position.
+  bool1 <- as.numeric(bp) <= as.numeric(plotframerow[2])
+  # Which base position fall after or at the first base position.
+  bool2 <- as.numeric(plotframerow[1]) <= as.numeric(bp)
+  # Combine the two results.
+  index <- which(bool1 == bool2)
+  # Return the base positions that are true for both and thus the bp's that fall in the bar.
+  return(length(bp[index]))
+}

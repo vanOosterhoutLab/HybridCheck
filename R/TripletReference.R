@@ -20,7 +20,9 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                               SSError = "character",
                                               SSWarning = "character",
                                               BlocksWarning = "character",
-                                              Blocks = "list"
+                                              UserBlocksWarning = "character",
+                                              Blocks = "list",
+                                              UserBlocks = "list"
                                               ),
                                methods = list(
                                  
@@ -34,7 +36,12 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      FullDNALength <<- fullseqlength
                                      SSError <<- "NO SS TABLE"
                                      BlocksWarning <<- "NO PUTATIVE BLOCKS"
+                                     UserBlocksWarning <<- "NO USER DEFINED BLOCKS"
                                      ContigNumbers <<- combn(sequencenumbers, 2, simplify=F)
+                                     UserBlocks <<- list(data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()),
+                                                         data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()),
+                                                         data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()))
+                                     names(UserBlocks) <<- c(paste(ContigNames[1],ContigNames[2], sep=":"), paste(ContigNames[1],ContigNames[3], sep=":"), paste(ContigNames[2],ContigNames[3], sep=":"))
                                    },
                                  
                                  # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
@@ -51,9 +58,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                        scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
                                        xlab("Base Position") +
                                        ylab("% Sequence Similarity")
-                                     
                                      plot <- applyPlottingParams( plot, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep="") )
-                                     
                                      return( plot )
                                    },
                                  
@@ -67,7 +72,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                      RefB <- within(RefB, mix <- rgb(green = 100, red = contiga, blue = contigc, maxColorValue = 100))
                                      RefC <- expand.grid(contiga = seq(0, 100, by = 1), contigb = seq(0, 100, by = 1))
                                      RefC <- within(RefC, mix <- rgb(green = contigb, red = contiga, blue = 100, maxColorValue = 100))
-                                     # Now figure out the scale and data to go into each vertical bar:
+                                     # Now figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
                                      div <- FullDNALength / parameters$MosaicScale
                                      bpstart <- seq(from = 1, to = FullDNALength, by = div)
                                      bpend <- seq(from=div, to = FullDNALength, by = div)
@@ -156,10 +161,10 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  blockDate =
                                    function( dnaobj, parameters ) {
                                      message("Now dating blocks")
-                                     ab.blocks <- lapply( Blocks[[1]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     ac.blocks <- lapply( Blocks[[2]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     bc.blocks <- lapply( Blocks[[3]], function(x) date.blocks( x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway) )
-                                     out.blocks <- list( ab.blocks, ac.blocks, bc.blocks )
+                                     ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                                     ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                                     bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                                     out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                                      Blocks <<- mergeBandD( Blocks, out.blocks )
                                      BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
                                      BlocksWarning <<- BlocksWarning[-which(BlocksWarning=="BLOCKS: NOT DATED")]
@@ -204,12 +209,12 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                            next
                                          } else {
                                            if( class(blocks[[i]][[n]]) == "character" ){
-                                             if("BLOCKS DATED" %in% BlocksWarning ){
-                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=13, nrow=0))
-                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue")
+                                             if("BLOCKS DATED" %in% BlocksWarning){
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=16, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue", "PThresh","MeanAge","CorrectedSNPs")
                                              } else {
-                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=8, nrow=0))
-                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength")
+                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=10, nrow=0))
+                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","MeanAge","CorrectedSNPs")
                                              }
                                            }
                                          }
@@ -219,14 +224,15 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                      SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
                                      pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
                                      temp2 <- do.call(rbind, temps)
-                                     otherframe <- data.frame(SequenceSimilarityThreshold = unlist(SS), SequencePair = unlist(pair))
+                                     temp2["SequencePair"] <- unlist(pair)
+                                     temp2["SequenceSimilarityThreshold"] <- unlist(SS)
                                      if("BLOCKS: NOT DATED" %in% BlocksWarning){
-                                       temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2))))
+                                       temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2)), PThresh = rep(NA, times=nrow(temp2)), MeanAge = rep(NA, times=nrow(temp2)), CorrectedSNPs = rep(NA, times=nrow(temp2))))
                                      }
-                                     return(cbind(otherframe, temp2))
+                                     return(temp2)
                                    } else {
                                      warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
                                    }
                                  }
-                                 )
+                               )  
                                )
