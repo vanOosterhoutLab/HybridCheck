@@ -1,6 +1,6 @@
 # An internal function tha applies all the plotting parameters to a plot - mostly to save code typing!
-applyPlottingParams <- function( plot, parameters, title = "") {
-  if( parameters$PlotTitle == TRUE ) {
+applyPlottingParams <- function(plot, parameters, title = ""){
+  if(parameters$PlotTitle == TRUE){
     plot <- plot + 
       ggtitle( title ) +
       theme( title = element_text(size = parameters$TitleSize, colour = parameters$TitleColour, face = parameters$TitleFace ),
