@@ -24,13 +24,13 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                               InputDNA =
                                 function( intarget, forceFormat = NULL) {
                                   FullSeq <- InputSequences(intarget, forceFormat)
-                                  FullBp <<- as.numeric( colnames( FullSeq ) )
+                                  FullBp <<- as.numeric(colnames(FullSeq))
                                   message("Subsetting the informative segregating sites...")
-                                  InformativeSeq <- FullSeq[, colSums( FullSeq[-1,] != FullSeq[-nrow( FullSeq ), ] ) > 0]
-                                  InformativeBp <<- as.numeric( colnames( InformativeSeq ) )
-                                  SequenceLength <<- ncol( FullSeq )
-                                  InformativeLength <<- ncol( InformativeSeq )
-                                  SequenceNames <<- rownames( FullSeq )
+                                  InformativeSeq <- FullSeq[, colSums(FullSeq[-1,] != FullSeq[-nrow(FullSeq), ] ) > 0]
+                                  InformativeBp <<- as.numeric(colnames(InformativeSeq))
+                                  SequenceLength <<- ncol(FullSeq)
+                                  InformativeLength <<- ncol(InformativeSeq)
+                                  SequenceNames <<- rownames(FullSeq)
                                   message("Done, now saving data internally")
                                   message(" :Full Sequence")
                                   FullSequence <<- FullSeq
@@ -101,41 +101,40 @@ HybRIDSseq_fastadisk <- setRefClass( "HybRIDSseq_fastadisk",
 
 
 # Internal function For reading in sequence files, based on the format deteted.
-InputSequences <- function( infile, Format ) {
-  if(exists(infile)){
-    message("\nFound a variable of that name in the R workspace, now checking it's type...")
-    classofobj <- class(get(infile))
-    if(classofobj == "DNAbin"){
-      message("Detected type of object is DNAbin from the ape package, converting to HybRIDSdna object...")
-      dna <- get(infile)
+InputSequences <- function(input, Format) {
+  classOfInput <- class(input)
+  if(classOfInput == "character"){
+    # Class of input is text, so we assume it is a filepath...
+    # We need to check the format of the file to be read in and then indeed read it in.
+    if(grepl(".fas", input) || Format == "FASTA" || Format == "format"){
+      message("File to be read is expected to be FASTA format...")
+      Format <- "fasta"
     }
+    message("Reading in sequence file...")
+    dna <- read.dna( file = input, format = Format, as.matrix = TRUE )
   } else {
-    if(is.null(Format)){
-      if(!grepl(".", infile)) stop("The provided filename has no extention, you need to specify a format with the forceFormat option.")
-      if(grepl(".fas", infile)){
-        message("Detected file is supposed to be a FASTA format file...")
-        Format <- "fasta"
-      }
+    if(classOfInput == "DNAbin"){
+      message("Class of input is DNAbin from ape package.")
+      dna <- input
     }
-    message("Reading in DNA sequence file...")
-    dna <- read.dna( file = infile, format = Format, as.matrix = TRUE ) 
   }
-  message( "Looking for duplicates..." )
-  distances <- dist.dna(dna, model="N")
-  if( any( distances == 0) ){
-    message( "Some duplicated sequences were found! - We will get rid of these..." )
+  message("Looking for duplicates...")
+  distances <- dist.dna(dna, model = "N")
+  if(any(distances == 0)){
+    message("Some duplicated sequences were found! - We will get rid of these...")
     indicies <- distrowcol(which(distances == 0), attr(distances, "Size"))
     dna <- dna[-indicies[,2],]
-    message( "Double Checking fro duplicated sequences again to be safe..." )
+    message("Double Checking for duplicated sequences again to be safe...")
     distances <- dist.dna(dna, model="N")
-    if(any(distances == 0) ) stop("Duplicates were still found in the sequences - this should not happen - aborting. Inform package maintainer.")
+    if(any(distances == 0)) stop("Duplicates were still found in the sequences - this should not happen - aborting. Inform package maintainer.")
   }
   dna <- as.character(dna)
-  colnames( dna ) <- 1:ncol( dna )
-  message( "Done...")
-  return( dna )
+  colnames(dna) <- 1:ncol(dna)
+  message("Done...")
+  return(dna)
 }
-
+  
+    
 distrowcol <- function(ix,n){
   nr <- ceiling(n-(1+sqrt(1+4*(n^2-n-2*ix)))/2)
   nc <- n-(2*n-nr+1)*nr/2+ix+nr
