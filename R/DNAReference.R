@@ -106,7 +106,7 @@ InputSequences <- function(input, Format) {
   if(classOfInput == "character"){
     # Class of input is text, so we assume it is a filepath...
     # We need to check the format of the file to be read in and then indeed read it in.
-    if(grepl(".fas", input) || Format == "FASTA" || Format == "format"){
+    if(grepl(".fas", input) || Format == "FASTA" || Format == "fasta"){
       message("File to be read is expected to be FASTA format...")
       Format <- "fasta"
     }
