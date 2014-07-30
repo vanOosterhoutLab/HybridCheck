@@ -403,7 +403,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  }
                                                }
                                              }
-                                             },
+                                            },
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
@@ -526,7 +526,23 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                 UserBlocks[[i]] <<- cbind(UserBlocks[[i]], dated)
                                            }
                                          }
-                                         },
+                                        },
+
+                                        tabulateUserBlocks =
+                                           function(Selection = "ALL") {
+                                             if(Selection == "ALL"){
+                                             	outputTables <- lapply(1:length(UserBlocks), function(i) cbind(rep(names(UserBlocks)[i], nrow(UserBlocks[[i]])), UserBlocks[[i]]))
+                                             } else {
+                                             	outputTables <- cbind(names(UserBlocks)[which(names(UserBlocks) == Selection)], UserBlocks[[which(names(UserBlocks) == Selection)]])
+                                             }                                
+                                             outTable <- do.call(rbind, outputTables)
+                                             output <- data.frame(outTable) 
+                                             names(output) <- c("Sequence_Pair", "First_BP_Position", "Last_BP_Position", "Approximate_Length_BP", "p=0.05_Age","p=0.5_Age","p=0.95_Age", "BlockSize", "Number_of_SNPs", "P_Value", "P_Thresh", "Corrected_Number_of_SNPs", "Mean_Age")
+                                             class(output) <- c(class(output), "HybRIDStable")   
+                                             return(output)
+                                           },
+
+
                                          
                                          recombinationExtent = function(Selection = "ALL"){
                                            return((sum(tabulateDetectedBlocks(Selection)$Approximate_Length_BP)/DNA$SequenceLength)*100)
