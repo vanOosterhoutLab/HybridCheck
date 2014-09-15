@@ -1,3 +1,5 @@
+useDynLib(HybRIDS)
+importFrom(Rcpp, sourceCpp)
 export(col_deter)
 export(HybRIDS)
 export(HybRIDS_GUI)

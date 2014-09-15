@@ -24,13 +24,13 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                               InputDNA =
                                 function( intarget, forceFormat = NULL) {
                                   FullSeq <- InputSequences(intarget, forceFormat)
-                                  FullBp <<- as.numeric( colnames( FullSeq ) )
+                                  FullBp <<- as.numeric(colnames(FullSeq))
                                   message("Subsetting the informative segregating sites...")
-                                  InformativeSeq <- FullSeq[, colSums( FullSeq[-1,] != FullSeq[-nrow( FullSeq ), ] ) > 0]
-                                  InformativeBp <<- as.numeric( colnames( InformativeSeq ) )
-                                  SequenceLength <<- ncol( FullSeq )
-                                  InformativeLength <<- ncol( InformativeSeq )
-                                  SequenceNames <<- rownames( FullSeq )
+                                  InformativeSeq <- FullSeq[ , sequenceChecker_cpp(FullSeq)]
+                                  InformativeBp <<- as.numeric(colnames(InformativeSeq))
+                                  SequenceLength <<- ncol(FullSeq)
+                                  InformativeLength <<- ncol(InformativeSeq)
+                                  SequenceNames <<- rownames(FullSeq)
                                   message("Done, now saving data internally")
                                   message(" :Full Sequence")
                                   FullSequence <<- FullSeq
@@ -67,41 +67,8 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                                 }
                             ))
 
-
-HybRIDSseq_fastadisk <- setRefClass( "HybRIDSseq_fastadisk",
-                                     contains = "HybRIDSseq",
-                           fields = list( 
-                             FullSequenceFile = "character",
-                             FullSequence = function( value ) {
-                               if( missing( value ) ){
-                                 as.character( read.dna( file = FullSequenceFile, format = "fasta", as.matrix = TRUE ) )
-                               } else {
-                                 write.dna( as.DNAbin(value), file = FullSequenceFile, format = "fasta" )
-                               }
-                             },
-                             InformativeSequenceFile = "character",
-                             InformativeSequence = function( value ) {
-                               if( missing( value ) ){
-                                 as.character( read.dna( file = InformativeSequenceFile, format = "fasta", as.matrix = TRUE ) )
-                               } else {
-                                 write.dna( value, file = InformativeSequenceFile, format = "fasta" )
-                               }
-                             }),
-                           
-                           methods = list( 
-                             initialize =
-                               function(sequenceInput = NULL, force_Format = NULL){
-                                 FullSequenceFile <<- tempfile( pattern = "FullSequence" )
-                                 InformativeSequenceFile <<- tempfile( pattern = "InformativeSequence" )
-                                 if(!is.null(sequenceInput)){
-                                   InputDNA(sequenceInput, force_Format)
-                                 }
-                               }
-                           ))
-
-
 # Internal function For reading in sequence files, based on the format deteted.
-InputSequences <- function( infile, Format ) {
+InputSequences <- function(infile, Format) {
   if(exists(infile)){
     message("\nFound a variable of that name in the R workspace, now checking it's type...")
     classofobj <- class(get(infile))
@@ -120,20 +87,20 @@ InputSequences <- function( infile, Format ) {
     message("Reading in DNA sequence file...")
     dna <- read.dna( file = infile, format = Format, as.matrix = TRUE ) 
   }
-  message( "Looking for duplicates..." )
+  message("Looking for duplicates (sequences with p_distances of 0)...")
   distances <- dist.dna(dna, model="N")
-  if( any( distances == 0) ){
-    message( "Some duplicated sequences were found! - We will get rid of these..." )
+  if(any(distances == 0)){
+    message("Duplicated sequences were found! - We will get rid of these...")
     indicies <- distrowcol(which(distances == 0), attr(distances, "Size"))
     dna <- dna[-indicies[,2],]
-    message( "Double Checking fro duplicated sequences again to be safe..." )
+    message("Double Checking for duplicated sequences again to be safe...")
     distances <- dist.dna(dna, model="N")
     if(any(distances == 0) ) stop("Duplicates were still found in the sequences - this should not happen - aborting. Inform package maintainer.")
   }
   dna <- as.character(dna)
-  colnames( dna ) <- 1:ncol( dna )
+  colnames(dna) <- 1:ncol(dna)
   message( "Done...")
-  return( dna )
+  return(dna)
 }
 
 distrowcol <- function(ix,n){
