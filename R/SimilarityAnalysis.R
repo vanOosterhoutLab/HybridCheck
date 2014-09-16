@@ -1,5 +1,5 @@
 
-seq.similarity <- function( dnain, triplet, win.size, s.size, fulllength, cutbp ) {
+seq.similarity <- function(dnain, triplet, win.size, s.size, fulllength, cutbp) {
   message( "Preparing input DNA sequences..." )
   colnames( dnain ) <- cutbp
   cutDNA <- dnain[ , colSums( dnain[ -1, ] != dnain[ -nrow( dnain ), ] ) > 0 ]
