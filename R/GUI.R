@@ -69,8 +69,8 @@ HybRIDS_gui_generator <- setRefClass(
         labpre <- glabel("Pre-Sort Raw Sequence Similarity Threshold", cont=TripletWindow)
         prethreshold <- gedit(text=as.character(HybRIDS_Sessions[[sel]]$TripletParams$SortThreshold), width = 20, cont=TripletWindow)
         preanalysis2 <- gcheckbox("Pre-Sort by Distance Distribution Dependent Cutoff", checked = HybRIDS_Sessions[[sel]]$TripletParams$Method==3, use.togglebutton=FALSE, handler = function(h,...){
-          if(svalue(preanalysis2)==TRUE){
-            if(svalue(preanalysis1)==TRUE){
+          if(svalue(preanalysis2) == TRUE){
+            if(svalue(preanalysis1) == TRUE){
               svalue(preanalysis1) <- FALSE
             }
             HybRIDS_Sessions[[sel]]$TripletParams$Method <<- 3

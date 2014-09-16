@@ -221,10 +221,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              if( !is.character( Selections ) ) stop( "option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
                                              if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
                                                 message( "Only one triplet to analyze the sequence similarity of..." )
-                                                seq.similarity( DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp )
+                                                seq.similarity(DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp)
                                               } else {
-                                                indexTriplets( Selections )
-                                                for( i in LastTripletSelection ){
+                                                indexTriplets(Selections)
+                                                for(i in LastTripletSelection){
                                                   message("Now analysing sequence similarity of triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
                                                   suppressMessages( seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
                                                } 
