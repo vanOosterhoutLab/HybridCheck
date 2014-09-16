@@ -50,7 +50,7 @@ autodetect.thresholds <- function( ssdatatable, SDdiv, manual, manoveride ) {
   Means <- lapply( 7:9, function(i) mean( ssdatatable[,i] ) )        # Generate the Means for each of the three triplet comparrisons.
   Sds <- lapply( 7:9, function(i) sd( ssdatatable[,i] ) )            # Generate the Standard Deviations for each of the three triplet comparrisons.
   # Find the Peaks of the Densities.
-  Peaks <- lapply( Densities, function(x) cbind( x$x[ which( diff( sign( diff( x$y ) ) ) == -2 ) ], x$y[ which( diff( sign( diff( x$y ) ) ) == -2 ) ] ) )
+  Peaks <- lapply( Densities, function(x) cbind(x$x[which(diff(sign(diff(x$y))) == -2)], x$y[which(diff(sign(diff(x$y))) == -2)]))
   SuitablePeaks <- lapply( 1:3, function(i) which( Peaks[[i]][,1] >= Means[[i]] + ( Sds[[i]] / SDdiv ) ) )
   # Use of the dip location internal function here...
   noisymean <- mean( c( ssdatatable[,7], ssdatatable[,8], ssdatatable[,9] ) )

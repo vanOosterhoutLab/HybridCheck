@@ -9,7 +9,6 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                               InformativeLength = "numeric",
                               FullBp = "numeric",
                               InformativeBp = "numeric",
-                              InformativeLoci = "numeric",
                               NoDNA = "logical"),
                               
                             methods = list( 

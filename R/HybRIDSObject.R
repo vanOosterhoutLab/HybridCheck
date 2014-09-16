@@ -217,10 +217,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
-                                           function(Selections = "ALL") {
-                                             if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             if(length(SSAnalysisParams$TripletCombinations) < 2) {
-                                                message("Only one triplet to analyze the sequence similarity of...")
+                                           function( Selections = "ALL" ) {
+                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                             if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
+                                                message( "Only one triplet to analyze the sequence similarity of..." )
                                                 seq.similarity(DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp)
                                               } else {
                                                 indexTriplets(Selections)
