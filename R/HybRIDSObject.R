@@ -226,7 +226,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                 indexTriplets(Selections)
                                                 for(i in LastTripletSelection){
                                                   message("Now analysing sequence similarity of triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
-                                                  suppressMessages( seq.similarity( DNA$InformativeSequence[ unlist(SSAnalysisParams$TripletCombinations[[i]]), ], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp ) )
+                                                  suppressMessages(seq.similarity(DNA$InformativeSequence[unlist(SSAnalysisParams$TripletCombinations[[i]]),], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp))
                                                } 
                                              }
                                              message("Finished Sequence Similarity Analysis.")
