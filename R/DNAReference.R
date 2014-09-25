@@ -25,7 +25,7 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                                   FullSeq <- InputSequences(intarget, forceFormat)
                                   FullBp <<- as.numeric(colnames(FullSeq))
                                   message("Subsetting the informative segregating sites...")
-                                  InformativeSeq <- FullSeq[ , sequenceChecker_cpp(FullSeq)]
+                                  InformativeSeq <- FullSeq[ , sequenceChecker_cpp(FullSeq)] # Cpp code checks for non-informative sites.
                                   InformativeBp <<- as.numeric(colnames(InformativeSeq))
                                   SequenceLength <<- ncol(FullSeq)
                                   InformativeLength <<- ncol(InformativeSeq)
@@ -67,25 +67,27 @@ HybRIDSseq <- setRefClass( "HybRIDSseq",
                             ))
 
 # Internal function For reading in sequence files, based on the format deteted.
-InputSequences <- function(infile, Format) {
-  if(exists(infile)){
-    message("\nFound a variable of that name in the R workspace, now checking it's type...")
-    classofobj <- class(get(infile))
-    if(classofobj == "DNAbin"){
-      message("Detected type of object is DNAbin from the ape package, converting to HybRIDSdna object...")
-      dna <- get(infile)
-    }
-  } else {
+InputSequences <- function(input, Format) {
+  classOfInput <- class(input)
+  if(classOfInput == "character"){
+    # Class of input is text, so we assume it is a filepath...
+    # We need to check the format of the file to be read in and then indeed read it in.
     if(is.null(Format)){
-      if(!grepl(".", infile)) stop("The provided filename has no extention, you need to specify a format with the forceFormat option.")
-      if(grepl(".fas", infile)){
-        message("Detected file is supposed to be a FASTA format file...")
+      if(grepl(".fas", input) || Format == "FASTA" || Format == "fasta"){
+        message("File to be read is expected to be FASTA format...")
         Format <- "fasta"
       }
     }
-    message("Reading in DNA sequence file...")
-    dna <- read.dna( file = infile, format = Format, as.matrix = TRUE ) 
-  }
+    message("Reading in sequence file...")
+    dna <- read.dna( file = input, format = Format, as.matrix = TRUE )
+  } else {
+    if(classOfInput == "DNAbin"){
+      message("Class of input is DNAbin from ape package.")
+      dna <- input
+    } else {
+      error("Input is not a valid path to a DNA file, nor is it a valid DNA object, for example, DNAbin from package ape.")
+    }
+  } 
   message("Looking for duplicates (sequences with p_distances of 0)...")
   distances <- dist.dna(dna, model="N")
   if(any(distances == 0)){
