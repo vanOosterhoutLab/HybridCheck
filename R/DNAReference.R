@@ -1,6 +1,6 @@
 #' Reference Class for DNA Sequence Information in HybRIDS.
 #' @export 
-HybRIDSseq <- setRefClass( "HybRIDSseq",
+HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
