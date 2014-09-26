@@ -112,7 +112,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                    if(length(ranges) > 1 || class(ranges[[1]])){
                                                      stop("Error: One integer value should be provided as a distance threshold.")
                                                    }
-                                                   rejectiondistances <- seqpairs[which(distances < ranges[[1]])]
+                                                   rejectiondistances <- seqpairs[which(distances < TripletParams$DistanceThreshold)]
                                                  } else {
                                                    distances_density <- density(distances)
                                                    Lows <- cbind(distances_density$x[which(diff(sign(diff(distances_density$y))) == 2)], distances_density$y[which(diff(sign(diff(distances_density$y))) == 2)])
@@ -485,12 +485,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Show method.
                                          show = function() {
-                                           if(class(DNA)=="HybRIDSseq_fastadisk"){
-                                             cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------\nFull Sequence File Location: ", DNA$FullSequenceFile,
-                                                 "\nInformative Sequence File Location: ", DNA$InformativeSequenceFile)
-                                           } else {
-                                             cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------")
-                                           } 
+                                           cat("HybRIDS object - Analysis of ",length(DNA$SequenceNames)," aligned sequences.\n\nDNA Alignment:\n--------------") 
                                            if(length(DNA$SequenceNames) > 0){
                                              cat("\nFull Length: ",DNA$SequenceLength,
                                                  "\nInformative Length: ",DNA$InformativeLength,"\nSequence names: ",DNA$SequenceNames,"\n\n")
@@ -498,7 +493,7 @@ HybRIDS <- setRefClass( "HybRIDS",
                                              cat("\n\n A DNA sequence alignment file has not yet been loaded into the HybRIDS object.\n\n")
                                            }
                                            cat("Triplet Generation Parameters:\n------------------------------\nTriplet Generation Method: ",TripletParams$Method,
-                                               "\nThreshold for method number 2: ",TripletParams$SortThreshold,
+                                               "\nDistance threshold for method number 3: ",TripletParams$SortThreshold,
                                                "\n\nSequence Similarity Analysis Parameters:\n----------------------------------------\n",
                                                "Sliding Window Size: ",SSAnalysisParams$WindowSize,"\nSliding Window Step Size: ",SSAnalysisParams$StepSize,
                                                "\n\nBlock Detection Parameters: \n---------------------------\nManual Thresholds: ",BlockDetectionParams$ManualThresholds,sep="")
