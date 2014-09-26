@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+
 using namespace Rcpp;
 
 // [[Rcpp::export]]
@@ -15,16 +16,24 @@ LogicalVector sequenceChecker_cpp(CharacterMatrix x){
   return out;
 }
 
+cppFunction('int CountTrue(LogicalVector x){
+  return sum(x);
+}')
+
+
 DataFrame ScanLoop_cpp(DataFrame df, CharacterMatrix seq){
-  std::vector<int> frompos = Rcpp::as< std::vector<int> >(df["WindowStart"]);
-  std::vector<int> topos = Rcpp::as< std::vector<int> >(df["WindowEnd"]);
-  std::vector<double> AB = Rcpp::as< std::vector<double> >(df["AB"]);
-  std::vector<double> AC = Rcpp::as< std::vector<double> >(df["AC"]);
-  std::vector<double> BC = Rcpp::as< std::vector<double> >(df["BC"]);
+  std::vector<int> frompos = as< std::vector<int> >(df["WindowStart"]);
+  std::vector<int> topos = as< std::vector<int> >(df["WindowEnd"]);
+  NumericVector AB = df["AB"];
+  NumericVector AC = df["AC"];
+  NumericVector BC = df["BC"];
   
   for (int i = 0; i < AB.size(); i++){
     CharacterMatrix dnaStretch = seq(_, Range(frompos[i], topos[i]));
-    
+    AB[i] = (sum(dnaStretch(1, _) == dnaStretch(2, _)) / dnaStretch.ncol()) * 100;
+    AC[i] = (sum(dnaStretch(1, _) == dnaStretch(3, _)) / dnaStretch.ncol()) * 100;
+    BC[i] = (sum(dnaStretch(2, _) == dnaStretch(3, _)) / dnaStretch.ncol()) * 100;
   }
+  
   
 }
