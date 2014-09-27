@@ -183,7 +183,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                                  }
                                                } 
                                              }
-                                             if( Step == "BlockDetection" ) {
+                                             if(Step == "BlockDetection") {
                                                for( n in 1:length( Parameters ) ){
                                                  whichparam <- which( names( BlockDetectionParams ) == names( Parameters )[[n]])
                                                  if( class( BlockDetectionParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDetectionParams[[whichparam]]) == length(Parameters[[n]] ) ) {
@@ -194,21 +194,21 @@ HybRIDS <- setRefClass("HybRIDS",
                                                  }
                                                }
                                              }
-                                             if( Step == "BlockDating" ) {
-                                               for( n in 1:length( Parameters ) ){
-                                                 whichparam <- which( names( BlockDatingParams ) == names( Parameters )[[n]])
-                                                 if( class( BlockDatingParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDatingParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                             if(Step == "BlockDating") {
+                                               for(n in 1:length(Parameters)){
+                                                 whichparam <- which(names(BlockDatingParams) == names(Parameters)[[n]])
+                                                 if(class(BlockDatingParams[[whichparam]]) == class(Parameters[[n]]) && length(BlockDatingParams[[whichparam]]) == length(Parameters[[n]])){
                                                    BlockDatingParams[[whichparam]] <<- Parameters[[n]]
                                                  } else {
-                                                   warning( paste("Tried to re-assign Block Detection parameter ", names(BlockDatingParams)[[whichparam]],
+                                                   warning(paste("Tried to re-assign Block Detection parameter ", names(BlockDatingParams)[[whichparam]],
                                                                   " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
                                                  }
                                                }
                                              }
-                                             if( Step == "Plotting" ) {
-                                               for( n in 1:length( Parameters ) ){
-                                                 whichparam <- which( names( PlottingParams ) == names( Parameters )[[n]])
-                                                 if( names( Parameters )[[n]] == "What" && class( PlottingParams[[whichparam]] ) == class( Parameters[[n]] ) ){
+                                             if(Step == "Plotting") {
+                                               for(n in 1:length(Parameters)){
+                                                 whichparam <- which(names(PlottingParams) == names(Parameters)[[n]])
+                                                 if(names(Parameters)[[n]] == "What" && class(PlottingParams[[whichparam]]) == class(Parameters[[n]])){
                                                    PlottingParams[[whichparam]] <<- Parameters[[n]]
                                                  } else {
                                                    if( class( PlottingParams[[whichparam]] ) == class( Parameters[[n]] ) && length(PlottingParams[[whichparam]]) == length(Parameters[[n]] ) ) {
@@ -224,10 +224,10 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
-                                           function( Selections = "ALL" ) {
-                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if( length( SSAnalysisParams$TripletCombinations ) < 2 ) {
-                                                message( "Only one triplet to analyze the sequence similarity of..." )
+                                           function(Selections = "ALL"){
+                                             if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
+                                             if(length(SSAnalysisParams$TripletCombinations) < 2){
+                                                message("Only one triplet to analyze the sequence similarity of...")
                                                 seq.similarity(DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp)
                                               } else {
                                                 indexTriplets(Selections)
@@ -273,143 +273,42 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          
                                          # GGplot method for HybRIDS object - activates sub-methods of triplets.
-                                         plotSS =
-                                           function( Selections, Combine = TRUE, ReplaceParams = TRUE, ... ) {
-                                             if( !is.character( Selections ) ) stop( "option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
+                                         plotTriplets =
+                                           function(Selections = "ALL", Combine = TRUE, ReplaceParams = TRUE, ...){
+                                             if(!is.character(Selections)) stop("option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
                                              oldParameters <- PlottingParams
-                                             newParameters <- list( ... )
+                                             newParameters <- list(...)
                                              if(length(newParameters) > 0){
-                                               for( n in 1:length(newParameters) ){
+                                               for(n in 1:length(newParameters)){
                                                  whichparam <- which(names(PlottingParams) == names(newParameters)[[n]])
                                                  if(class(PlottingParams[[whichparam]]) == class(newParameters[[n]])){
                                                    PlottingParams[[whichparam]] <<- newParameters[[n]]
                                                  } else {
-                                                   warning( paste("Tried to re-assign plotting parameter ", names(PlottingParams)[[whichparam]],
+                                                   warning(paste("Tried to re-assign plotting parameter ", names(PlottingParams)[[whichparam]],
                                                                   " but the class of the replacement parameter did not match, this parameter was not changed.", sep=""))
                                                  }
                                                }
                                              }
-                                             for( i in Selections ) {
-                                               cat("Selection", i)
-                                               if( length( unlist( strsplit(i, ":") ) ) == 3 ) {
-                                                 indexTriplets( i )
-                                                 if(length(LastTripletSelection) == 0){
-                                                   warning(paste("Can't plot selection", i, "it does not exist..."))
-                                                   next
-                                                 }
-                                                 if( "Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What ) {
-                                                   outplot <- Triplets[[LastTripletSelection]]$plotLines( PlottingParams )
-                                                 }
-                                                 if( !"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
-                                                   outplot <- Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams )
-                                                 }
-                                                 if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE ) {
-                                                   outplot <- arrangeGrob( Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams ),
-                                                                Triplets[[LastTripletSelection]]$plotLines( PlottingParams ),
-                                                                ncol = 1 )
-                                                 } else {
-                                                   if("Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == FALSE ){
-                                                     outplot <- list( bars = Triplets[[LastTripletSelection]]$plotBars( parameters = PlottingParams ), lines = Triplets[[LastTripletSelection]]$plotLines( PlottingParams ))  
-                                                   }
-                                                 }
-                                                 if(ReplaceParams == FALSE){
-                                                   PlottingParams <<- oldParameters
-                                                 }
-                                                 return(outplot)
-                                               } else {
-                                                 if( length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == TRUE ) {
-                                                   indexTriplets( i )
-                                                   if( "Lines" %in% PlottingParams$What ){
-                                                     dflength <- sum( unlist( lapply( Triplets[LastTripletSelection], function(x) nrow(x$SSTable) ) ) )
-                                                     plotting.frame <- data.frame( matrix( nrow = dflength, ncol = 9 ) )
-                                                     names(plotting.frame) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", "SSVals", "TripletSet", "xvals")
-                                                     plotting.frame$xvals <- unlist( lapply( Triplets[LastTripletSelection], function(x) 1:nrow( x$SSTable ) ) )
-                                                     plotting.frame$WindowCenter <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$WindowCenter ) )
-                                                     plotting.frame$WindowStart <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$WindowStart ) )
-                                                     plotting.frame$WindowEnd <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$WindowEnd ) )
-                                                     plotting.frame$ActualCenter <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualCenter ) )
-                                                     plotting.frame$ActualStart <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualStart ) )
-                                                     plotting.frame$ActualEnd <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$SSTable$ActualEnd ) )
-                                                     plotting.frame$SSVals <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( Selections, ":" ) )[1], unlist( strsplit( Selections, ":" ) )[2] ) ) )
-                                                     plotting.frame$TripletSet <- as.factor( unlist( lapply( Triplets[LastTripletSelection], function(x) rep( paste( c(x$ContigNames[1], x$ContigNames[2], x$ContigNames[3]), collapse=":" ), nrow( x$SSTable ) ) ) ) )
-                                                     outplotLines <- ggplot( plotting.frame, aes( x = ActualCenter, y = SSVals ) ) +
-                                                       geom_line( aes( colour = TripletSet ), show_guide = PlottingParams$Legends, size = 0.8 ) +
-                                                       ylab( "% Sequence Similarity" ) +
-                                                       xlab( "Base Position" )
-                                                     outplotLines <- applyPlottingParams( outplotLines, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
-                                                   }
-                                                   if( "Bars" %in% PlottingParams$What ){
-                                                     bars <- lapply( Triplets[LastTripletSelection], function(x) x$plotBars( exportDat = T, PlottingParams ) )
-                                                     pairs <- unlist( lapply( Triplets[LastTripletSelection], function(x) x$returnPair( unlist( strsplit( i, ":" ) )[1], unlist( strsplit( i, ":" ) )[2], data = F ) ) )
-                                                     datasize <- sum( unlist( lapply( bars, function(x) nrow(x) ) ) )
-                                                     plotting.frame2 <- data.frame( matrix( nrow = datasize, ncol = 3 ) )
-                                                     names( plotting.frame2 ) <- c("X","Y","SequenceSimilarity")
-                                                     plotting.frame2$SequenceSimilarity <- unlist( lapply( 1:length( bars ), function(i) if( pairs[i] == 1 ){
-                                                       bars[[i]]$AB
-                                                     } else {
-                                                       if( pairs[i] == 2 ){
-                                                         bars[[i]]$AC
-                                                       } else {
-                                                         if( pairs[i] == 3 ){
-                                                           bars[[i]]$BC
-                                                         }
-                                                       }
-                                                     } ) )
-                                                     plotting.frame2$X <- unlist( lapply( bars, function(x) x$X ) )
-                                                     contignames <- unlist( lapply( Triplets[LastTripletSelection], function(x) paste( x$ContigNames[1], ":", x$ContigNames[2], ":", x$ContigNames[3], sep = "") ) )
-                                                     plotting.frame2$Y <- rep(1:length(bars), times = unlist(lapply(bars, function(x) nrow(x))))
-                                                     bpX <- bars[[1]]$bpX
-                                                     yaxislab <- unlist(lapply(Triplets[LastTripletSelection], function(x) paste(x$ContigNames[1],x$ContigNames[2],x$ContigNames[3],sep=":")))
-                                                     outplotBars <- ggplot( plotting.frame2, aes( x = X, y = as.factor(Y) ) ) +
-                                                       geom_raster( aes( fill = SequenceSimilarity ) ) +
-                                                       xlab( "Base Position" ) +
-                                                       ylab( "Triplet Set" ) +
-                                                       scale_x_continuous( breaks = c(seq( from = 1, to = PlottingParams$MosaicScale, by = PlottingParams$MosaicScale / 10 ), PlottingParams$MosaicScale), labels = c(bpX[seq( from = 1, to = PlottingParams$MosaicScale, by = PlottingParams$MosaicScale / 10 )], max(bpX)) ) +
-                                                       scale_y_discrete( labels = as.character(yaxislab) ) +
-                                                       scale_fill_gradient2(high="red", low="blue", midpoint=33.3)
-                                                     outplotBars <- applyPlottingParams(outplotBars, PlottingParams, title = paste("Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ) )
-                                                   }
-                                                   if( "Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What ) {
-                                                     if(ReplaceParams == FALSE){
-                                                       PlottingParams <<- oldParameters
-                                                     }
-                                                     return(outplotLines)
-                                                   } else {
-                                                     if( !"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What ) {
-                                                       if(ReplaceParams == FALSE){
-                                                         PlottingParams <<- oldParameters
-                                                       }
-                                                       return(outplotBars)
-                                                     } else {
-                                                       if( "Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE ) {
-                                                         if( PlottingParams$CombinedTitle == TRUE ){
-                                                           if(ReplaceParams == FALSE){
-                                                             PlottingParams <<- oldParameters
-                                                           }
-                                                           return( arrangeGrob( textGrob( paste( "Sequence similarity for sequence pair ", i, " in all triplets in which it occurs", sep="" ), x = unit(0.5, "npc"), y = unit(0.5, "npc"),
-                                                                                         just = "centre" ), outplotBars, outplotLines, ncol = 1) )
-                                                         } else {
-                                                           output <- arrangeGrob( outplotBars, outplotLines, ncol = 1 )
-                                                           if(ReplaceParams == FALSE){
-                                                             PlottingParams <<- oldParameters
-                                                           }
-                                                           return( output )
-                                                         }
-                                                       } else {
-                                                         if(ReplaceParams == FALSE){
-                                                           PlottingParams <<- oldParameters
-                                                         }
-                                                         return( list( Barplot = outplotBars, Linesplot = outplotLines) )
-                                                       }
-                                                     }
-                                                   }
-                                                 } else {
-                                                   if(length( unlist( strsplit( i, ":" ) ) ) == 2 && Combine == FALSE){
-                                            
-                                                   }
-                                                 }
-                                               }
+                                             indexTriplets(Selections)
+                                             if("Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE){
+                                               outplot <- lapply(LastTripletSelection, function(i){Triplets[[i]]$combineLinesAndBars(PlottingParams)})
                                              }
+                                             if("Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == FALSE ){
+                                               outplot <- lapply(LastTripletSelection, function(i){list(bars = Triplets[[i]]$plotBars(parameters = PlottingParams), lines = Triplets[[i]]$plotLines(PlottingParams))})  
+                                             }
+                                             if("Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What){
+                                               outplot <- lapply(LastTripletSelection, function(i){Triplets[[i]]$plotLines(PlottingParams)})
+                                             }
+                                             if(!"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What){
+                                               outplot <- lapply(LastTripletSelection, function(i){Triplets[[i]]$plotBars(parameters = PlottingParams)})
+                                             }
+                                             if(length(outplot) == 1){
+                                               outplot <- outplot[[1]]
+                                             }
+                                             if(ReplaceParams == FALSE){
+                                               PlottingParams <<- oldParameters
+                                             }
+                                             return(outplot)
                                              },
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.

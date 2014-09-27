@@ -50,37 +50,43 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               enforceDNA =
                                 function(){
                                   if(!hasDNA()){stop("Error: HybRIDSdna object has not got any sequences loaded in.")}
+                                  if(nrow(InformativeSequence) != nrow(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
                                 },
                               
                               numberOfSequences =
                                 function(){
                                   enforceDNA()
-                                  if(nrow(InformativeSeq) != nrow(FullSeq)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
-                                  return(nrow(InformativeSeq))
+                                  return(nrow(InformativeSequence))
                                 },
                               
                               getFullBp =
                                 function(){
                                   enforceDNA()
-                                  return(as.numeric(colnames(FullSeq)))
+                                  return(as.numeric(colnames(FullSequence)))
                                 },
                               
                               getInformativeBp =
                                 function(){
                                   enforceDNA()
-                                  return(as.numeric(colnames(InformativeSeq)))
+                                  return(as.numeric(colnames(InformativeSequence)))
                                 },
                               
                               getFullLength =
                                 function(){
                                   enforceDNA()
-                                  return(ncol(FullSeq))
+                                  return(ncol(FullSequence))
                                 },
                               
                               getInformativeLength =
                                 function(){
                                   enforceDNA()
-                                  return(ncol(InformativeSeq))
+                                  return(ncol(InformativeSequence))
+                                },
+                              
+                              getSequenceNames =
+                                function(){
+                                  enforceDNA()
+                                  return(rownames(InformativeSequence))
                                 },
                               
                               plotInf =
