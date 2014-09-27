@@ -16,11 +16,6 @@ LogicalVector sequenceChecker_cpp(CharacterMatrix x){
   return out;
 }
 
-cppFunction('int CountTrue(LogicalVector x){
-  return sum(x);
-}')
-
-
 DataFrame ScanLoop_cpp(DataFrame df, CharacterMatrix seq){
   std::vector<int> frompos = as< std::vector<int> >(df["WindowStart"]);
   std::vector<int> topos = as< std::vector<int> >(df["WindowEnd"]);

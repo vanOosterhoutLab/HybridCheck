@@ -8,7 +8,7 @@ NULL
 #' @description 
 #' The HybRIDS reference class is the main class that is used
 #' @export
-HybRIDS <- setRefClass( "HybRIDS",
+HybRIDS <- setRefClass("HybRIDS",
                         
                         fields = list( 
                           DNA = "ANY",
@@ -23,44 +23,38 @@ HybRIDS <- setRefClass( "HybRIDS",
                           UserBlocks = "list"
                           ),
                         
-                         methods = list( initialize = 
-                                           function( dnafile = NULL, formatForce = NULL, storageOpt = "default", inGUI = FALSE ) {
+                         methods = list(initialize = 
+                                           function(dnafile=NULL, formatForce=NULL, storageOpt="default", inGUI=FALSE){
+                                             # Initiate settings for triplet generation.
                                              TripletParams <<- list(
                                                Method = 1,
                                                DistanceThreshold = 0.01,
+                                               PartitionStrictness = 2,
                                                Refine = FALSE)
+                                             # Initiate settings for sliding window scans.
                                              SSAnalysisParams <<- list(
                                                WindowSize = 100,
                                                StepSize = 1,
-                                               TripletCombinations = list () )
-                                             length( BlockDetectionParams ) <<- 4
-                                             BlockDetectionParams <<- list(ManualThresholds = c( 90 ), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2)
+                                               TripletCombinations = list())
+                                             #length(BlockDetectionParams) <<- 4
+                                             # Initiate block detection parameters.
+                                             BlockDetectionParams <<- list(ManualThresholds = c(90), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2)
+                                             # Initiate block dating parameters.
                                              BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
-                                             PlottingParams <<- list( What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
+                                             # Initiate settings for plotting triplet
+                                             PlottingParams <<- list(What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
                                                                       TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
                                                                       XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
                                                                       YTitle = TRUE, YTitleFontSize = 12, YTitleColour = "black", YLabelSize = 10, YLabelColour = "black",
                                                                       Legends = TRUE, LegendFontSize = 12, MosaicScale = 500)
-                                             if(inGUI == TRUE){
-                                               InGUI <<- TRUE
-                                             } else {
-                                               InGUI <<- FALSE
-                                             }
-                                             if(storageOpt == "default"){
-                                               DNA <<- HybRIDSseq$new()
-                                             } else {
-                                               if(storageOpt == "fasta_files"){
-                                                 DNA <<- HybRIDSseq_fastadisk$new()
-                                               } else {
-                                                 stop("You haven't specified a valid mode of storage for the DNA data")
-                                               }
-                                             }
-                                             if( !is.null( dnafile ) ){
-                                               DNA$InputDNA( dnafile, formatForce )
+                                             InGUI <<- inGUI
+                                             DNA <<- HybRIDSseq$new()
+                                             if(!is.null(dnafile)){
+                                               DNA$InputDNA(dnafile, formatForce)
                                                pairs <- unlist(lapply(combn(unique(DNA$SequenceNames),2, simplify=F), function(x) paste(x[1], x[2], sep=":")))
                                                lapply(pairs, function(x) UserBlocks[[x]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()))
                                              } else {
-                                               stop("You haven't provided a path to a DNa file or the name of an object of class DNAbin")
+                                               stop("You haven't provided a path to a DNA file or the name of an object of class DNAbin")
                                              }
                                            },
                                          
@@ -68,25 +62,19 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          makeTripletCombos =
                                            function(...){
                                              # Input checking - check DNA sequences have been read in, and 
-                                             if(DNA$NoDNA == TRUE) stop("No DNA data is loaded into this HybRIDS object")
+                                             if(!DNA$hasDNA()) stop("No DNA data is loaded into this HybRIDS object")
                                              if(nrow(DNA$InformativeSequence) < 3){
                                                if(InGUI == TRUE) gmessage("Not enough sequences to make any triplets", icon="error")
                                                stop("Not enough sequences to make any triplets, most likely the removal of duplicate sequences has resulted in too few sequences.")
                                              }
-                                             
                                              if(!TripletParams$Refine){
                                                SSAnalysisParams$TripletCombinations <<- combn(c(1:nrow(DNA$InformativeSequence)), 3, simplify=FALSE) 
                                              }
-                                             
                                              rejects <- c()
-                                            
                                              # Triplet Generation Method 1 is simply to include all possible triplets.
                                              # In which case the below code is skipped...
-                                             
                                              if(TripletParams$Method > 1 && length(SSAnalysisParams$TripletCombinations) > 1){
-                                               
                                                ranges <- list(...)
-                                               
                                                if(TripletParams$Method == 2){
                                                  # Use the partition method to generate triplets to check for recombination between partitions.
                                                  if(length(ranges) <= 1){
@@ -98,11 +86,10 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  message("Generating triplets to find recombination in sequences, between partitions.")
                                                  rejects <- unlist(lapply(ranges, function(x){
                                                    which(unlist(lapply(SSAnalysisParams$TripletCombinations, function(y){
-                                                     length(which(x %in% y)) > 1
+                                                     length(which(x %in% y)) > TripletParams$PartitionStrictness
                                                    })))
                                                  }))
                                                }
-                                               
                                                # Use the method whereby distance information is used to reject pairs which would likeley be pointless.
                                                if(TripletParams$Method == 3 || TripletParams$Method == 4){                                                    
                                                  distances <- dist.dna(as.DNAbin(DNA$FullSequence), model = "raw")
@@ -129,19 +116,17 @@ HybRIDS <- setRefClass( "HybRIDS",
                                                  }
                                                }
                                              }
-                                             
                                              if(!is.null(rejects) && length(rejects) > 0){
                                                SSAnalysisParams$TripletCombinations <<- SSAnalysisParams$TripletCombinations[-unlist(rejects)]
                                              }
-                                             
                                              Triplets <<- lapply(SSAnalysisParams$TripletCombinations, function(x) HybRIDStriplet$new(sequencenumbers = x, sequences = c(DNA$SequenceNames[x[1]], DNA$SequenceNames[x[2]], DNA$SequenceNames[x[3]]), fullseqlength = DNA$SequenceLength))
                                              names(Triplets) <<- unlist(lapply(SSAnalysisParams$TripletCombinations, function(x) paste(DNA$SequenceNames[x[1]], DNA$SequenceNames[x[2]], DNA$SequenceNames[x[3]], sep = ":")))
                                            },
                                          
                                          # Method for displaying parameters.
                                          showParameters = 
-                                           function(Step = "ALL"){
-                                             if( Step!= "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting" && Step != "ALL"){
+                                           function(Step = NULL){
+                                             if( Step!= "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting"){
                                                stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are TripletGeneration, SSAnalysis, BlockDetection, BlockDating, and Plotting.\n")
                                              }
                                              if( Step == "SSAnalysis"){
@@ -171,26 +156,26 @@ HybRIDS <- setRefClass( "HybRIDS",
                                          
                                          # Method for setting any parameter for any stage.
                                          setParameters =
-                                           function( Step, ... ) {
-                                             if( Step != "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting" ){
+                                           function(Step = NULL, ...){
+                                             if(Step != "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting" ){
                                                stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are TripletGeneration, SSAnalysis, BlockDetection, BlockDating, and Plotting.")
                                              }
-                                             Parameters <- list( ... )
-                                             if( Step == "TripletGeneration" ){
-                                               for( n in 1:length( Parameters ) ){
-                                                 whichparam <- which( names( TripletParams ) == names( Parameters )[[n]])
-                                                 if( class( TripletParams[[whichparam]] ) == class( Parameters[[n]] ) && length(TripletParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                             Parameters <- list(...)
+                                             if(Step == "TripletGeneration"){
+                                               for(n in 1:length(Parameters)){
+                                                 whichparam <- which(names(TripletParams) == names(Parameters)[[n]])
+                                                 if(class(TripletParams[[whichparam]]) == class(Parameters[[n]]) && length(TripletParams[[whichparam]]) == length(Parameters[[n]])){
                                                    TripletParams[[whichparam]] <<- Parameters[[n]]
                                                  } else {
-                                                   warning( paste("Tried to re-assign Triplet Generation parameter ", names(TripletParams)[[whichparam]],
+                                                   warning(paste("Tried to re-assign Triplet Generation parameter ", names(TripletParams)[[whichparam]],
                                                                   " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
                                                  }
                                                }
                                              }
-                                             if( Step == "SSAnalysis" ) {
-                                               for( n in 1:length( Parameters ) ){
-                                                 whichparam <- which( names( SSAnalysisParams ) == names( Parameters )[[n]])
-                                                 if( class( SSAnalysisParams[[whichparam]] ) == class( Parameters[[n]] ) && length(SSAnalysisParams[[whichparam]]) == length(Parameters[[n]] ) ) {
+                                             if(Step == "SSAnalysis") {
+                                               for(n in 1:length(Parameters)){
+                                                 whichparam <- which(names(SSAnalysisParams) == names(Parameters)[[n]])
+                                                 if(class(SSAnalysisParams[[whichparam]]) == class(Parameters[[n]]) && length(SSAnalysisParams[[whichparam]]) == length(Parameters[[n]])){
                                                    SSAnalysisParams[[whichparam]] <<- Parameters[[n]]
                                                  } else {
                                                    warning( paste("Tried to re-assign SSAnalysis parameter ", names(SSAnalysisParams)[[whichparam]],

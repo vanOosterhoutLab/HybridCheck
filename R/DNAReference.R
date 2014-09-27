@@ -21,13 +21,13 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 },
                               
                               InputDNA =
-                                function( intarget, forceFormat = NULL) {
+                                function(intarget, forceFormat = NULL) {
                                   FullSeq <- InputSequences(intarget, forceFormat)
-                                  FullBp <<- as.numeric(colnames(FullSeq))
+                                  FullBp <<- as.numeric(colnames(FullSeq)) # MAKE REDUNDANT
                                   message("Subsetting the informative segregating sites...")
                                   InformativeSeq <- FullSeq[ , sequenceChecker_cpp(FullSeq)] # Cpp code checks for non-informative sites.
-                                  InformativeBp <<- as.numeric(colnames(InformativeSeq))
-                                  SequenceLength <<- ncol(FullSeq)
+                                  InformativeBp <<- as.numeric(colnames(InformativeSeq)) # MAKE REDUNDANT
+                                  SequenceLength <<- ncol(FullSeq) # MAKE REDUNDANT
                                   InformativeLength <<- ncol(InformativeSeq)
                                   SequenceNames <<- rownames(FullSeq)
                                   message("Done, now saving data internally")
@@ -37,6 +37,50 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   InformativeSequence <<- InformativeSeq
                                   NoDNA <<- FALSE
                                   message("Finished DNA input.")
+                                },
+                              
+                              hasDNA =
+                                function(){
+                                  a <- is.initialized(FullSequence)
+                                  b <- is.initialized(InformativeSequence)
+                                  if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
+                                  return(a)
+                                },
+                              
+                              enforceDNA =
+                                function(){
+                                  if(!hasDNA()){stop("Error: HybRIDSdna object has not got any sequences loaded in.")}
+                                },
+                              
+                              numberOfSequences =
+                                function(){
+                                  enforceDNA()
+                                  if(nrow(InformativeSeq) != nrow(FullSeq)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
+                                  return(nrow(InformativeSeq))
+                                },
+                              
+                              getFullBp =
+                                function(){
+                                  enforceDNA()
+                                  return(as.numeric(colnames(FullSeq)))
+                                },
+                              
+                              getInformativeBp =
+                                function(){
+                                  enforceDNA()
+                                  return(as.numeric(colnames(InformativeSeq)))
+                                },
+                              
+                              getFullLength =
+                                function(){
+                                  enforceDNA()
+                                  return(ncol(FullSeq))
+                                },
+                              
+                              getInformativeLength =
+                                function(){
+                                  enforceDNA()
+                                  return(ncol(InformativeSeq))
                                 },
                               
                               plotInf =
@@ -79,7 +123,7 @@ InputSequences <- function(input, Format) {
       }
     }
     message("Reading in sequence file...")
-    dna <- read.dna( file = input, format = Format, as.matrix = TRUE )
+    dna <- read.dna(file = input, format = Format, as.matrix = TRUE)
   } else {
     if(classOfInput == "DNAbin"){
       message("Class of input is DNAbin from ape package.")
@@ -108,4 +152,8 @@ distrowcol <- function(ix,n){
   nr <- ceiling(n-(1+sqrt(1+4*(n^2-n-2*ix)))/2)
   nc <- n-(2*n-nr+1)*nr/2+ix+nr
   return(cbind(nr,nc))
+}
+
+is.initialized <- function(x){
+  return(class(x) != "uninitializedField")
 }
