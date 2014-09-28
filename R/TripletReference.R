@@ -2,13 +2,13 @@
 
 #' HybRIDS Triplet Reference Class
 #' @export
-HybRIDStriplet <- setRefClass( "HybRIDStriplet",
-                               fields = list( SSTableFile = "character",
-                                              SSTable = function( value ) {
-                                                if( missing( value ) ) {
-                                                  read.table( SSTableFile )
+HybRIDStriplet <- setRefClass("HybRIDStriplet",
+                               fields = list(SSTableFile = "character",
+                                              SSTable = function(value){
+                                                if(missing(value)){
+                                                  read.table(SSTableFile)
                                                 } else {
-                                                  write.table( value, file = SSTableFile )
+                                                  write.table(value, file = SSTableFile)
                                                 }
                                               },
                                               InformativeDNALength = "numeric",
@@ -27,12 +27,12 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                methods = list(
                                  
                                  initialize = 
-                                   function( sequencenumbers, sequences, fullseqlength ) {
-                                     SSTableFile <<- tempfile( pattern = "SSTable" )
-                                     SSTable <<- data.frame( WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
+                                   function(sequencenumbers, sequences, fullseqlength){
+                                     SSTableFile <<- tempfile(pattern = "SSTable")
+                                     SSTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
                                                              ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
-                                                             AB = NA, AC = NA, BC = NA )
-                                     ContigNames <<- c( sequences[1], sequences[2], sequences[3] )
+                                                             AB = NA, AC = NA, BC = NA)
+                                     ContigNames <<- c(sequences[1], sequences[2], sequences[3])
                                      FullDNALength <<- fullseqlength
                                      SSError <<- "NO SS TABLE"
                                      BlocksWarning <<- "NO PUTATIVE BLOCKS"
@@ -64,7 +64,7 @@ HybRIDStriplet <- setRefClass( "HybRIDStriplet",
                                  
                                  #Plotting method for the rainbow bars in ggplot2
                                  plotBars =
-                                   function( exportDat = FALSE, parameters ) {
+                                   function(exportDat = FALSE, parameters){
                                      # Now let's generate the reference colour palettes.
                                      RefA <- expand.grid(contigb = seq(0, 100, by = 1), contigc = seq(0, 100, by = 1))
                                      RefA <- within(RefA, mix <- rgb(green = contigb, red = 100, blue = contigc, maxColorValue = 100))
@@ -133,6 +133,13 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                        }
                                      }
                                    },
+                                 
+                                 combineLinesAndBars =
+                                   function(parameters){
+                                     return(arrangeGrob(plotBars(parameters = parameters),
+                                                        plotLines(parameters = parameters),
+                                                        ncol = 1))
+                                     },
                                  
                                  # Method for putative block detection.
                                  putativeBlockFind = 
