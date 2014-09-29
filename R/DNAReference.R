@@ -23,13 +23,13 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               InputDNA =
                                 function(intarget, forceFormat = NULL) {
                                   FullSequence <<- InputSequences(intarget, forceFormat)
-                                  FullBp <<- as.numeric(colnames(FullSeq)) # MAKE REDUNDANT
+                                  FullBp <<- as.numeric(colnames(FullSequence)) # MAKE REDUNDANT
                                   message("Subsetting the informative segregating sites...")
                                   InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
-                                  InformativeBp <<- as.numeric(colnames(InformativeSeq)) # MAKE REDUNDANT
-                                  SequenceLength <<- ncol(FullSeq) # MAKE REDUNDANT
-                                  InformativeLength <<- ncol(InformativeSeq) # MAKE REDUNDANT
-                                  SequenceNames <<- rownames(FullSeq)
+                                  InformativeBp <<- as.numeric(colnames(InformativeSequence)) # MAKE REDUNDANT
+                                  SequenceLength <<- ncol(FullSequence) # MAKE REDUNDANT
+                                  InformativeLength <<- ncol(InformativeSequence) # MAKE REDUNDANT
+                                  SequenceNames <<- rownames(FullSequence)
                                   NoDNA <<- FALSE # MAKE REDUNDANT
                                   message("Finished DNA input.")
                                 },
