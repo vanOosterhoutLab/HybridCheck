@@ -13,7 +13,7 @@ HybRIDS <- setRefClass("HybRIDS",
                         fields = list( 
                           DNA = "ANY",
                           comparrisonSettings = "ANY",
-                          SSAnalysisParams = "list",
+                          ssAnalysisSettings = "ANY",
                           BlockDetectionParams = "list",
                           BlockDatingParams = "list",
                           LastTripletSelection = "numeric",
@@ -30,11 +30,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              # Initiate settings for triplet generation.
                                              comparrisonSettings <<- ComparrisonSettings$new()
                                              
-                                             # Initiate settings for sliding window scans.
-                                             SSAnalysisParams <<- list(
-                                               WindowSize = 100,
-                                               StepSize = 1,
-                                               TripletCombinations = list())
+                                             ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              
                                              # Initiate block detection parameters.
                                              BlockDetectionParams <<- list(ManualThresholds = c(90), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2)
@@ -69,17 +65,17 @@ HybRIDS <- setRefClass("HybRIDS",
                                            function(...){
                                              # Input checking - check DNA sequences have been read in, and 
                                              if(!DNA$hasDNA()) stop("No DNA data is loaded into this HybRIDS object")
-                                             if(nrow(DNA$InformativeSequence) < 3){
+                                             if(DNA$numberOfSequences() < 3){
                                                if(InGUI == TRUE) gmessage("Not enough sequences to make any triplets", icon="error")
                                                stop("Not enough sequences to make any triplets, most likely the removal of duplicate sequences has resulted in too few sequences.")
                                              }
                                              if(!comparrisonSettings$getRefine()){
-                                               SSAnalysisParams$TripletCombinations <<- combn(1:DNA$numberOfSequences(), 3, simplify=FALSE) 
+                                               comparrisonSettings$setTripletCombinations(combn(1:DNA$numberOfSequences(), 3, simplify=FALSE)) 
                                              }
                                              rejects <- c()
                                              # Triplet Generation Method 1 is simply to include all possible triplets.
                                              # In which case the below code is skipped...
-                                             if(comparrisonSettings$getMethod() > 1 && length(SSAnalysisParams$TripletCombinations) > 1){
+                                             if(comparrisonSettings$getMethod() > 1 && comparrisonSettings$hasMultipleCombinations()){
                                                ranges <- list(...)
                                                if(comparrisonSettings$getMethod() == 2){
                                                  # Use the partition method to generate triplets to check for recombination between partitions.
@@ -91,7 +87,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                                  }
                                                  message("Generating triplets to find recombination in sequences, between partitions.")
                                                  rejects <- unlist(lapply(ranges, function(x){
-                                                   which(unlist(lapply(SSAnalysisParams$TripletCombinations, function(y){
+                                                   which(unlist(lapply(comparrisonSettings$getTripletCombinations(), function(y){
                                                      length(which(x %in% y)) > comparrisonSettings$getPartitionStrictness()
                                                    })))
                                                  }))
@@ -108,9 +104,9 @@ HybRIDS <- setRefClass("HybRIDS",
                                                    Lowest <- Lows[which(Lows[,1] == min(Lows[,1])),]
                                                    rejectiondistances <- seqpairs[which(distances < Lowest[1])]
                                                  }
-                                                 for(i in 1:length(SSAnalysisParams$TripletCombinations)){
+                                                 for(i in 1:comparrisonSettings$numberOfTripletCombos()){
                                                    for(n in 1:length(rejectiondistances)){
-                                                     if(all(rejectiondistances[[n]] %in% SSAnalysisParams$TripletCombinations[[i]])){
+                                                     if(all(rejectiondistances[[n]] %in% comparrisonSettings$TripletCombinations[[i]])){
                                                        rejects <- append(rejects, i)
                                                        break
                                                      }
@@ -119,34 +115,34 @@ HybRIDS <- setRefClass("HybRIDS",
                                                }
                                              }
                                              if(!is.null(rejects) && length(rejects) > 0){
-                                               SSAnalysisParams$TripletCombinations <<- SSAnalysisParams$TripletCombinations[-unlist(rejects)]
+                                               comparrisonSettings$eliminateTripletCombinations(rejects)
                                              }
-                                             Triplets <<- lapply(SSAnalysisParams$TripletCombinations, function(x) HybRIDStriplet$new(sequencenumbers = x, sequences = c(DNA$getSequenceNames()[x[1]], DNA$getSequenceNames()[x[2]], DNA$getSequenceNames()[x[3]]), fullseqlength = DNA$getFullLength()))
-                                             names(Triplets) <<- unlist(lapply(SSAnalysisParams$TripletCombinations, function(x) paste(DNA$getSequenceNames()[x[1]], DNA$getSequenceNames()[x[2]], DNA$getSequenceNames()[x[3]], sep = ":")))
+                                             snames <- DNA$getSequenceNames()
+                                             Triplets <<- lapply(comparrisonSettings$getTripletCombinations(), function(x) HybRIDStriplet$new(sequencenumbers = x, sequences = c(snames[x[1]], snames[x[2]], snames[x[3]]), fullseqlength = DNA$getFullLength()))
+                                             names(Triplets) <<- unlist(lapply(comparrisonSettings$getTripletCombinations(), function(x) paste(snames[x[1]], snames[x[2]], snames[x[3]], sep = ":")))
                                            },
                                          
                                          # Method for displaying parameters.
                                          showParameters = 
                                            function(Step = NULL){
-                                             if( Step!= "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting"){
+                                             if(Step!= "TripletGeneration" && Step != "SSAnalysis" && Step != "BlockDetection" && Step != "BlockDating" && Step != "Plotting"){
                                                stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are TripletGeneration, SSAnalysis, BlockDetection, BlockDating, and Plotting.\n")
                                              }
-                                             if( Step == "SSAnalysis"){
-                                               cat("Parameters for the Sliding Window Sequence Similarity analysis are:\nSliding Window Size,\nWindow Step Size, and the Sequence Triplet Combinations.\nThey are printed below.\n\n")
-                                               print(SSAnalysisParams)
+                                             if(Step == "SSAnalysis"){
+                                               cat(ssAnalysisSettings$showSettings())
                                              }
-                                             if( Step == "BlockDetection"){
+                                             if(Step == "BlockDetection"){
                                                cat("Parameters for the detection of putative recombination blocks are:\n\nA vector containing Manual Sequence Similarity Thresholds (%),\n\nWhether or not you want HybRIDS to autodetect the sequence similarity thresholds,
                                                    \nWhether you want HybRIDS to fall back and rely on the manual thresholds should the threshold autodetection fail.
                                                    \nand finally a value by which the Standard Deviation of all sequence similarity is divded by during threshold detection (lower values = more conservative detection).\n\nThey are printed below.\n\n")
                                                print(BlockDetectionParams)
                                              }
-                                             if( Step == "BlockDating"){
+                                             if(Step == "BlockDating"){
                                                cat("Parameters for the signifcance testing and putative recombination blocks are:\n\nA mutation rate assumed to be the average mutation rate for the sequences in the triplet,
                                                    \nA P-Value threshold - only putative recombination blocks that pass significance testing with a P-Value below the threshold are dated and output.\n\n")
                                                print(BlockDatingParams)
                                              }
-                                             if( Step == "Plotting"){
+                                             if(Step == "Plotting"){
                                                print(PlottingParams)
                                              }
                                              if(Step == "TripletGeneration"){
@@ -165,15 +161,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                                comparrisonSettings$setSettings(...)
                                              }
                                              if(Step == "SSAnalysis") {
-                                               for(n in 1:length(Parameters)){
-                                                 whichparam <- which(names(SSAnalysisParams) == names(Parameters)[[n]])
-                                                 if(class(SSAnalysisParams[[whichparam]]) == class(Parameters[[n]]) && length(SSAnalysisParams[[whichparam]]) == length(Parameters[[n]])){
-                                                   SSAnalysisParams[[whichparam]] <<- Parameters[[n]]
-                                                 } else {
-                                                   warning( paste("Tried to re-assign SSAnalysis parameter ", names(SSAnalysisParams)[[whichparam]],
-                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
-                                                 }
-                                               } 
+                                               ssAnalysisSettings$setSettings(...) 
                                              }
                                              if(Step == "BlockDetection") {
                                                for( n in 1:length( Parameters ) ){
@@ -217,15 +205,16 @@ HybRIDS <- setRefClass("HybRIDS",
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
                                            function(Selections = "ALL"){
+                                             DNA$enforceDNA()
                                              if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             if(length(SSAnalysisParams$TripletCombinations) < 2){
+                                             if(!ssAnalysisSettings$hasMultipleCombinations()){
                                                 message("Only one triplet to analyze the sequence similarity of...")
-                                                seq.similarity(DNA$InformativeSequence, Triplets[[1]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp)
+                                                seq.similarity(DNA, Triplets[[1]], ssAnalysisSettings)
                                               } else {
                                                 indexTriplets(Selections)
                                                 for(i in LastTripletSelection){
-                                                  message("Now analysing sequence similarity of triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
-                                                  suppressMessages(seq.similarity(DNA$InformativeSequence[unlist(SSAnalysisParams$TripletCombinations[[i]]),], Triplets[[i]], SSAnalysisParams$WindowSize, SSAnalysisParams$StepSize, DNA$SequenceLength, DNA$InformativeBp))
+                                                  message("Now analysing sequence similarity of triplet ", names(Triplets)[i])
+                                                  suppressMessages(seq.similarity(DNA, Triplets[[i]], ssAnalysisSettings))
                                                } 
                                              }
                                              message("Finished Sequence Similarity Analysis.")

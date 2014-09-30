@@ -84,6 +84,12 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   return(rownames(InformativeSequence))
                                 },
                               
+                              pullTriplet =
+                                function(selection){
+                                  if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
+                                  return(InformativeSequence[selection, ])
+                                },
+                              
                               plotInf =
                                 function(parameters, which="hist") {
                                   if(which != "hist" && which != "bars") stop("You need to specify either 'bars' or 'hist' as the which option!")

@@ -4,7 +4,8 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                      Method = "integer",
                                      DistanceThreshold = "numeric",
                                      PartitionStrictness = "integer",
-                                     Refine = "logical"),
+                                     Refine = "logical",
+                                     TripletCombinations = "list"),
                                    
                                    methods = list(
                                      initialize = 
@@ -13,6 +14,7 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          DistanceThreshold <<- 0.01
                                          PartitionStrictness <<- 2L
                                          Refine <<- FALSE
+                                         TripletCombinations <<- list()
                                        },
                                      
                                      getMethod =
@@ -59,6 +61,37 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          Refine <<- value
                                        },
                                      
+                                     getTripletCombinations =
+                                       function(){
+                                         return(TripletCombinations)
+                                       },
+                                     
+                                     setTripletCombinations =
+                                       function(value){
+                                         if(length(value) < 1 || !is.integertriplet(value)){stop("Triplet Combinations must be a list of numeric vectors, each of length 3.")}
+                                         TripletCombinations <<- value
+                                       },
+                                     
+                                     hasTripletCombinations =
+                                       function(){
+                                         return(length(TripletCombinations) > 0)
+                                       },
+                                     
+                                     hasMultipleCombinations =
+                                       function(){
+                                         return(length(TripletCombinations) > 1)
+                                       },
+                                     
+                                     numberOfTripletCombos =
+                                       function(){
+                                         return(length(TripletCombinations))
+                                       },
+                                     
+                                     eliminateTripletCombinations =
+                                       function(rejects){
+                                         TripletCombinations <<- TripletCombinations[-unlist(rejects)]
+                                       },
+                                     
                                      showSettings =
                                        function(){
                                          message("Settings for Generation of Sequence Scan Combinations.")
@@ -74,19 +107,23 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          parameters <- names(settings)
                                          for(i in 1:length(settings)){
                                            if(parameters[i] == "Method"){
-                                             changeMethod(settings[i])
+                                             changeMethod(settings[[i]])
                                            }
                                            if(parameters[i] == "DistanceThreshold"){
-                                             setDistanceThreshold(settings[i])
+                                             setDistanceThreshold(settings[[i]])
                                            }
                                            if(parameters[i] == "PartitionStrictness"){
-                                             setPartitionStrictness(settings[i])
+                                             setPartitionStrictness(settings[[i]])
                                            }
                                            if(parameters[i] == "Refine"){
-                                             setRefine(settings[i])
+                                             setRefine(settings[[i]])
                                            }
                                          }
                                        }
                                      
                                      )
                                    )
+
+is.integertriplet <- function(value){
+  return(class(value) == "numeric" && length(value) == 3)
+}
