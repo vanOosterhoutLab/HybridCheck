@@ -3,3 +3,7 @@
 .RData
 .DS_Store
 HybRIDS.Rproj
+src/HybRIDS.so
+src/HybRIDScore.o
+src/RcppExports.cpp
+src/RcppExports.o
