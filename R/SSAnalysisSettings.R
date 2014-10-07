@@ -54,6 +54,5 @@ SSAnalysisSettings <- setRefClass("SSAnalysisSettings",
                                         return(paste('Size of the sliding window in base pairs (WindowSize): ', getWindowSize(),
                                                      '\n\nNumber of base pairs to move the sliding window on\n\teach iteration of the scan (StepSize): ', getStepSize(), sep=""))
                                       }
-                                    
                                     )
 )
