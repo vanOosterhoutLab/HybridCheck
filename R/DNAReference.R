@@ -1,5 +1,7 @@
-#' Reference Class for DNA Sequence Information in HybRIDS.
-#' @export 
+#' A Reference Class to represent a DNA alignment, read from a FASTA file.
+#'
+#' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
+#' @export
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",

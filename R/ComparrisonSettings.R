@@ -1,3 +1,8 @@
+#' @title ComparrisonSettings Reference Class.
+#' @description A Reference Class to represent a settings for Triplets.
+#'
+#' @field Method An integer vector of length 1.
+#' @import methods
 ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                    
                                    fields = list(
@@ -10,6 +15,7 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                    methods = list(
                                      initialize = 
                                        function(){
+                                         "Creates the object and sets all parameters to their default."
                                          Method <<- 1L
                                          DistanceThreshold <<- 0.01
                                          PartitionStrictness <<- 2L

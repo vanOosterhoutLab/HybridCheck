@@ -6,13 +6,9 @@ HybRIDS
 
 # Introduction
 
-HybRIDS is an R package that began life as some code to allow colleagues to attractively visualize the mosaic structure of
-a sequence - what was wanted turned out to be more complex than usual plotting in R the casual user may usually do and required use of several libraries and a non-trivial amount of data-munging and code.
+The HybRIDS project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets. In brief, it allows the following to be scripted in and R session:
 
-Therefore we decided to provide this package for other researchers so they can quickly visualize the mosaic structure of sequences in a visually appealing way - thanks to R's wonderful graphical system - 
-along with the ability to detect potential blocks based on the analysis method, and also to date those putative blocks. We then also coded a graphical user interface for the package to assist the occasional R user.  
-HybRIDS then can cater to the individual who is comfortable with code and who wants to script many analyses steps together and want's to include some HybRIDS visualisation and dating, and also to the user who wants to quickly get output 
-without having to do any scripting.
+1. 
 
 # Installation from Github Repository
 
