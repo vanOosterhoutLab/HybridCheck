@@ -1,13 +1,15 @@
 #' @docType package
 #' ...
+#' @useDynLib HybRIDS
 #' @import ape ggplot2 grid gridExtra png
 NULL
 
-#' @title HybRIDS reference class
+#' A Reference Class for manageing a HybRIDS analysis.
 #' @name HybRIDS
-#' @description 
-#' The HybRIDS reference class is the main class that is used
-#' @export
+#' @import methods
+#' @export HybRIDS
+#' @exportClass HybRIDS
+#' @field DNA A HybRIDSdna reference object.
 HybRIDS <- setRefClass("HybRIDS",
                         
                         fields = list( 
@@ -24,12 +26,14 @@ HybRIDS <- setRefClass("HybRIDS",
                           ),
                         
                          methods = list(initialize = 
-                                           function(dnafile=NULL, formatForce=NULL, storageOpt="default", inGUI=FALSE){
+                                           function(dnafile=NULL, inGUI=FALSE){
+                                             "Create HybRIDS object with default values for fields. The path to the FASTA file can be provided."
                                              InGUI <<- inGUI
                                              
                                              # Initiate settings for triplet generation.
                                              comparrisonSettings <<- ComparrisonSettings$new()
                                              
+                                             # Initiate settings for SSAnalysis scans.
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              
                                              # Initiate block detection parameters.
@@ -53,7 +57,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              
                                              # Make sure the input DNA file is loaded into the HybRIDSseq object.
                                              if(!is.null(dnafile)){
-                                               DNA$InputDNA(dnafile, formatForce)
+                                               DNA$InputDNA(dnafile)
                                                userBlocks$initializePairsFromDNA(DNA)
                                              } else {
                                                stop("You haven't provided a path to a DNA file or the name of an object of class DNAbin")

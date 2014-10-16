@@ -2,7 +2,6 @@
 #' @description A Reference Class to represent a settings for Triplets.
 #'
 #' @field Method An integer vector of length 1.
-#' @import methods
 ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                    
                                    fields = list(

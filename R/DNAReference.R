@@ -1,43 +1,34 @@
 #' A Reference Class to represent a DNA alignment, read from a FASTA file.
-#'
+#' @name HybRIDSseq
+#' @import methods
 #' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
-#' @export
+#' @field InformativeSequence A matrix (of Characters) containing the elignment, with uninformative sites removed.
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
-                              InformativeSequence = "ANY",
-                              SequenceNames = "character",
-                              SequenceLength = "numeric",
-                              InformativeLength = "numeric",
-                              FullBp = "numeric",
-                              InformativeBp = "numeric",
-                              NoDNA = "logical"),
+                              InformativeSequence = "ANY"),
                               
                             methods = list( 
                               initialize =
-                                function(sequenceInput = NULL, force_Format = NULL) {
-                                  NoDNA <<- TRUE
+                                function(sequenceInput = NULL) {
+                                  "Initializes the object, may be provided with a filepath to a sequence file, currently only FASTA is supported."
                                   if(!is.null(sequenceInput)){
-                                    InputDNA(sequenceInput, force_Format)
+                                    InputDNA(sequenceInput)
                                   }
                                 },
                               
                               InputDNA =
-                                function(intarget, forceFormat = NULL) {
-                                  FullSequence <<- InputSequences(intarget, forceFormat)
-                                  FullBp <<- as.numeric(colnames(FullSequence)) # MAKE REDUNDANT
+                                function(intarget) {
+                                  "Reads in sequences from file and appropriately modifies fields of the object."
+                                  FullSequence <<- InputSequences(intarget)
                                   message("Subsetting the informative segregating sites...")
                                   InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
-                                  InformativeBp <<- as.numeric(colnames(InformativeSequence)) # MAKE REDUNDANT
-                                  SequenceLength <<- ncol(FullSequence) # MAKE REDUNDANT
-                                  InformativeLength <<- ncol(InformativeSequence) # MAKE REDUNDANT
-                                  SequenceNames <<- rownames(FullSequence)
-                                  NoDNA <<- FALSE # MAKE REDUNDANT
                                   message("Finished DNA input.")
                                 },
                               
                               hasDNA =
                                 function(){
+                                  "Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false."
                                   a <- is.initialized(FullSequence)
                                   b <- is.initialized(InformativeSequence)
                                   if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
@@ -46,18 +37,21 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               
                               enforceDNA =
                                 function(){
+                                  "Enforces some rules about the content of the sequence object and throws errors should they occur."
                                   if(!hasDNA()){stop("Error: HybRIDSdna object has not got any sequences loaded in.")}
                                   if(nrow(InformativeSequence) != nrow(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
                                 },
                               
                               numberOfSequences =
                                 function(){
+                                  "Returns the number of sequences in the stored alignment."
                                   enforceDNA()
                                   return(nrow(InformativeSequence))
                                 },
                               
                               getFullBp =
                                 function(){
+                                  "Returns the "
                                   enforceDNA()
                                   return(as.numeric(colnames(FullSequence)))
                                 },
@@ -90,32 +84,6 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 function(selection){
                                   if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
                                   return(InformativeSequence[selection, ])
-                                },
-                              
-                              plotInf =
-                                function(parameters, which="hist") {
-                                  if(which != "hist" && which != "bars") stop("You need to specify either 'bars' or 'hist' as the which option!")
-                                  if (which == "bars"){
-                                    # Figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
-                                    div <- FullBp[SequenceLength] / parameters$MosaicScale
-                                    bpstart <- seq(from = 1, to = FullBp[SequenceLength], by = div)
-                                    bpend <- seq(from=div, to = FullBp[SequenceLength], by = div)
-                                    bpX <- round(bpstart + (div / 2))
-                                    frame <- data.frame(bpstart = bpstart, bpend = bpend, bpX = bpX)
-                                    rm(bpstart, bpend)
-                                    Bar <- round(apply(frame, 1, function(x) vertbar_create2(InformativeBp, x)))
-                                    plotFrame <- data.frame(bpstart = frame$bpstart, bpend = frame$bpend, X = frame$bpX, numberSNPs = Bar)
-                                    thePlot <- ggplot(plotFrame, aes(x = X, y = 1)) + geom_raster(aes(fill = numberSNPs))
-                                    thePlot <- applyPlottingParams(thePlot, parameters, title="Number of SNP Polymorphisms Between All Sequences")
-                                    thePlot <- thePlot + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
-                                  } else {
-                                    thePlot <- ggplot(data.frame(InformativeBP = InformativeBp), aes(x = InformativeBP)) + geom_histogram(aes(fill=..count..)) +
-                                      scale_fill_gradient2("SNP Count", low="white", high="red")
-                                    thePlot <- applyPlottingParams(thePlot, parameters, title="Number of SNP Polymorphisms Between All Sequences")
-                                    thePlot <- thePlot + ylab("Count")
-                                  }
-                                  thePlot <- thePlot + xlab("Base Pair Position")
-                                  return(thePlot)
                                 }
                             ))
 
@@ -138,12 +106,10 @@ decideFileFormat <- function(input){
   }
 }
 
-sortInput <- function(input, format){
+sortInput <- function(input){
   classOfInput <- class(input)
   if(classOfInput == "character"){
-    if(is.null(format)){
-      format <- decideFileFormat(input)
-    }
+    format <- decideFileFormat(input)
     message("Reading in sequence file...")
     dna <- read.dna(file=input, format=format, as.matrix=TRUE)
   } else {
