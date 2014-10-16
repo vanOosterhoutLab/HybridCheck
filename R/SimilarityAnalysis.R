@@ -30,7 +30,7 @@ seq.similarity <- function(dna, triplet, settings) {
       }
     }
     message("Making all the window frames...")
-    if(newWindowSize >= 1L) {
+    if(triplet$WindowSizeUsed >= 1L) {
       halfWindow <- as.integer(triplet$WindowSizeUsed / 2)
       allstepsfrom <- 1 + halfWindow
       allstepsto <- (triplet$InformativeDNALength - halfWindow) + 1

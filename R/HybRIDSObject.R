@@ -207,7 +207,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                            function(Selections = "ALL"){
                                              DNA$enforceDNA()
                                              if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             if(!ssAnalysisSettings$hasMultipleCombinations()){
+                                             if(!comparrisonSettings$hasMultipleCombinations()){
                                                 message("Only one triplet to analyze the sequence similarity of...")
                                                 seq.similarity(DNA, Triplets[[1]], ssAnalysisSettings)
                                               } else {

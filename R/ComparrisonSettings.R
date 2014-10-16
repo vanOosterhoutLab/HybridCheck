@@ -131,5 +131,5 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                    )
 
 is.integertriplet <- function(value){
-  return(class(value) == "numeric" && length(value) == 3)
+  return(all(unlist(lapply(value, function(x){is.numeric(x) && length(x) == 3}))))
 }
