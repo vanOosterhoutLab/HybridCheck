@@ -2,9 +2,9 @@
 \docType{class}
 \name{HybRIDSseq}
 \alias{HybRIDSseq}
-\title{A Reference Class to represent a DNA alignment, read from a FASTA file.}
+\title{An internal Reference Class to represent a DNA alignment, read from a FASTA file.}
 \description{
-A Reference Class to represent a DNA alignment, read from a FASTA file.
+An internal Reference Class to represent a DNA alignment, read from a FASTA file.
 }
 \section{Fields}{
 

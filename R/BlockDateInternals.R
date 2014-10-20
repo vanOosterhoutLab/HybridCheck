@@ -1,3 +1,79 @@
+#' A reference class storing the settings for recombination block dating. 
+#' @name BlockDatingSettings
+#' @field MutationRate Numeric vector of length one. Stores the mutation rate to be used when dating blocks.
+#' @field PValue Numeric vector of length one. Stores the critical alpha value for testing the signifcance of recombination regions.
+#' @field BonfCorrection Logical vector of length one, stores the option of whether the critical value stored in PValue will be corrected.
+#' @field DateAnyway Logical vector of length one, sotres the option of whether blocks will be dated despite failing the critical alpha.
+#' @field MutationCorrection Character vector of length 1, can be any of the model supported by the ape package. Default is "HybRIDS". 
+BlockDatingSettings <- setRefClass("BlockDatingSettings",
+                                   fields = list(
+                                     MutationRate = "numeric",
+                                     PValue = "numeric",
+                                     BonfCorrection = "logical",
+                                     DateAnyway = "logical",
+                                     MutationCorrection = "character"
+                                     ),
+                                   methods = list(
+                                     initialize =
+                                       function(){
+                                         MutationRate <<- 10e-08
+                                         PValue <<- 0.005
+                                         BonfCorrection <<- TRUE
+                                         DateAnyway <<- FALSE
+                                         MutationCorrection <<- "HybRIDS"
+                                       },
+                                     
+                                     setMutationRate =
+                                       function(newRate){
+                                         "Sets a new mutation rate for the settings."
+                                         if(length(newRate) > 1){stop("Input must be a single value.")}
+                                         MutationRate <<- newRate
+                                       },
+                                     
+                                     setPValue =
+                                       function(newValue){
+                                         "Set a new critical value for significance testing of recombinant blocks."
+                                         if(length(newValue) > 1){stop("Input must be a single value.")}
+                                         PValue <<- newValue
+                                       },
+                                     
+                                     setBonferonni =
+                                       function(newBonf){
+                                         "Set whether the critical value should be subject to bonferroni correction during block significance testing."
+                                         if(length(newBonf) > 1){stop("Input must be a single value.")}
+                                         BonfCorrection <<- newBonf
+                                       },
+                                     
+                                     setDateAnyway =
+                                       function(newValue){
+                                         "Set whether blocks should be kept and dated even if they fail the significance test."
+                                         if(length(newValue) > 1){stop("Input must be a single value.")}
+                                         DateAnyway <<- newValue
+                                       },
+                                     
+                                     setMutationCorrection =
+                                       function(model){
+                                         "Set the model of sequence evolution to correct the distances/number of mutations used in block dating algorithm."
+                                         if(length(model) > 1){stop("Input must be a single value.")}
+                                         if(!any(model == c("HybRIDS", "raw", "TS", "TV", "JC69", "K80", "F81",
+                                                           "K81", "F84", "BH87", "T92", "TN93", "GG95"))){
+                                           stop(paste0("Provided model must be one of the following: ", paste(c("HybRIDS", "raw", "TS", "TV", "JC69", "K80", "F81",
+                                                                                                                "K81", "F84", "BH87", "T92", "TN93", "GG95."), collapse=", ")))
+                                         }
+                                         MutationCorrection <<- model
+                                       }
+                                     
+                                     ))
+
+
+
+
+
+
+
+
+
+
 ## Internal functions for the block dating and significant values.
 
 mergeBandD <- function(block, date) {

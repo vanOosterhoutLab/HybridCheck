@@ -1,4 +1,4 @@
-#' A Reference Class to represent a DNA alignment, read from a FASTA file.
+#' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
 #' @name HybRIDSseq
 #' @import methods
 #' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
@@ -84,14 +84,32 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 function(selection){
                                   if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
                                   return(InformativeSequence[selection, ])
+                                },
+                              
+                              textSummary =
+                                function(){
+                                  start <- paste0("DNA Sequence Information:\n",
+                                                  "-------------------------\nAn alignment of ", numberOfSequences(), 
+                                                  " sequences.\n\nFull length of alignment: ", getFullLength(),
+                                                  "\nExcluding non-informative sites: ", getInformativeLength(),
+                                                  "\n\nSequence names:\n")
+                                  names <- getSequenceNames()
+                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="\n")
+                                  return(paste0(start, end))
+                                },
+                              
+                              show =
+                                function(){
+                                  "Prints a text summary of the object to console."
+                                  cat(textSummary())
                                 }
                             ))
 
 
 # INTERNAL FUNCTIONS:
 
-InputSequences <- function(input, Format) {
-  dna <- sortInput(input, Format)
+InputSequences <- function(input) {
+  dna <- sortInput(input)
   dna <- checkForDuplicates(dna)
   dna <- as.character(dna)
   colnames(dna) <- 1:ncol(dna)
@@ -100,7 +118,7 @@ InputSequences <- function(input, Format) {
 }
 
 decideFileFormat <- function(input){
-  if(grepl(".fas", input)){
+  if(grepl(".fas", input) || grepl(".fasta", input)){
     message("File to be read is expected to be FASTA format...")
     return("fasta")
   }
