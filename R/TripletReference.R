@@ -25,6 +25,7 @@ SimilarityScan <- setRefClass("SimilarityScan",
                                     TableFile <<- tempfile(pattern = "SSTable", tmpdir = hybridsDir)
                                     blankTable()
                                   },
+                                
                                 blankTable =
                                   function(){
                                     "Method clears the SS analysis results table."
@@ -32,11 +33,13 @@ SimilarityScan <- setRefClass("SimilarityScan",
                                                          ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
                                                          AB = NA, AC = NA, BC = NA)
                                   },
+                                
                                 tableIsBlank =
                                   function(){
                                     "Returns TRUE, if the SS analysis table is blank and no results are contained in it."
                                     return(all(is.na(Table)))
                                   },
+                                
                                 finalize =
                                   function(){
                                     "Called when the object is destroyed, makes sure to delete the file saved in the system's temporary directory."
@@ -47,10 +50,67 @@ SimilarityScan <- setRefClass("SimilarityScan",
 
 #' Reference class to store and manage block detection data.
 #' @name Blocks
-#' 
+#' @description Hi!
 Blocks <- setRefClass("Blocks",
-                      fields = list(),
-                      methods = list())
+                      
+                      fields = list(ABTableFile = "character",
+                                    ACTableFile = "character",
+                                    BCTableFile = "character",
+                                    ABTable = function(value){
+                                      if(missing(value)){
+                                        read.table(ABTableFile)
+                                      } else {
+                                        write.table(value, file = ABTableFile)
+                                      }
+                                    },
+                                    ACTable = function(value){
+                                      if(missing(value)){
+                                        read.table(ACTableFile)
+                                      } else {
+                                        write.table(value, file = ACTableFile)
+                                      }
+                                    },
+                                    BCTable = function(value){
+                                      if(missing(value)){
+                                        read.table(BCTableFile)
+                                      } else {
+                                        write.table(value, file = BCTableFile)
+                                      }
+                                    }
+                                    ),
+                      
+                      methods = list(
+                        
+                        initialize = function(hybridsDir){
+                          ABTableFile <<- tempfile(pattern = "BlockTable1", tmpdir = hybridsDir)
+                          ACTableFile <<- tempfile(pattern = "BlockTable2", tmpdir = hybridsDir)
+                          BCTableFile <<- tempfile(pattern = "BlockTable3", tmpdir = hybridsDir)
+                        },
+                        
+                        blankTables =
+                          function(){
+                            "Method clears the SS analysis results table."
+                            ABTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
+                                                 ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
+                                                 AB = NA, AC = NA, BC = NA)
+                            ACTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
+                                                   ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
+                                                   AB = NA, AC = NA, BC = NA)
+                            BCTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
+                                                   ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
+                                                   AB = NA, AC = NA, BC = NA)
+                          },
+                        
+                        
+                        finalize =
+                          function(){
+                            "Called when the object is destroyed, makes sure to delete the files saved in the system's temporary directory."
+                            unlink(ABTableFile)
+                            unlink(ACTableFile)
+                            unlink(BCTableFile)
+                          }
+                        
+                        ))
 
 
 #' Reference class to store and manage triplet data.
@@ -62,20 +122,29 @@ Triplet <- setRefClass("Triplet",
                        
                        fields = list(
                          ContigNames = "character",
+                         ContigIndexes = "integer",
                          ContigNumbers = "list",
                          InformativeDNALength = "numeric",
                          FullDNALength = "numeric",
-                         ScanTable = "ANY",
+                         ScanData = "ANY",
                          Blocks = "ANY"
                          ),
                        
                        methods = list(
                          initialize = 
-                           function(sequencenumbers, sequences, fullseqlength, hybridsDir){
-                             ContigNames <<- c(sequences[1], sequences[2], sequences[3])
+                           function(sequencenumbers, sequencenames, fullseqlength, hybridsDir){
+                             ContigNames <<- sequencenames
+                             ContigIndexes <<- sequencenumbers
                              FullDNALength <<- fullseqlength
                              ContigNumbers <<- combn(sequencenumbers, 2, simplify=F)
-                             ScanTable <<- SimilarityScan$new(hybridsDir)
+                             ScanData <<- SimilarityScan$new(hybridsDir)
+                           },
+                         
+                         readSettings =
+                           function(dna, settings){
+                             InformativeDNALength <<- ncol(dna)
+                             ScanData$StepSizeUsed <- settings$StepSize
+                             ScanData$WindowSizeUsed <- settings$WindowSize
                            },
                          
                          noScanPerformed =
@@ -88,9 +157,9 @@ Triplet <- setRefClass("Triplet",
                            function(plottingSettings){
                              "Method plots a lineplot using ggplot2 of the sequence similarity data from the scan."
                              combo <- unlist(lapply(combn(ContigNames, 2, simplify=FALSE), function(x) paste(x, collapse=":")))
-                             similarities <- as.matrix(ScanTable$Table[, 7:9])
-                             plotting.frame <- data.frame(basepos = rep(as.numeric(SSTable[,4]),3),
-                                                           xrange = rep(c(1:nrow(similarities))),
+                             similarities <- as.matrix(ScanData$Table[, 7:9])
+                             plotting.frame <- data.frame(basepos = rep(as.numeric(similarities[,4]),3),
+                                                           xrange = rep(c(1:nrow(similarities[, 7:9]))),
                                                            yvalues = as.vector(similarities),
                                                            factors = rep(1:3, each = nrow(similarities)))
                              plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=parameters$Legends, size=0.8) +
@@ -100,26 +169,29 @@ Triplet <- setRefClass("Triplet",
                                ylab("% Sequence Similarity")
                              plot <- applyPlottingParams(plot, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
                              return(plot)
+                           },
+                         
+                         detectBlocks =
+                           function(){
+                             "Detects regions which may be recombinant in the scan data."
                            }
                          )
                        )
 
 #' Reference class storing all triplets in a HybRIDS analysis.
 #' @name Triplets
-#' 
+#' @description The Triplets reference class stores and manages operations over many Triplet objects. 
 #' 
 Triplets <- setRefClass("Triplets",
                         
                         fields = list(
-                          comparrisonSettings = "ANY",
                           triplets = "list"
                           ),
                         
                         methods = list(
                           initialize =
-                            function(){
+                            function(dna){
                               "Initializes the object."
-                              comparrisonSettings <<- ComparrisonSettings$new()
                               triplets <<- list()
                             },
                           
@@ -129,78 +201,95 @@ Triplets <- setRefClass("Triplets",
                               return(length(triplets) > 0)
                             },
                           
-                          containsTriplet =
-                            function(selection){
-                              if(length(selection) == 3){
-                                lapply(triplets, function(x) all)
-                              }
-                            },
-                          
                           matchNames =
                             function(selection){
-                              return(lapply(triplets, function(x) sum(selection %in% x$ContigNames)))
+                              if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                              return(unlist(lapply(triplets, function(x) sum(selection %in% x$ContigNames))))
                             },
                           
                           deleteAllTriplets =
                             function(){
+                              "Removes all current triplet data completely."
+                              message("Deleting all triplets data.")
                               triplets <<- list()
                             },
                           
-                          decideTriplets =
-                            function(dna, ranges){
-                              if(!dna$hasDNA()) stop("No DNA data is loaded into this HybRIDS object")
-                              if(dna$numberOfSequences() < 3){
-                                if(InGUI == TRUE) gmessage("Not enough sequences to make any triplets", icon="error")
-                                stop("Not enough sequences to make any triplets, most likely the removal of duplicate sequences has resulted in too few sequences.")
+                          generateTriplets =
+                            function(dna, csettings, basefile){
+                              "Initializes all triplet objects based on the combination settings"
+                              if(tripletsGenerated()){
+                                deleteAllTriplets()
                               }
-                              if(!comparrisonSettings$getRefine()){
-                                comparrisonSettings$setTripletCombinations(combn(1:dna$numberOfSequences(), 3, simplify=FALSE)) 
-                              } else {
-                                if(!comparrisonSettings$hasTripletCombinations()){
-                                  stop("You can't refine the triplet combinations if they are not already present.")
-                                }
-                              }
-                              rejects <- c()
-                              # Triplet Generation Method 1 is simply to include all possible triplets.
-                              # In which case the below code is skipped...
-                              if(comparrisonSettings$getMethod() > 1){
-                                if(comparrisonSettings$hasMultipleCombinations()){
-                                  if(comparrisonSettings$getMethod() == 2){
-                                    # Use the partition method to generate triplets to check for recombination between partitions.
-                                    if(length(ranges) <= 1){
-                                      stop("Error: You need to provide more than one valid partition.")
-                                    }
-                                    if(any(unlist(ranges) > dna$numberOfSequences())){
-                                      stop("Error: Provided sequence numbers in the partitions, higher than the actual number of sequences in alignment.")
-                                    }
-                                    rejects <- generateTriplets2(comparrisonSettings, ranges)
-                                  }
-                                  # Use the method whereby distance information is used to reject pairs which would likely be pointless.
-                                  if(comparrisonSettings$getMethod() == 3 || comparrisonSettings$getMethod() == 4){                                                    
-                                    rejects <- generateTripletsDist(dna, comparrisonSettings)
-                                  }
-                                } else {
-                                  warning("There is only one comparrison possible - presumably only 3 sequences are present.\nAny partitioning or elimination of triplets based on distance\nis meaningless.")
-                                }
-                              }
-                              if(!is.null(rejects) && length(rejects) > 0){
-                                comparrisonSettings$eliminateTripletCombinations(rejects)
-                              }
+                              message("Initializing new triplets data.")
+                              seqlength <- dna$getFullLength()
+                              seqnames <- dna$getSequenceNames()
+                              triplets <<- lapply(csettings$AcceptedCombinations, function(x) Triplet$new(sequencenumbers = which(seqnames %in% x), sequencenames = c(x[1], x[2], x[3]), fullseqlength = seqlength, basefile))
                             },
                           
-                          generateTriplets =
-                            function(dna, basefile){
-                              snames <- dna$getSequenceNames()
-                              seqlength <- dna$getFullLength()
-                              deleteAllTriplets()
-                              triplets <<- lapply(comparrisonSettings$getTripletCombinations(), function(x) Triplet$new(sequencenumbers = x, sequences = c(snames[x[1]], snames[x[2]], snames[x[3]]), fullseqlength = seqlength, basefile))
+#                           updateTriplets =
+#                             function(dna, settings, basefile){
+#                               got <- getAllNames()
+#                               to.remove <- which(!unlist(lapply(got, function(x) x %in% settings$AcceptedCombinations)))
+#                               to.add <- which(!unlist(lapply(settings$AcceptedCombinations, function(x) x %in% got)))
+#                               triplets <<- triplets[-to.remove]
+#                               triplets <<- append(triplets, makeTriplets(settings$AcceptedCombinations[to.add], dna, basefile))
+#                             },
+#                           
+#                           makeTriplets =
+#                             function(selection, dna, basefile){
+#                               seqlength <- dna$getFullLength()
+#                               return(lapply(selection, function(x) Triplet$new(sequencenumbers = x, sequences = c(x[1], x[2], x[3]), fullseqlength = seqlength, basefile)))
+#                             },
+                          
+                          scanTriplets =
+                            function(tripletSelections, dna, scansettings){
+                              if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                              tripletsToScan <- getTriplets(tripletSelections)
+                              for(tripletToScan in tripletsToScan){
+                                seq.similarity(dna, tripletToScan, scansettings)
+                              }
                             },
                           
                           show =
                             function(){
-                              comparrisonSettings$show()
-                            }
+                              
+                            },
                           
+                          htmlSummary =
+                            function(){
+                              "Prints a HTML summary of all the different triplet combinations."
+                              tripnames <- paste0(lapply(triplets, function(x){paste0(paste0(x$ContigNames, collapse=", "), " <br> ", collapse="")}), collapse="")
+                              output <- paste0("<h2>TripletCombinations")
+                              return(tripnames)
+                            },
+                          
+                          getTriplets =
+                            function(selections){
+                              "Returns a list of references to triplets according to user selection."
+                              if(!is.null(selections) && length(selections) > 0){
+                                selections <- unique(selections)
+                                if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                allNames <- do.call(rbind, getAllNames())
+                                ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x))) 
+                                return(triplets[ind])
+                              } else {
+                                return(triplets)
+                              }
+                            },
+                          
+                          getAllNames = 
+                            function(){
+                              "Returns the names of the sequences in each triplet as a list."
+                              return(lapply(triplets, function(x) x$ContigNames))
+                            },
+                          
+                          getAllIndexes =
+                            function(){
+                              "Returns the indexes of the sequences (according to their rows in the HybRIDS sequence object) in each triplet as a list."
+                              return(lapply(triplets, function(x) x$ContigIndexes))
+                            }
                           )
                         )
 

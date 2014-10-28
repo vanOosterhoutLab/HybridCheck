@@ -29,7 +29,9 @@ UserBlocks <- setRefClass("UserBlocks",
                               function(dna){
                                 if(class(dna) != "HybRIDSseq"){stop("Object provided is not of class HybRIDSseq")}
                                 pairs <- unlist(lapply(combn(unique(dna$getSequenceNames()),2, simplify=F), function(x) paste(x[1], x[2], sep=":")))
-                                lapply(pairs, function(x) Pairs[[x]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric()))
+                                for (i in pairs){
+                                  Pairs[[i]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric())
+                                }
                               },
                             
                             addBlock =

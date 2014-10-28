@@ -1,10 +1,66 @@
-# Internal functions for putative block detection.
+# Functions and classes for detecting blocks.
+#' Reference type for storing the settings for block detection.
+#' @name BlockDetectionSettings
+#' @field ManualThresholds A numeric value between 1 and 100, the percentage raw sequence similarity a region has to reach, before it is identified as a block.
+BlockDetectionSettings <- setRefClass("BlockDetectionSettings",
+                                      
+                                      fields = list(
+                                        ManualThresholds = "numeric",
+                                        AutoThresholds = "logical",
+                                        ManualFallback = "logical",
+                                        SDstringency = "numeric"
+                                        ),
+                                      
+                                      methods = list(
+                                        initialize = function(){
+                                          "Initializes the settingsobject."
+                                          ManualThresholds <<- 90
+                                          AutoThresholds <<- TRUE
+                                          ManualFallback <<- TRUE
+                                          SDstringency <<- 2
+                                        },
+                                        
+                                        setManualThresholds =
+                                          function(values){
+                                            "Checks input values for changing the manual sequence similarity thresholds for block detection and sets the parmeter."
+                                            if(any(values > 100) || any(values < 0)){stop("Enter a numeric value between 1 and 100.")}
+                                            ManualThresholds <<- values
+                                          },
+                                        
+                                        setSDstringency =
+                                          function(value){
+                                            "Checks input values for changing the SD stringency parameter for block detection and sets the parameter."
+                                            if(value == 0){stop("You can't enter a zero value.")}
+                                            SDstringency <<- value
+                                          },
+                                        
+                                        setSettings =
+                                          function(...){
+                                            settings <- list(...)
+                                            for(i in 1:length(settings)){
+                                              if(parameters[i] == "ManualThresholds"){
+                                                setManualThresholds(settings[[i]])
+                                              }
+                                              if(parameters[i] == "AutoThresholds"){
+                                                AutoThresholds <<- settings[[i]]
+                                              }
+                                              if(parameters[i] == "ManualFallback"){
+                                                ManualFallback <<- settings[[i]]
+                                              }
+                                              if(parameters[i] == "SDstringency"){
+                                                setSDstringency(settings[[i]])
+                                              }
+                                            }
+                                          }
+                                        )
+                                      )
 
-autodetect.thresholds <- function( ssdatatable, SDdiv, manual, manoveride ) {
-  
+
+
+autodetect.thresholds <- function(ssdatatable, SDdiv, manual, manoveride){  
   # Internal function for finding interesting dips
-  locate.dips <- function( interesting.peaks, peaks, density, man, manfall, noisemean ) {
-    if( is.integer( interesting.peaks ) && length( interesting.peaks ) > 0 ) {
+  locate.dips <- function(interesting.peaks, peaks, density, man, manfall, noisemean){
+    if(is.integer(interesting.peaks) && length(interesting.peaks) > 0){
       Starts <- matrix( peaks[interesting.peaks, ], ncol=2 )
       thresholds <- numeric( length=nrow( Starts ) )
       for( i in 1:nrow( Starts ) ) {

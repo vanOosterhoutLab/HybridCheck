@@ -6,6 +6,7 @@ NULL
 
 #' A Reference Class for manageing a HybRIDS analysis.
 #' @name HybRIDS
+#' @description 
 #' @import methods
 #' @export HybRIDS
 #' @exportClass HybRIDS
@@ -14,28 +15,26 @@ HybRIDS <- setRefClass("HybRIDS",
                         
                         fields = list( 
                           DNA = "ANY",
+                          comparrisonSettings = "ANY",
                           ssAnalysisSettings = "ANY",
-                          BlockDetectionParams = "list",
+                          blockDetectionSettings = "ANY",
                           BlockDatingParams = "list",
-                          LastTripletSelection = "numeric",
                           PlottingParams = "list",
-                          InGUI = "logical",
                           triplets = "ANY",
                           userBlocks = "ANY",
                           filesDirectory = "character"
                           ),
                         
                          methods = list(initialize = 
-                                           function(dnafile=NULL, inGUI=FALSE){
+                                           function(dnafile=NULL){
                                              "Create HybRIDS object with default values for fields. The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
-                                             InGUI <<- inGUI
                                              
                                              # Initiate settings for SSAnalysis scans.
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              
                                              # Initiate block detection parameters.
-                                             BlockDetectionParams <<- list(ManualThresholds = c(90), AutoThresholds = TRUE, ManualFallback = TRUE, SDstringency = 2)
+                                             blockDetectionSettings <<- BlockDetectionSettings$new()
                                              
                                              # Initiate block dating parameters.
                                              BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
@@ -57,18 +56,22 @@ HybRIDS <- setRefClass("HybRIDS",
                                              
                                              # Make sure the input DNA file is loaded into the HybRIDSseq object.
                                              if(!is.null(dnafile)){
-                                               DNA$InputDNA(dnafile)
-                                               userBlocks$initializePairsFromDNA(DNA)
-                                             } else {
-                                               stop("You haven't provided a path to a DNA file or the name of an object of class DNAbin")
+                                               inputDNA(dnafile)
                                              }
                                            },
                                          
-                                         # Method for generating the Triplet Combinations...
-                                         generateComparrisons =
-                                           function(...){
-                                             triplets$decideTriplets(DNA, list(...))
-                                           },
+                                         # Method for inputting DNA sequences...
+                                        inputDNA =
+                                          function(input, format=NULL){
+                                            DNA$InputDNA(input, format)
+                                            userBlocks$initializePairsFromDNA(DNA)
+                                            comparrisonSettings <<- ComparrisonSettings$new(DNA)
+                                            if(triplets$tripletsGenerated()){
+                                              warning("Loading a new sequence file into HybRIDS object. Deleting triplets and data from previous sequence file.")
+                                              triplets <<- Triplets$new()
+                                            }
+                                            triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
+                                          },
                                          
                                          # Method for setting any parameter for any stage.
                                          setParameters =
@@ -78,21 +81,14 @@ HybRIDS <- setRefClass("HybRIDS",
                                              }
                                              Parameters <- list(...)
                                              if(Step == "TripletGeneration"){
-                                               triplets$comparrisonSettings$setSettings(...)
+                                               comparrisonSettings$setSettings(DNA, ...)
+                                               triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                              }
-                                             if(Step == "SSAnalysis") {
+                                             if(Step == "SSAnalysis"){
                                                ssAnalysisSettings$setSettings(...) 
                                              }
-                                             if(Step == "BlockDetection") {
-                                               for( n in 1:length( Parameters ) ){
-                                                 whichparam <- which( names( BlockDetectionParams ) == names( Parameters )[[n]])
-                                                 if( class( BlockDetectionParams[[whichparam]] ) == class( Parameters[[n]] ) && length(BlockDetectionParams[[whichparam]]) == length(Parameters[[n]] ) ) {
-                                                   BlockDetectionParams[[whichparam]] <<- Parameters[[n]]
-                                                 } else {
-                                                   warning( paste("Tried to re-assign Block Detection parameter ", names(BlockDetectionParams)[[whichparam]],
-                                                                  " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
-                                                 }
-                                               }
+                                             if(Step == "BlockDetection"){
+                                               blockDetectionSettings$setSettings(...)
                                              }
                                              if(Step == "BlockDating") {
                                                for(n in 1:length(Parameters)){
@@ -124,19 +120,20 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
-                                           function(Selections = "ALL"){
+                                           function(tripletSelections = NULL, replaceSettings = FALSE, ...){
                                              DNA$enforceDNA()
-                                             if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             if(!comparrisonSettings$hasMultipleCombinations()){
-                                                message("Only one triplet to analyze the sequence similarity of...")
-                                                seq.similarity(DNA, Triplets[[1]], ssAnalysisSettings)
-                                              } else {
-                                                indexTriplets(Selections)
-                                                for(i in LastTripletSelection){
-                                                  message("Now analysing sequence similarity of triplet ", names(Triplets)[i])
-                                                  suppressMessages(seq.similarity(DNA, Triplets[[i]], ssAnalysisSettings))
-                                               } 
-                                             }
+                                             if(length(list(...)) > 0){
+                                               if(replaceSettings){
+                                                 ssAnalysisSettings$setSettings(...)
+                                                 settings <- ssAnalysisSettings
+                                               } else {
+                                                 settings <- ssAnalysisSettings$copy()
+                                                 settings$setSettings(...)
+                                               }
+                                             } else {
+                                               settings <- ssAnalysisSettings
+                                             } 
+                                             triplets$scanTriplets(tripletSelections, DNA, settings)
                                              message("Finished Sequence Similarity Analysis.")
                                            },
                                          
@@ -231,48 +228,12 @@ HybRIDS <- setRefClass("HybRIDS",
                                              class(output) <- c(class(output), "HybRIDStable")   
                                              return(output)
                                            },
-                                                        
-                                         # Method for indexing triplets.
-                                         indexTriplets =
-                                           function(selections, output=F) {
-                                             if(!is.character(selections)) stop("option 'which' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             if(any(selections == "ALL")){
-                                               message("One of the selections is 'ALL', any other selections provided are redundant...")
-                                               LastTripletSelection <<- 1:length(Triplets)
-                                               if(output==T){
-                                                 return(LastTripletSelection)
-                                               }
-                                             } else {
-                                               processedSelections <- strsplit(selections, split=":")
-                                               threes <- processedSelections[which(lapply(processedSelections, function(x) length(x)) == 3)]
-                                               twos <- processedSelections[which(lapply(processedSelections, function(x) length(x)) == 2)]
-                                               ones <- processedSelections[which(lapply(processedSelections, function(x) length(x)) == 1)]
-                                               threes <- lapply(threes, function(x) which(DNA$SequenceNames %in% x))
-                                               twos <- lapply(twos, function(x) which(DNA$SequenceNames %in% x))
-                                               ones <- lapply(ones, function(x) which(DNA$SequenceNames %in% x))
-                                               threes <- which(SSAnalysisParams$TripletCombinations %in% threes)
-                                               if(length(twos) > 0){
-                                                 twos <- which(unlist(lapply(twos, function(y) lapply(SSAnalysisParams$TripletCombinations, function(x) all(y %in% x)))))
-                                               } else {
-                                                 twos <- c()
-                                               }
-                                               if(length(ones) > 0){
-                                                 ones <- which(unlist(lapply(ones, function(y) lapply(SSAnalysisParams$TripletCombinations, function(x) any(y %in% x)))))
-                                               } else {
-                                                 ones <- c()
-                                               }
-                                               # Now let's get rid of redunancies and assign the selection to LastTripletSelection.
-                                               LastTripletSelection <<- unique(c(threes, twos, ones))
-                                               if(output == T){
-                                                 return(LastTripletSelection)
-                                               } 
-                                             }
-                                           },
                                          
-                                         # Show method.
                                          show = function() {
                                            cat("HybRIDS object:\n\n")
                                            DNA$show()
+                                           cat("\n\n")
+                                           comparrisonSettings$show()
                                            cat("\n\n")
                                            triplets$show()
                                            cat("\n\n")

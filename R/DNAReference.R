@@ -18,9 +18,9 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 },
                               
                               InputDNA =
-                                function(intarget) {
+                                function(intarget, format) {
                                   "Reads in sequences from file and appropriately modifies fields of the object."
-                                  FullSequence <<- InputSequences(intarget)
+                                  FullSequence <<- InputSequences(intarget, format)
                                   message("Subsetting the informative segregating sites...")
                                   InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
                                   message("Finished DNA input.")
@@ -98,6 +98,18 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   return(paste0(start, end))
                                 },
                               
+                              htmlSummary =
+                                function(){
+                                  start <- paste0("<h1>DNA Sequence Information:</h1>",
+                                                  "<p>An alignment of ", numberOfSequences(),
+                                                  " sequences.</p><p><b>Full length of alignment:</b> ", getFullLength(),
+                                                  " bp</p><p><b>Excluding non-informative sites:</b> ", getInformativeLength(),
+                                                  " bp</p><p><b>Sequence names:</b><br>")
+                                  names <- getSequenceNames()
+                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="<br>")
+                                  return(paste0(start, end))
+                                },
+                              
                               show =
                                 function(){
                                   "Prints a text summary of the object to console."
@@ -108,8 +120,8 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
 
 # INTERNAL FUNCTIONS:
 
-InputSequences <- function(input) {
-  dna <- sortInput(input)
+InputSequences <- function(input, format) {
+  dna <- sortInput(input, format)
   dna <- checkForDuplicates(dna)
   dna <- as.character(dna)
   colnames(dna) <- 1:ncol(dna)
@@ -121,13 +133,17 @@ decideFileFormat <- function(input){
   if(grepl(".fas", input) || grepl(".fasta", input)){
     message("File to be read is expected to be FASTA format...")
     return("fasta")
+  } else {
+    stop("Could not determine format.")
   }
 }
 
-sortInput <- function(input){
+sortInput <- function(input, format){
   classOfInput <- class(input)
   if(classOfInput == "character"){
-    format <- decideFileFormat(input)
+    if(is.null(format)){
+      format <- decideFileFormat(input)
+    }
     message("Reading in sequence file...")
     dna <- read.dna(file=input, format=format, as.matrix=TRUE)
   } else {
