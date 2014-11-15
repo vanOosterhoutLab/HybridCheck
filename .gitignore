@@ -7,3 +7,4 @@ src/HybRIDS.so
 src/HybRIDScore.o
 src/RcppExports.cpp
 src/RcppExports.o
+inst/doc

@@ -150,33 +150,110 @@ Triplet <- setRefClass("Triplet",
                          noScanPerformed =
                            function(){
                              "Returns TRUE, if the SS analysis table is blank and the informative sites are not known. This is indicative that a scan of the file has not been done yet."
-                             return(ScanTable$tableIsBlank() && !is.initialized(InformativeDNALength))
+                             return(ScanData$tableIsBlank() && length(InformativeDNALength) == 0)
                            },
                          
                          plotLines =
                            function(plottingSettings){
                              "Method plots a lineplot using ggplot2 of the sequence similarity data from the scan."
+                             if(noScanPerformed()){stop("No sequence similarity scan has been performed for this triplet.")}
                              combo <- unlist(lapply(combn(ContigNames, 2, simplify=FALSE), function(x) paste(x, collapse=":")))
-                             similarities <- as.matrix(ScanData$Table[, 7:9])
-                             plotting.frame <- data.frame(basepos = rep(as.numeric(similarities[,4]),3),
-                                                           xrange = rep(c(1:nrow(similarities[, 7:9]))),
-                                                           yvalues = as.vector(similarities),
-                                                           factors = rep(1:3, each = nrow(similarities)))
-                             plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=parameters$Legends, size=0.8) +
+                             data <- ScanData$Table
+                             plotting.frame <- data.frame(basepos = rep(data$ActualCenter,3),
+                                                           yvalues = c(data$AB, data$AC, data$BC),
+                                                           factors = rep(1:3, each = nrow(data)))
+                             plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=plottingSettings$Legends, size=0.8) +
                                ylim(0,100) + 
                                scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
                                xlab("Base Position") +
                                ylab("% Sequence Similarity")
-                             plot <- applyPlottingParams(plot, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
+                             plot <- applyPlottingParams(plot, plottingSettings, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
                              return(plot)
                            },
                          
-                         detectBlocks =
-                           function(){
-                             "Detects regions which may be recombinant in the scan data."
+                         plotBars =
+                           function(plottingSettings){
+                             "Method plots the heatmap based graphic of bars, from the sequence similarity scan data."
+                             if(noScanPerformed()){stop("No sequence similarity scan has been performed for this triplet.")}
+                             # Generate the reference colour palette.
+                             colourPalette <- expand.grid(A = seq(0, 100, by = 1), B = seq(0, 100, by = 1))
+                             colourPalette$RefA <- rgb(green = colourPalette$A, red = 100, blue = colourPalette$B, maxColorValue = 100)
+                             colourPalette$RefB <- rgb(green = 100, red = colourPalette$A, blue = colourPalette$B, maxColorValue = 100)
+                             colourPalette$RefC <- rgb(green = colourPalette$B, red = colourPalette$A, blue = 100, maxColorValue = 100)
+                             # Now figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
+                             div <- FullDNALength / plottingSettings$MosaicScale
+                             frame <- data.frame(bpstart = seq(from = 1, to = FullDNALength, by = div),
+                                                 bpend = seq(from=div, to = FullDNALength, by = div)) 
+                             frame$bpX <- round(frame$bpstart +  (div / 2))
+                             scanTable <- ScanData$Table
+                             AB <- round(apply(frame, 1, function(x) vertbar_create(scanTable, x, 7)))
+                             AC <- round(apply(frame, 1, function(x) vertbar_create(scanTable, x, 8)))
+                             BC <- round(apply(frame, 1, function(x) vertbar_create(scanTable, x, 9)))
+                             rm(scanTable)
+                             frame$AB <- AB
+                             frame$AC <- AC
+                             frame$BC <- BC
+                             frame$X <- 1:nrow(frame)
+                             rm(AB, AC, BC)
+                             if(any(is.nan( as.numeric(frame$AB))) || any(is.nan( as.numeric(frame$AC))) || any(is.nan( as.numeric(frame$BC))) ){
+                               warning("\nNot a numbers (NaNs)! have been detected in the plotting frame.\n
+The common cause of this is a small alignment or few informative sites in the data, 
+with a too high MosaicScale parameter.\nThis usually happens at either end of the 
+bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of them use a lower MosaicScale parameter.")
+                             }
+                             A_mix <- apply(frame, 1, function(x) col_deter(x[c(4,5)], colourPalette[,c(1,2,3)]))
+                             B_mix <- apply(frame, 1, function(x) col_deter(x[c(4,6)], colourPalette[,c(1,2,4)]))
+                             C_mix <- apply(frame, 1, function(x) col_deter(x[c(5,6)], colourPalette[,c(1,2,5)]))
+                             frame$A_mix <- A_mix
+                             frame$B_mix <- B_mix
+                             frame$C_mix <- C_mix
+                             rm(A_mix, B_mix, C_mix)
+                             plottingFrame <- data.frame(X = frame$X, Y = rep(c(3, 2, 1), each = plottingSettings$MosaicScale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
+                             bars <- ggplot(plottingFrame, aes(x = X, y = as.factor(Y))) +
+                               geom_raster(aes(fill = colour)) + scale_fill_identity() +
+                               xlab("Approximate Base Position") +
+                               ylab("Sequence Name") +
+                               scale_x_continuous(breaks = c(seq(from = 1, to = plottingSettings$MosaicScale, by = plottingSettings$MosaicScale / 10), plottingSettings$MosaicScale), labels = c(frame$bpX[seq(from = 1, to = plottingSettings$MosaicScale, by = plottingSettings$MosaicScale / 10)], max(frame$bpX))) + 
+                               scale_y_discrete(labels = c(ContigNames[3], ContigNames[2], ContigNames[1]))
+                             bars <- applyPlottingParams(bars, plottingSettings, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
+                             
+                             if(plottingSettings$Legends == T){
+                               legend <- readPNG(system.file("extdata/rgblegend.png", package="HybRIDS"), TRUE)
+                               if (names(dev.cur()) == "windows"){
+                                 # windows device doesn’t support semi-transparency so we’ll need
+                                 # to flatten the image
+                                 transparent <- legend[,,4] == 0
+                                 legend <- as.raster(legend[,,1:3])
+                                 legend[transparent] <- NA
+                               }
+                               legendgrob <- rasterGrob(image=legend)
+                               bars <- arrangeGrob(bars, legendgrob, widths = c(1, 0.13), ncol=2)
+                             }
+                             return(bars)
                            }
                          )
                        )
+
+#' Internal function to create the vertical bars for mosaic plot.
+vertbar_create <- function(sequenceSimilarityTable, plottingFrameRow, whichComparrison){
+  bool1 <- sequenceSimilarityTable$ActualStart <= plottingFrameRow[2]
+  bool2 <- plottingFrameRow[1] <= sequenceSimilarityTable$ActualEnd
+  index <- which(bool1 == bool2)
+  return(mean(sequenceSimilarityTable[index, whichComparrison]))
+}
+
+#' Internal function to determine colours for the bars.
+col_deter <- function(invalues, reference){
+  if(any(is.nan(as.numeric(invalues)))){
+    cols <- "#000000"
+  } else {
+    cols <- reference[(reference[, 1] == as.numeric(invalues[1])) & reference[,2] == as.numeric(invalues[2]), 3]
+  }
+  return(cols)
+}
+
+
+
 
 #' Reference class storing all triplets in a HybRIDS analysis.
 #' @name Triplets
@@ -252,27 +329,39 @@ Triplets <- setRefClass("Triplets",
                           
                           show =
                             function(){
-                              
+                              cat("A total of ")
+                            },
+
+                          textCombinations =
+                            function(){
+                              tripnames <- paste0(lapply(triplets, function(x){paste0(paste0(x$ContigNames, collapse=", "), "\n", collapse="")}), collapse="")
                             },
                           
                           htmlSummary =
                             function(){
                               "Prints a HTML summary of all the different triplet combinations."
                               tripnames <- paste0(lapply(triplets, function(x){paste0(paste0(x$ContigNames, collapse=", "), " <br> ", collapse="")}), collapse="")
-                              output <- paste0("<h2>TripletCombinations")
+                              output <- paste0("<h2>TripletCombinations</h2>")
                               return(tripnames)
                             },
                           
                           getTriplets =
                             function(selections){
                               "Returns a list of references to triplets according to user selection."
+                              if(!is.list(selections)){
+                                selections <- list(selections)
+                              }
                               if(!is.null(selections) && length(selections) > 0){
-                                selections <- unique(selections)
-                                if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
-                                allNames <- do.call(rbind, getAllNames())
-                                ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x))) 
+                                if(length(selections) == 1 && selections[1] == "NOT.SCANNED"){
+                                  ind <- which(unlist(lapply(test$triplets$triplets, function(x) x$noScanPerformed())))
+                                } else {
+                                  selections <- unique(selections)
+                                  if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                  if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                  if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                  allNames <- do.call(rbind, getAllNames())
+                                  ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                }
                                 return(triplets[ind])
                               } else {
                                 return(triplets)
@@ -326,107 +415,6 @@ HybRIDStriplet <- setRefClass("HybRIDStriplet",
                                               Blocks = "list"
                                               ),
                                methods = list(
-                                 
-                                 initialize = 
-                                   function(sequencenumbers, sequences, fullseqlength){
-                                     SSTableFile <<- tempfile(pattern = "SSTable")
-                                     SSTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
-                                                             ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
-                                                             AB = NA, AC = NA, BC = NA)
-                                     ContigNames <<- c(sequences[1], sequences[2], sequences[3])
-                                     FullDNALength <<- fullseqlength
-                                     ContigNumbers <<- combn(sequencenumbers, 2, simplify=F)
-                                   },
-                                 
-                                 # Method for plotting the Linesplot with ggplot2 for Sequence Similarity.
-                                 plotLines =
-                                   function(parameters) {
-                                     combo <- unlist(lapply(combn(ContigNames, 2, simplify=FALSE), function(x) paste(x, collapse=":")))
-                                     similarities <- as.matrix( SSTable[ , 7:9] )
-                                     plotting.frame <- data.frame( basepos = rep( as.numeric( SSTable[,4] ), 3 ),
-                                                                   xrange = rep( c( 1:nrow( similarities ) ) ),
-                                                                   yvalues = as.vector( similarities ),
-                                                                   factors = rep( 1:3, each = nrow( similarities ) ) )
-                                     plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=parameters$Legends, size=0.8) +
-                                       ylim(0,100) + 
-                                       scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
-                                       xlab("Base Position") +
-                                       ylab("% Sequence Similarity")
-                                     plot <- applyPlottingParams(plot, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
-                                     return(plot)
-                                   },
-                                 
-                                 #Plotting method for the rainbow bars in ggplot2
-                                 plotBars =
-                                   function(exportDat = FALSE, parameters){
-                                     # Now let's generate the reference colour palettes.
-                                     RefA <- expand.grid(contigb = seq(0, 100, by = 1), contigc = seq(0, 100, by = 1))
-                                     RefA <- within(RefA, mix <- rgb(green = contigb, red = 100, blue = contigc, maxColorValue = 100))
-                                     RefB <- expand.grid(contiga = seq(0, 100, by = 1), contigc = seq(0, 100, by = 1))
-                                     RefB <- within(RefB, mix <- rgb(green = 100, red = contiga, blue = contigc, maxColorValue = 100))
-                                     RefC <- expand.grid(contiga = seq(0, 100, by = 1), contigb = seq(0, 100, by = 1))
-                                     RefC <- within(RefC, mix <- rgb(green = contigb, red = contiga, blue = 100, maxColorValue = 100))
-                                     # Now figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
-                                     div <- FullDNALength / parameters$MosaicScale
-                                     bpstart <- seq(from = 1, to = FullDNALength, by = div)
-                                     bpend <- seq(from=div, to = FullDNALength, by = div)
-                                     bpX <- round(bpstart +  (div / 2))
-                                     frame <- data.frame(bpstart = bpstart, bpend = bpend, bpX = bpX)
-                                     rm(bpstart, bpend)
-                                     # Now we go through each vertical bar, and for each one, we find the SSvalues to go in there, and we average them.
-                                     ss <- SSTable
-                                     AB <- round(apply(frame, 1, function(x) vertbar_create(ss, x, 7)))
-                                     AC <- round(apply(frame, 1, function(x) vertbar_create(ss, x, 8)))
-                                     BC <- round(apply(frame, 1, function(x) vertbar_create(ss, x, 9)))
-                                     rm(ss)
-                                     frame$AB <- AB
-                                     frame$AC <- AC
-                                     frame$BC <- BC
-                                     frame$X <- 1:nrow(frame)
-                                     rm(AB, AC, BC)
-                                     
-                                     if(any(is.nan( as.numeric(frame$AB))) || any(is.nan( as.numeric(frame$AC))) || any(is.nan( as.numeric(frame$BC))) ){
-                                       warning("\nNot a numbers (NaNs)! have been detected in the plotting frame.\n
-The common cause of this is a small alignment or few informative sites in the data, 
-with a too high MosaicScale parameter.\nThis usually happens at either end of the 
-bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of them use a lower MosaicScale parameter.")
-                                     }
-                                     A_mix <- apply(frame, 1, function(x) col_deter(x[c(4,5)], RefA))
-                                     B_mix <- apply(frame, 1, function(x) col_deter(x[c(4,6)], RefB))
-                                     C_mix <- apply(frame, 1, function(x) col_deter(x[c(5,6)], RefC))
-                                     frame$A_mix <- A_mix
-                                     frame$B_mix <- B_mix
-                                     frame$C_mix <- C_mix
-                                     plottingFrame <- data.frame(X = frame$X, Y = rep(c(3, 2, 1), each = parameters$MosaicScale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
-                                     if(exportDat == T) {
-                                       return(frame)
-                                     } else {
-                                       bars <- ggplot(plottingFrame, aes(x = X, y = as.factor(Y))) +
-                                         geom_raster(aes(fill = colour)) + scale_fill_identity() +
-                                         xlab("Approximate Base Position") +
-                                         ylab("Sequence Name") +
-                                         scale_x_continuous(breaks = c(seq(from = 1, to = parameters$MosaicScale, by = parameters$MosaicScale / 10), parameters$MosaicScale), labels = c(bpX[seq(from = 1, to = parameters$MosaicScale, by = parameters$MosaicScale / 10)], max(bpX))) + 
-                                         scale_y_discrete(labels = c(ContigNames[3], ContigNames[2], ContigNames[1]))
-                                       
-                                       bars <- applyPlottingParams(bars, parameters, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
-                                       
-                                       if(parameters$Legends == T) {
-                                         legend <- readPNG( system.file("extdata/rgblegend.png", package="HybRIDS"), TRUE)
-                                         if (names(dev.cur()) == "windows") {
-                                           # windows device doesn’t support semi-transparency so we’ll need
-                                           # to flatten the image
-                                           transparent <- legend[,,4] == 0
-                                           legend <- as.raster(legend[,,1:3])
-                                           legend[transparent] <- NA
-                                         }
-                                         legendgrob <- rasterGrob(image=legend)
-                                         bars <- arrangeGrob(bars, legendgrob, widths = c(1, 0.13), ncol=2)
-                                         return(bars)
-                                       } else {
-                                         return(bars)
-                                       }
-                                     }
-                                   },
                                  
                                  combineLinesAndBars =
                                    function(parameters){

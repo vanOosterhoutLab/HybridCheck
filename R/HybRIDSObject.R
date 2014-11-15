@@ -4,7 +4,7 @@
 #' @import ape ggplot2 grid gridExtra png
 NULL
 
-#' A Reference Class for manageing a HybRIDS analysis.
+#' A Reference Class for managing a HybRIDS analysis.
 #' @name HybRIDS
 #' @description 
 #' @import methods
@@ -19,7 +19,7 @@ HybRIDS <- setRefClass("HybRIDS",
                           ssAnalysisSettings = "ANY",
                           blockDetectionSettings = "ANY",
                           BlockDatingParams = "list",
-                          PlottingParams = "list",
+                          plottingSettings = "list",
                           triplets = "ANY",
                           userBlocks = "ANY",
                           filesDirectory = "character"
@@ -40,7 +40,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
                                              
                                              # Initiate settings for plotting triplet
-                                             PlottingParams <<- list(What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
+                                             plottingSettings <<- list(What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
                                                                       TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
                                                                       XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
                                                                       YTitle = TRUE, YTitleFontSize = 12, YTitleColour = "black", YLabelSize = 10, YLabelColour = "black",
@@ -120,7 +120,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.
                                          analyzeSS = 
-                                           function(tripletSelections = NULL, replaceSettings = FALSE, ...){
+                                           function(tripletSelections = "NOT.SCANNED", replaceSettings = FALSE, ...){
                                              DNA$enforceDNA()
                                              if(length(list(...)) > 0){
                                                if(replaceSettings){
