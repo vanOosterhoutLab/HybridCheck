@@ -19,7 +19,7 @@ HybRIDS <- setRefClass("HybRIDS",
                           ssAnalysisSettings = "ANY",
                           blockDetectionSettings = "ANY",
                           BlockDatingParams = "list",
-                          plottingSettings = "list",
+                          plottingSettings = "ANY",
                           triplets = "ANY",
                           userBlocks = "ANY",
                           filesDirectory = "character"
@@ -40,11 +40,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
                                              
                                              # Initiate settings for plotting triplet
-                                             plottingSettings <<- list(What = c("Bars", "Lines"), PlotTitle = TRUE, CombinedTitle = FALSE, 
-                                                                      TitleSize = 14, TitleFace="bold", TitleColour = "black", XLabels = TRUE, YLabels = TRUE,
-                                                                      XTitle = TRUE, XTitleFontSize = 12, XTitleColour = "black", XLabelSize = 10, XLabelColour = "black",
-                                                                      YTitle = TRUE, YTitleFontSize = 12, YTitleColour = "black", YLabelSize = 10, YLabelColour = "black",
-                                                                      Legends = TRUE, LegendFontSize = 12, MosaicScale = 500)
+                                             plottingSettings <<- PlottingSettings$new()
                                              
                                              # Initialize the user blocks object.
                                              userBlocks <<- UserBlocks$new()
@@ -90,7 +86,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              if(Step == "BlockDetection"){
                                                blockDetectionSettings$setSettings(...)
                                              }
-                                             if(Step == "BlockDating") {
+                                             if(Step == "BlockDating"){
                                                for(n in 1:length(Parameters)){
                                                  whichparam <- which(names(BlockDatingParams) == names(Parameters)[[n]])
                                                  if(class(BlockDatingParams[[whichparam]]) == class(Parameters[[n]]) && length(BlockDatingParams[[whichparam]]) == length(Parameters[[n]])){
@@ -101,20 +97,8 @@ HybRIDS <- setRefClass("HybRIDS",
                                                  }
                                                }
                                              }
-                                             if(Step == "Plotting") {
-                                               for(n in 1:length(Parameters)){
-                                                 whichparam <- which(names(PlottingParams) == names(Parameters)[[n]])
-                                                 if(names(Parameters)[[n]] == "What" && class(PlottingParams[[whichparam]]) == class(Parameters[[n]])){
-                                                   PlottingParams[[whichparam]] <<- Parameters[[n]]
-                                                 } else {
-                                                   if( class( PlottingParams[[whichparam]] ) == class( Parameters[[n]] ) && length(PlottingParams[[whichparam]]) == length(Parameters[[n]] ) ) {
-                                                     PlottingParams[[whichparam]] <<- Parameters[[n]]
-                                                   } else {
-                                                     warning( paste("Tried to re-assign Plotting parameter ", names(PlottingParams)[[whichparam]],
-                                                                    " but the class of the replacement parameter or the length of the replacement parameter did not match,\nthis parameter was not changed.", sep=""))
-                                                   }
-                                                 }
-                                               }
+                                             if(Step == "Plotting"){
+                                               plottingSettings$setSettings(...)
                                              }
                                            },
                                          
@@ -173,40 +157,16 @@ HybRIDS <- setRefClass("HybRIDS",
                                          # GGplot method for HybRIDS object - activates sub-methods of triplets.
                                          plotTriplets =
                                            function(Selections = "ALL", Combine = TRUE, ReplaceParams = TRUE, ...){
-                                             if(!is.character(Selections)) stop("option 'Selections' must be a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             oldParameters <- PlottingParams
-                                             newParameters <- list(...)
-                                             if(length(newParameters) > 0){
-                                               for(n in 1:length(newParameters)){
-                                                 whichparam <- which(names(PlottingParams) == names(newParameters)[[n]])
-                                                 if(class(PlottingParams[[whichparam]]) == class(newParameters[[n]])){
-                                                   PlottingParams[[whichparam]] <<- newParameters[[n]]
-                                                 } else {
-                                                   warning(paste("Tried to re-assign plotting parameter ", names(PlottingParams)[[whichparam]],
-                                                                  " but the class of the replacement parameter did not match, this parameter was not changed.", sep=""))
-                                                 }
+                                             settings <- plottingSettings
+                                             if(length(list(...)) > 0){
+                                               if(ReplaceParams){
+                                                settings$setSettings(...) 
+                                               } else {
+                                                settings <- plottingSettings$copy()
+                                                settings$setSettings(...)
                                                }
                                              }
-                                             indexTriplets(Selections)
-                                             if("Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == TRUE){
-                                               outplot <- lapply(LastTripletSelection, function(i){Triplets[[i]]$combineLinesAndBars(PlottingParams)})
-                                             }
-                                             if("Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What && Combine == FALSE ){
-                                               outplot <- lapply(LastTripletSelection, function(i){list(bars = Triplets[[i]]$plotBars(parameters = PlottingParams), lines = Triplets[[i]]$plotLines(PlottingParams))})  
-                                             }
-                                             if("Lines" %in% PlottingParams$What && !"Bars" %in% PlottingParams$What){
-                                               outplot <- lapply(LastTripletSelection, function(i){Triplets[[i]]$plotLines(PlottingParams)})
-                                             }
-                                             if(!"Lines" %in% PlottingParams$What && "Bars" %in% PlottingParams$What){
-                                               outplot <- lapply(LastTripletSelection, function(i){Triplets[[i]]$plotBars(parameters = PlottingParams)})
-                                             }
-                                             if(length(outplot) == 1){
-                                               outplot <- outplot[[1]]
-                                             }
-                                             if(ReplaceParams == FALSE){
-                                               PlottingParams <<- oldParameters
-                                             }
-                                             return(outplot)
+                                             return(triplets$plotTriplets(Selections, plottingSettings))
                                              },
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.

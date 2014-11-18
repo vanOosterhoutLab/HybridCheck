@@ -87,7 +87,6 @@ PlottingSettings <- setRefClass("PlottingSettings",
                                         )
                                     }
                                   }
-                                  
                                   )
                                 )
 
@@ -102,7 +101,7 @@ applyPlottingParams <- function(plot, parameters, title = ""){
                           legend.text = element_text(size = parameters$LegendFontSize))
   }
   if(parameters$XTitle == TRUE){
-    plot <- plot + theme(axis.title.x = element_text(size = parameters$XTitleSize, colour = parameters$XTitleColour))
+    plot <- plot + theme(axis.title.x = element_text(size = parameters$XTitleFontSize, colour = parameters$XTitleColour))
   } else {
     plot <- plot + theme(axis.title.x = element_blank())
   }

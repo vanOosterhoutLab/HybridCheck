@@ -101,6 +101,17 @@ Blocks <- setRefClass("Blocks",
                                                    AB = NA, AC = NA, BC = NA)
                           },
                         
+                        noBlocksDetected =
+                          function(){
+                            rows <- c(nrow(ABTable), nrow(ACTable), nrow(BCTable))
+                            allOne <- all(rows == 1)
+                            if(allOne){
+                              
+                            } else {
+                              
+                            }
+                          },
+                        
                         
                         finalize =
                           function(){
@@ -152,6 +163,21 @@ Triplet <- setRefClass("Triplet",
                              "Returns TRUE, if the SS analysis table is blank and the informative sites are not known. This is indicative that a scan of the file has not been done yet."
                              return(ScanData$tableIsBlank() && length(InformativeDNALength) == 0)
                            },
+                         
+                         plotTriplet = function(plottingSettings){
+                           if("Lines" %in% plottingSettings$What && "Bars" %in% plottingSettings$What){
+                             bars <- plotBars(plottingSettings)
+                             lines <- plotLines(plottingSettings)
+                             return(arrangeGrob(bars, lines, ncol=1))
+                           } else {
+                             if("Lines" %in% plottingsSettings$What){
+                               return(plotLines(plottingSettings))
+                             }
+                             if("Bars" %in% plottingSettings$What){
+                               return(plotBars(plottingSettings))
+                             }
+                           }
+                         },
                          
                          plotLines =
                            function(plottingSettings){
@@ -327,6 +353,11 @@ Triplets <- setRefClass("Triplets",
                               }
                             },
                           
+                          plotTriplets = function(tripletSelections, plotSettings){
+                            tripletsToPlot <- getTriplets(tripletSelections)
+                            return(lapply(tripletsToPlot, function(x) x$plotTriplet(plotSettings)))
+                          },
+                          
                           show =
                             function(){
                               cat("A total of ")
@@ -353,7 +384,7 @@ Triplets <- setRefClass("Triplets",
                               }
                               if(!is.null(selections) && length(selections) > 0){
                                 if(length(selections) == 1 && selections[1] == "NOT.SCANNED"){
-                                  ind <- which(unlist(lapply(test$triplets$triplets, function(x) x$noScanPerformed())))
+                                  ind <- which(unlist(lapply(triplets, function(x) x$noScanPerformed())))
                                 } else {
                                   selections <- unique(selections)
                                   if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
