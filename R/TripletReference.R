@@ -48,82 +48,6 @@ SimilarityScan <- setRefClass("SimilarityScan",
                                 )
                               )
 
-#' Reference class to store and manage block detection data.
-#' @name Blocks
-#' @description Hi!
-Blocks <- setRefClass("Blocks",
-                      
-                      fields = list(ABTableFile = "character",
-                                    ACTableFile = "character",
-                                    BCTableFile = "character",
-                                    ABTable = function(value){
-                                      if(missing(value)){
-                                        read.table(ABTableFile)
-                                      } else {
-                                        write.table(value, file = ABTableFile)
-                                      }
-                                    },
-                                    ACTable = function(value){
-                                      if(missing(value)){
-                                        read.table(ACTableFile)
-                                      } else {
-                                        write.table(value, file = ACTableFile)
-                                      }
-                                    },
-                                    BCTable = function(value){
-                                      if(missing(value)){
-                                        read.table(BCTableFile)
-                                      } else {
-                                        write.table(value, file = BCTableFile)
-                                      }
-                                    }
-                                    ),
-                      
-                      methods = list(
-                        
-                        initialize = function(hybridsDir){
-                          ABTableFile <<- tempfile(pattern = "BlockTable1", tmpdir = hybridsDir)
-                          ACTableFile <<- tempfile(pattern = "BlockTable2", tmpdir = hybridsDir)
-                          BCTableFile <<- tempfile(pattern = "BlockTable3", tmpdir = hybridsDir)
-                        },
-                        
-                        blankTables =
-                          function(){
-                            "Method clears the SS analysis results table."
-                            ABTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
-                                                 ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
-                                                 AB = NA, AC = NA, BC = NA)
-                            ACTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
-                                                   ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
-                                                   AB = NA, AC = NA, BC = NA)
-                            BCTable <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
-                                                   ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
-                                                   AB = NA, AC = NA, BC = NA)
-                          },
-                        
-                        noBlocksDetected =
-                          function(){
-                            rows <- c(nrow(ABTable), nrow(ACTable), nrow(BCTable))
-                            allOne <- all(rows == 1)
-                            if(allOne){
-                              
-                            } else {
-                              
-                            }
-                          },
-                        
-                        
-                        finalize =
-                          function(){
-                            "Called when the object is destroyed, makes sure to delete the files saved in the system's temporary directory."
-                            unlink(ABTableFile)
-                            unlink(ACTableFile)
-                            unlink(BCTableFile)
-                          }
-                        
-                        ))
-
-
 #' Reference class to store and manage triplet data.
 #' @name Triplet
 #' @field ContigNames character vector of length 3, stores the dna names of which the triplet was made.
@@ -138,7 +62,7 @@ Triplet <- setRefClass("Triplet",
                          InformativeDNALength = "numeric",
                          FullDNALength = "numeric",
                          ScanData = "ANY",
-                         Blocks = "ANY"
+                         Blocks = "list"
                          ),
                        
                        methods = list(
@@ -162,6 +86,41 @@ Triplet <- setRefClass("Triplet",
                            function(){
                              "Returns TRUE, if the SS analysis table is blank and the informative sites are not known. This is indicative that a scan of the file has not been done yet."
                              return(ScanData$tableIsBlank() && length(InformativeDNALength) == 0)
+                           },
+                         
+                         blocksNotFound =
+                           function(){
+                             return(length(Blocks) == 0)
+                           },
+                         
+                         # Method for putative block detection.
+                         putativeBlockFind = 
+                           function(parameters){
+                             "DOCSTRING TO BE COMPLETE"
+                             if(noScanPerformed()){stop("No sequence similarity scan data is available for this triplet - can't identify blocks.")}
+                               if(parameters$AutoThresholds == TRUE) {
+                                 message("Using the autodetect thresholds method...")
+                                 message("Deciding on suitable thresholds...")
+                                 thresholds <- autodetect.thresholds(ScanData, parameters)
+                                 # Results in a list of thresholds for AB, AC and BC.
+                               } else {
+                                 thresholds <- list(parameters$ManualThresholds, parameters$ManualThresholds, parameters$ManualThresholds)
+                               }
+                               names(thresholds) <- unlist(lapply(combn(ContigNames, 2, simplify=F), function(x) paste(x, collapse=":")))
+                               message("Now beginning Block Search...")
+                             Blocks <<- lapply(1:3, function(i) block.find(ScanData$Table[,c( 1:6, 6+i )], thresholds[[i]]))
+                             names(Blocks) <<- names(thresholds)
+                           },
+                         
+                         blockDate =
+                           function(dnaobj, parameters){
+                             "DOCSTRING TO COMPLETE"
+                             message("Now dating blocks")
+                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                             out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
+                             Blocks <<- mergeBandD(Blocks, out.blocks)
                            },
                          
                          plotTriplet = function(plottingSettings){
@@ -352,6 +311,15 @@ Triplets <- setRefClass("Triplets",
                                 seq.similarity(dna, tripletToScan, scansettings)
                               }
                             },
+
+                          findBlocks =
+                            function(tripletSelections, findSettings){
+                              if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                              tripletsToFindIn <- getTriplets(tripletSelections)
+                              for(triplet in tripletsToFindIn){
+                                triplet$putativeBlockFind(findSettings)
+                              }
+                            },
                           
                           plotTriplets = function(tripletSelections, plotSettings){
                             tripletsToPlot <- getTriplets(tripletSelections)
@@ -386,12 +354,16 @@ Triplets <- setRefClass("Triplets",
                                 if(length(selections) == 1 && selections[1] == "NOT.SCANNED"){
                                   ind <- which(unlist(lapply(triplets, function(x) x$noScanPerformed())))
                                 } else {
-                                  selections <- unique(selections)
-                                  if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                  if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                  if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
-                                  allNames <- do.call(rbind, getAllNames())
-                                  ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                  if(length(selections) == 1 && selections[1] == "NOT.SEARCHED"){
+                                    ind <- which(unlist(lapply(triplets, function(x) x$blocksNotFound())))
+                                  } else {
+                                    selections <- unique(selections)
+                                    if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                    if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                    if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                    allNames <- do.call(rbind, getAllNames())
+                                    ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                  }
                                 }
                                 return(triplets[ind])
                               } else {
@@ -419,33 +391,7 @@ Triplets <- setRefClass("Triplets",
 
 
 #' Reference class to store results from triplet scans, block detections, and block dates.
-#' @name HybRIDStriplet.
-
-#' @field InformativeDNALength
-#' @field FullDNALength
-#' @field ContigNames
-#' @field ContigNumbers
-#' @field WindowSizeUsed
-#' @field StepSizeUsed
-#' @field 
-HybRIDStriplet <- setRefClass("HybRIDStriplet",
-                               fields = list(SSTableFile = "character",
-                                              SSTable = function(value){
-                                                if(missing(value)){
-                                                  read.table(SSTableFile)
-                                                } else {
-                                                  write.table(value, file = SSTableFile)
-                                                }
-                                              },
-                                              InformativeDNALength = "numeric",
-                                              FullDNALength = "numeric",
-                                              ContigNames = "character",
-                                              ContigNumbers = "list",
-                                              WindowSizeUsed = "numeric",
-                                              StepSizeUsed = "numeric",
-                                              Blocks = "list"
-                                              ),
-                               methods = list(
+ = list(
                                  
                                  combineLinesAndBars =
                                    function(parameters){
@@ -454,32 +400,11 @@ HybRIDStriplet <- setRefClass("HybRIDStriplet",
                                                         ncol = 1))
                                      },
                                  
-                                 # Method for putative block detection.
-                                 putativeBlockFind = 
-                                   function(parameters) {
-                                     if(!any(SSError == "NO SS TABLE")){
-                                       if( parameters$AutoThresholds == TRUE ) {
-                                         message("Using the autodetect thresholds method...")
-                                         message("Deciding on suitable thresholds...")
-                                         Thresholds <- autodetect.thresholds(SSTable, parameters$SDstringency, parameters$ManualThresholds, parameters$ManualFallback)
-                                         # Results in a list of thresholds for AB, AC and BC.
-                                       } else {
-                                         Thresholds <- list( parameters$ManualThresholds, parameters$ManualThresholds, parameters$ManualThresholds )
-                                       }
-                                       names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[1], ContigNames[2], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
-                                       message("Now beginning Block Search...")
-                                       Blocks <<- lapply( 1:3, function(i) block.find( SSTable[,c( 1:6, 6+i )], Thresholds[[i]] ) )
-                                       names(Blocks) <<- names(Thresholds) <- c( paste( ContigNames[1], ContigNames[2], sep = ":" ), paste( ContigNames[1], ContigNames[3], sep=":" ), paste( ContigNames[2], ContigNames[3], sep=":" ) )
-                                       BlocksWarning <<- c(BlocksWarning, "BLOCKS: NOT DATED")
-                                       BlocksWarning <<- BlocksWarning[-which(BlocksWarning=="NO PUTATIVE BLOCKS")]
-                                     } else {
-                                      warning("No SSTable for this triplet yet, can't identify blocks.\nMake sure you've analysed the sequence similarity first.") 
-                                     }
-                                   },
+                                 
                                  
                                  # Method for testing significance and dating of blocks.
                                  blockDate =
-                                   function( dnaobj, parameters ) {
+                                   function(dnaobj, parameters){
                                      message("Now dating blocks")
                                      ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
                                      ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))

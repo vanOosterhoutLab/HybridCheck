@@ -123,18 +123,20 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          # Method to execute the putative block finds.
                                          findBlocks =
-                                           function(Selections = "ALL"){
-                                             if(!is.character(Selections)) stop( "option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'" )
-                                             if(length(Triplets) < 2){
-                                               message("Only one triplet to find the potential blocks in...")
-                                               Triplets[[1]]$putativeBlockFind(BlockDetectionParams)
-                                             } else {
-                                               indexTriplets(Selections)
-                                               for(i in LastTripletSelection){
-                                                 message("Now finding potential blocks for triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
-                                                 suppressMessages(Triplets[[i]]$putativeBlockFind(BlockDetectionParams))
+                                           function(tripletSelections = "NOT.SEARCHED", replaceSettings = FALSE, ...){
+                                             if(length(list(...)) > 0){
+                                               if(replaceSettings){
+                                                 blockDetectionSettings$setSettings(...)
+                                                 settings <- blockDetectionSettings
+                                               } else {
+                                                 settings <- blockDetectionSettings$copy()
+                                                 settings$setSettings(...)
                                                }
+                                             } else {
+                                               settings <- blockDetectionSettings
                                              }
+                                             return(triplets$findBlocks(tripletSelections, settings))
+                                             message("Finished potential blocks for all triplet selections.")
                                            },
                                          
                                          # Method to Date the blocks found.

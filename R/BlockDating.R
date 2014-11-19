@@ -106,7 +106,7 @@ comb <- function(B,D){
 
 binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
 
-date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway) {
+date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway, model){
   # Check there are blocks to date!
   if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
     blocksobj <- as.matrix(blocksobj)
@@ -123,13 +123,20 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       #Extract the two sequences required...
       Seq <- dnaobj$FullSequence[pair,c(which(dnaobj$FullBp == blocksobj[i,"FirstBP"]):which(dnaobj$FullBp == blocksobj[i,"LastBP"]))]
       blockAges[i,5] <- dist.dna(as.DNAbin(Seq), model="N")[1]
+      if(model!="HybRIDS"){
+        distanceByModel <- dist.dna(as.DNAbin(Seq), model=model)[1]
+        blockAges[,8] <- round(distanceByModel * blockAges[,4])
+      }
     }
     blockAges[,6] <- pbinom(blockAges[,"SNPs"], blockAges[,"BlockSize"], wholeSequenceDist)
     ObservedRatio <- blockAges[,"SNPs"] / blockAges[,"BlockSize"]
-    ActualRatio <- seq(from=0, to=2, by=0.0001)
-    OutputRatio <- (0.992582633 * ActualRatio) - (0.605566567 * (ActualRatio^2) ) + (0.166571989 * (ActualRatio^3) )
-    ActualRatio <- unlist(lapply(ObservedRatio, function(x) ActualRatio[which(OutputRatio >= x)][1]))
-    blockAges[,8] <- round(ActualRatio * blockAges[,4])
+    if(model == "HybRIDS"){
+      ObservedRatio <- blockAges[,"SNPs"] / blockAges[,"BlockSize"]
+      ActualRatio <- seq(from=0, to=2, by=0.0001)
+      OutputRatio <- (0.992582633 * ActualRatio) - (0.605566567 * (ActualRatio^2) ) + (0.166571989 * (ActualRatio^3) )
+      ActualRatio <- unlist(lapply(ObservedRatio, function(x) ActualRatio[which(OutputRatio >= x)][1]))
+      blockAges[,8] <- round(ActualRatio * blockAges[,4])
+    }
     for(i in 1:nrow(blocksobj)){
       if( blockAges[i,"p-value"] > pthresh && danyway == FALSE ) {
         next # If the block does not meet the p-value threshold, drop it and proceed to next loop iteration.
