@@ -136,26 +136,26 @@ HybRIDS <- setRefClass("HybRIDS",
                                              } else {
                                                settings <- blockDetectionSettings
                                              }
-                                             return(triplets$findBlocks(tripletSelections, settings))
-                                             message("Finished potential blocks for all triplet selections.")
+                                             triplets$findBlocks(tripletSelections, settings)
+                                             message("Finished finding potential blocks for all triplet selections.")
                                            },
                                          
                                          # Method to Date the blocks found.
                                          dateBlocks =
-                                           function(Selections = "ALL"){
-                                             if(!is.character(Selections)) stop("option 'Selections' must be 'ALL' or a vector of the sequence triplets you want to use e.g. 'Seq1:Seq2:Seq3'")
-                                             if(length(Triplets) < 2){
-                                               message("Only one triplet to date blocks in...")
-                                               Triplets[[1]]$blockDate(DNA, BlockDatingParams)
-                                             } else {
-                                               indexTriplets(Selections)
-                                               for(i in LastTripletSelection){
-                                                 message("Now assessing and dating blocks for triplet ", paste(unlist(SSAnalysisParams$TripletCombinations[i]), collapse=":"))
-                                                 suppressMessages(Triplets[[i]]$blockDate(DNA, BlockDatingParams))
+                                           function(tripletSelections = "NOT.DATED", replaceSettings = FALSE, ...){
+                                             if(length(list(...)) > 0){
+                                               if(replaceSettings){
+                                                 blockDatingSettings$setSettings(...)
+                                                 settings <- blockDatingSettings
+                                               } else {
+                                                 settings <- blockDatingSettings$copy()
+                                                 settings$setSettings(...)
                                                }
+                                             } else {
+                                               settings <- blockDatingSettings
                                              }
+                                             triplets$dateBlocks(tripletSelections, settings, DNA)
                                            },
-                                         
                                          
                                          # GGplot method for HybRIDS object - activates sub-methods of triplets.
                                          plotTriplets =

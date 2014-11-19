@@ -93,6 +93,12 @@ Triplet <- setRefClass("Triplet",
                              return(length(Blocks) == 0)
                            },
                          
+                         blocksNotDated =
+                           function(){
+                             bools <- unlist(lapply(Blocks, function(y) all(unlist(lapply(y, function(x) !all(c("fiveAge", "fiftyAge", "ninetyfiveAge") %in% colnames(x)))))))
+                             return(all(bools))
+                           },
+                         
                          # Method for putative block detection.
                          putativeBlockFind = 
                            function(parameters){
@@ -114,7 +120,7 @@ Triplet <- setRefClass("Triplet",
                          
                          blockDate =
                            function(dnaobj, parameters){
-                             "DOCSTRING TO COMPLETE"
+                             "Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and ."
                              message("Now dating blocks")
                              ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
@@ -124,6 +130,7 @@ Triplet <- setRefClass("Triplet",
                            },
                          
                          tabulateBlocks = function(){
+                           "Tabulates the blocks for a given triplet."
                              message(paste("Tabulating blocks for the triplet", paste(ContigNames, collapse=":")))
                              # Check that the tables are present, if they aren't, turn them into blank data.frames.
                              temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
@@ -335,6 +342,15 @@ Triplets <- setRefClass("Triplets",
                                 triplet$putativeBlockFind(findSettings)
                               }
                             },
+
+                          dateBlocks =
+                            function(tripletSelections, dateSettings, dna){
+                              if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                              tripletsToDate <- getTriplets(tripletSelections)
+                              for(triplet in tripletsToDate){
+                                triplet$blockDate(dna, dateSettings)
+                              }
+                            },
                           
                           plotTriplets = function(tripletSelections, plotSettings){
                             tripletsToPlot <- getTriplets(tripletSelections)
@@ -372,12 +388,16 @@ Triplets <- setRefClass("Triplets",
                                   if(length(selections) == 1 && selections[1] == "NOT.SEARCHED"){
                                     ind <- which(unlist(lapply(triplets, function(x) x$blocksNotFound())))
                                   } else {
-                                    selections <- unique(selections)
-                                    if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                    if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                    if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
-                                    allNames <- do.call(rbind, getAllNames())
-                                    ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                    if(length(selections) == 1 && selections[1] == "NOT.DATED"){
+                                      ind <- which(unlist(lapply(triplets, function(x) x$blocksNotDated())))
+                                    } else {
+                                      selections <- unique(selections)
+                                      if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                      if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                      if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                      allNames <- do.call(rbind, getAllNames())
+                                      ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                    }
                                   }
                                 }
                                 return(triplets[ind])
