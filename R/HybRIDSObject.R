@@ -18,7 +18,7 @@ HybRIDS <- setRefClass("HybRIDS",
                           comparrisonSettings = "ANY",
                           ssAnalysisSettings = "ANY",
                           blockDetectionSettings = "ANY",
-                          BlockDatingParams = "list",
+                          blockDatingSettings = "ANY",
                           plottingSettings = "ANY",
                           triplets = "ANY",
                           userBlocks = "ANY",
@@ -37,7 +37,8 @@ HybRIDS <- setRefClass("HybRIDS",
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
                                              
                                              # Initiate block dating parameters.
-                                             BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
+                                             #BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
+                                             blockDatingSettings <<- BlockDatingSettings$new()
                                              
                                              # Initiate settings for plotting triplet
                                              plottingSettings <<- PlottingSettings$new()

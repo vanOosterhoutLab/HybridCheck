@@ -78,8 +78,8 @@ Triplet <- setRefClass("Triplet",
                          readSettings =
                            function(dna, settings){
                              InformativeDNALength <<- ncol(dna)
-                             ScanData$StepSizeUsed <- settings$StepSize
-                             ScanData$WindowSizeUsed <- settings$WindowSize
+                             ScanData$StepSizeUsed <<- settings$StepSize
+                             ScanData$WindowSizeUsed <<- settings$WindowSize
                            },
                          
                          noScanPerformed =
@@ -116,12 +116,27 @@ Triplet <- setRefClass("Triplet",
                            function(dnaobj, parameters){
                              "DOCSTRING TO COMPLETE"
                              message("Now dating blocks")
-                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
-                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
-                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
+                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                              Blocks <<- mergeBandD(Blocks, out.blocks)
                            },
+                         
+                         tabulateBlocks = function(){
+                             message(paste("Tabulating blocks for the triplet", paste(ContigNames, collapse=":")))
+                             # Check that the tables are present, if they aren't, turn them into blank data.frames.
+                             temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                             SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
+                             pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                             temp2 <- do.call(rbind, temps)
+                             temp2["SequencePair"] <- unlist(pair)
+                             temp2["SequenceSimilarityThreshold"] <- unlist(SS)
+                             if("BLOCKS: NOT DATED" %in% BlocksWarning){
+                               temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2)), PThresh = rep(NA, times=nrow(temp2)), MeanAge = rep(NA, times=nrow(temp2)), CorrectedSNPs = rep(NA, times=nrow(temp2))))
+                             }
+                             return(temp2)
+                         },
                          
                          plotTriplet = function(plottingSettings){
                            if("Lines" %in% plottingSettings$What && "Bars" %in% plottingSettings$What){
@@ -384,100 +399,3 @@ Triplets <- setRefClass("Triplets",
                             }
                           )
                         )
-
-
-
-
-
-
-#' Reference class to store results from triplet scans, block detections, and block dates.
- = list(
-                                 
-                                 combineLinesAndBars =
-                                   function(parameters){
-                                     return(arrangeGrob(plotBars(parameters = parameters),
-                                                        plotLines(parameters = parameters),
-                                                        ncol = 1))
-                                     },
-                                 
-                                 
-                                 
-                                 # Method for testing significance and dating of blocks.
-                                 blockDate =
-                                   function(dnaobj, parameters){
-                                     message("Now dating blocks")
-                                     ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
-                                     ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
-                                     bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway))
-                                     out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
-                                     Blocks <<- mergeBandD( Blocks, out.blocks )
-                                     BlocksWarning <<- c( BlocksWarning,"BLOCKS DATED" )
-                                     BlocksWarning <<- BlocksWarning[-which(BlocksWarning=="BLOCKS: NOT DATED")]
-                                   },
-                                 
-                                 returnPair =
-                                   function( sequence1, sequence2, data = T ) {
-                                     pair <- c( which( ContigNames == sequence1 ), which( ContigNames == sequence2 ) )
-                                     if( 1 %in% pair && 2 %in% pair ) {
-                                       if( data == T ) {
-                                         return( SSTable[,7] )
-                                       } else {
-                                         return( 1 )
-                                       }
-                                     } else {
-                                       if( 1 %in% pair && 3 %in% pair ) {
-                                         if( data ==T ) {
-                                           return( SSTable[,8] )
-                                         } else {
-                                           return( 2 )
-                                         }
-                                       } else {
-                                         if( 2 %in% pair && 3 %in% pair ) {
-                                           if( data == T){
-                                             return( SSTable[,9] )
-                                           } else {
-                                             return( 3 )
-                                           }
-                                         }
-                                       }
-                                     }
-                                   },
-                                 
-                                 tabulateBlocks = function() {
-                                   blocks <- Blocks
-                                   if( !"NO PUTATIVE BLOCKS" %in% BlocksWarning ){
-                                     message(paste("Tabulating blocks for the triplet", paste(ContigNames[1],ContigNames[2],ContigNames[3], sep=":")))
-                                     # Check that the tables are present, if they aren't, turn them into blank data.frames.
-                                     for(i in 1:3) {
-                                       for(n in 1:length(blocks[[i]])) {
-                                         if( class(blocks[[i]][[n]]) == "data.frame" ){
-                                           next
-                                         } else {
-                                           if( class(blocks[[i]][[n]]) == "character" ){
-                                             if("BLOCKS DATED" %in% BlocksWarning){
-                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=16, nrow=0))
-                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","fiveAge","fiftyAge","ninetyfiveAge","SNPnum","PValue", "PThresh","MeanAge","CorrectedSNPs")
-                                             } else {
-                                               blocks[[i]][[n]] <- data.frame(matrix(ncol=10, nrow=0))
-                                               names(blocks[[i]][[n]]) <- c("SequencePair","SequenceSimilarityThreshold","Length","Last","First","FirstBP","LastBP","ApproxBpLength","MeanAge","CorrectedSNPs")
-                                             }
-                                           }
-                                         }
-                                       }
-                                     }
-                                     temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
-                                     SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-                                     pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
-                                     temp2 <- do.call(rbind, temps)
-                                     temp2["SequencePair"] <- unlist(pair)
-                                     temp2["SequenceSimilarityThreshold"] <- unlist(SS)
-                                     if("BLOCKS: NOT DATED" %in% BlocksWarning){
-                                       temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2)), PThresh = rep(NA, times=nrow(temp2)), MeanAge = rep(NA, times=nrow(temp2)), CorrectedSNPs = rep(NA, times=nrow(temp2))))
-                                     }
-                                     return(temp2)
-                                   } else {
-                                     warning(paste("Can't tabulate blocks for this triplet: ", ContigNames[1],":",ContigNames[2],":",ContigNames[3],",\nYou haven't run a putative block search or block date for this triplet.",sep=""))
-                                   }
-                                 }
-                               )  
-                               )

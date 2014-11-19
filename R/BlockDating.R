@@ -121,7 +121,7 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
     }
     for(i in 1:nrow(blocksobj)){
       #Extract the two sequences required...
-      Seq <- dnaobj$FullSequence[pair,c(which(dnaobj$FullBp == blocksobj[i,"FirstBP"]):which(dnaobj$FullBp == blocksobj[i,"LastBP"]))]
+      Seq <- dnaobj$FullSequence[pair,c(which(dnaobj$getFullBp() == blocksobj[i,"FirstBP"]):which(dnaobj$getFullBp() == blocksobj[i,"LastBP"]))]
       blockAges[i,5] <- dist.dna(as.DNAbin(Seq), model="N")[1]
       if(model!="HybRIDS"){
         distanceByModel <- dist.dna(as.DNAbin(Seq), model=model)[1]
