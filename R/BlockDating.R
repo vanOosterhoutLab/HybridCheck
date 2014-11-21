@@ -61,6 +61,29 @@ BlockDatingSettings <- setRefClass("BlockDatingSettings",
                                                                                                                 "K81", "F84", "BH87", "T92", "TN93", "GG95."), collapse=", ")))
                                          }
                                          MutationCorrection <<- model
+                                       },
+                                     
+                                     setSettings =
+                                       function(...){
+                                         settings <- list(...)
+                                         parameters <- names(settings)
+                                         for(i in 1:length(settings)){
+                                           if(parameters[i] == "MutationCorrection"){
+                                             setMutationCorrection(settings[[i]])
+                                           }
+                                           if(parameters[i] == "DateAnyway"){
+                                             setDateAnyway(settings[[i]])
+                                           }
+                                           if(parameters[i] == "BonfCorrection"){
+                                             setBonferonni(settings[[i]])
+                                           }
+                                           if(parameters[i] == "PValue"){
+                                             setPValue(settings[[i]])
+                                           }
+                                           if(parameters[i] == "MutationRate"){
+                                             setMutationRate(settings[[i]])
+                                           }
+                                         }
                                        }
                                      
                                      ))
@@ -98,23 +121,23 @@ comb <- function(B,D){
   B$MeanAge <- D[,"AgeMean"]
   B$CorrectedSNPs <- D[,"SNPs_Corrected"]
   B <- as.data.frame(na.omit(B))
-  if(nrow(B) == 0) {
-    B <- "NO BLOCKS DETECTED OR DATED"
-  }
+#   if(nrow(B) == 0) {
+#     B <- "NO BLOCKS DETECTED OR DATED"
+#   }
   return(B)
 }
 
 binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
 
 date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway, model){
-  # Check there are blocks to date!
+  # Check ther
   if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
     blocksobj <- as.matrix(blocksobj)
     blockAges <- matrix(nrow=nrow(blocksobj),ncol=9)
     wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="raw")[1])
     colnames(blockAges) <- c("5%","50%","95%","BlockSize","SNPs","p-value", "p-threshold", "SNPs_Corrected", "AgeMean")
     blockAges[,4] <- blocksobj[,"ApproxBpLength"]
-    if( bonfcorrect == TRUE ){
+    if(bonfcorrect == TRUE){
       blockAges[,7] <- pthresh/nrow(blocksobj)
     } else {
       blockAges[,7] <- pthresh
@@ -150,7 +173,6 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
         blockAges[i,1] <- round(soln95[["root"]]/(2*mut))
       }
     }
-    blockAges[,"AgeMean"] <- ActualRatio / (2*mut) 
   } else {
     blockAges <- "NO BLOCKS TO DATE"
   }

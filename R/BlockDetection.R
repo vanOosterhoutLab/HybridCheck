@@ -37,6 +37,7 @@ BlockDetectionSettings <- setRefClass("BlockDetectionSettings",
                                         setSettings =
                                           function(...){
                                             settings <- list(...)
+                                            parameters <- names(settings)
                                             for(i in 1:length(settings)){
                                               if(parameters[i] == "ManualThresholds"){
                                                 setManualThresholds(settings[[i]])
@@ -129,18 +130,20 @@ block.find <- function(dist,thresh){
     ind <- lapply(runs, function(x) which(x$values == T))                              # Identify which runs are blocks and not runs of non-blocks.
     runs2 <- lapply(1:length(runs), function(i) runs[[i]]$lengths[ind[[i]]])         # Get the lengths of all the runs for T, meaning blocks.
     sums <- lapply(1:length(runs), function(i) cumsum(runs[[i]]$lengths)[ind[[i]]])  # Generate a cumulative sum of the run lengths and pick out the ones for the actual blocks.
-    BlockPos2 <- lapply(1:length(runs), function(i) data.frame( Length = runs2[[i]], Last = sums[[i]]))
+    BlockPos2 <- lapply(1:length(runs), function(i) data.frame(Length = runs2[[i]], Last = sums[[i]]))
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, First <- (x$Last - (x$Length - 1))))
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, FirstBP <- dist[x$First,4])) # We define the start of a block as the central bp position of the first window which covers it with sufficient SS to meet the threshold.
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, LastBP <- dist[x$Last,4])) # We define the end of a block as the central bp position of the last window that covers it with a high enough SS to meet the threshold.
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, ApproxBpLength <- (x$LastBP - x$FirstBP) + 1))
     BlockPos2 <- lapply(BlockPos2, function(x) x[which(x$ApproxBpLength > 1 ),]) # Remove any blocks with a bpsize of 1 straight away.
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, SNPs <- NA))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, CorrectedSNPs <- NA))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, P_Value <- NA))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, P_Threshold <- NA))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, fiveAge <- NA))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, fiftyAge <- NA))
+    BlockPos2 <- lapply(BlockPos2, function(x) within(x, ninetyFiveAge <- NA))
     names(BlockPos2) <- thresh2
-    for(i in 1:length(BlockPos2)){
-      if(nrow( BlockPos2[[i]] ) < 1){
-        BlockPos2[[i]] <- "NO BLOCKS DETECTED UNDER THIS THRESHOLD"
-      }
-    }
   } else {
     BlockPos2 <- "NO SUITABLE THRESHOLD TO ID BLOCKS WITH"
   }

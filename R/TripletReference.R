@@ -95,7 +95,7 @@ Triplet <- setRefClass("Triplet",
                          
                          blocksNotDated =
                            function(){
-                             bools <- unlist(lapply(Blocks, function(y) all(unlist(lapply(y, function(x) !all(c("fiveAge", "fiftyAge", "ninetyfiveAge") %in% colnames(x)))))))
+                             bools <- unlist(lapply(Blocks, function(y) all(unlist(lapply(y, function(x) all(is.na(x$SNPs)) && all(is.na(x$CorrectedSNPs)) && all(is.na(x$P_Value)) && all(is.na(x$P_Threshold)) && all(is.na(x$fiveAge)) && all(is.na(x$fiftyAge)) && all(is.na(x$ninetyFiveAge))   )))))
                              return(all(bools))
                            },
                          
@@ -360,15 +360,15 @@ Triplets <- setRefClass("Triplets",
 
                           tabulateBlocks = function(tripletSelections, neat){
                             if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
-                            tripletsToTabulate <- getTriplets(tripletSelections)
+                            tripletsToTabulate <- test$triplets$getTriplets("ALL")
                             listedTabulates <- lapply(tripletsToTabulate, function(x) x$tabulateBlocks())
                             collected <- do.call(rbind, listedTabulates)
                             output <- data.frame(collected$Triplet, collected$SequencePair, collected$SequenceSimilarityThreshold, collected$Length,
                                                  collected$First, collected$Last, collected$FirstBP, collected$LastBP, collected$ApproxBpLength, collected$SNPnum, collected$fiveAge, collected$fiftyAge,
-                                                 collected$ninetyfiveAge, collected$PValue, collected$PThresh, collected$MeanAge, collected$CorrectedSNPs)
+                                                 collected$ninetyfiveAge, collected$PValue, collected$PThresh, collected$CorrectedSNPs)
                             if(neat){
                               output <- output[,-c(4,5,6)]
-                              names(output) <- c("Triplet", "Sequence_Pair","Sequence_Similarity_Threshold","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh", "Mean_Age", "Corrected_Number_of_SNPs")
+                              names(output) <- c("Triplet", "Sequence_Pair","Sequence_Similarity_Threshold","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh", "Corrected_Number_of_SNPs")
                             }
                             return(output)
                           },
