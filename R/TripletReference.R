@@ -133,15 +133,16 @@ Triplet <- setRefClass("Triplet",
                            "Tabulates the blocks for a given triplet."
                              message(paste("Tabulating blocks for the triplet", paste(ContigNames, collapse=":")))
                              # Check that the tables are present, if they aren't, turn them into blank data.frames.
-                             temps <- lapply(1:3, function(i) do.call(rbind, blocks[[i]]))
+                             temps <- lapply(1:3, function(i) do.call(rbind, Blocks[[i]]))
                              SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
-                             pair <- lapply(1:3, function(i) rep(names(blocks)[[i]], nrow(temps[[i]])))
+                             pair <- lapply(1:3, function(i) rep(names(Blocks)[[i]], nrow(temps[[i]])))
                              temp2 <- do.call(rbind, temps)
-                             temp2["SequencePair"] <- unlist(pair)
-                             temp2["SequenceSimilarityThreshold"] <- unlist(SS)
-                             if("BLOCKS: NOT DATED" %in% BlocksWarning){
+                             if(blocksNotDated()){
                                temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2)), PThresh = rep(NA, times=nrow(temp2)), MeanAge = rep(NA, times=nrow(temp2)), CorrectedSNPs = rep(NA, times=nrow(temp2))))
                              }
+                             temp2["SequencePair"] <- unlist(pair)
+                             temp2["SequenceSimilarityThreshold"] <- unlist(SS)
+                             temp2["Triplet"] <- paste(ContigNames, collapse=":")
                              return(temp2)
                          },
                          
@@ -356,6 +357,21 @@ Triplets <- setRefClass("Triplets",
                             tripletsToPlot <- getTriplets(tripletSelections)
                             return(lapply(tripletsToPlot, function(x) x$plotTriplet(plotSettings)))
                           },
+
+                          tabulateBlocks = function(tripletSelections, neat){
+                            if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                            tripletsToTabulate <- getTriplets(tripletSelections)
+                            listedTabulates <- lapply(tripletsToTabulate, function(x) x$tabulateBlocks())
+                            collected <- do.call(rbind, listedTabulates)
+                            output <- data.frame(collected$Triplet, collected$SequencePair, collected$SequenceSimilarityThreshold, collected$Length,
+                                                 collected$First, collected$Last, collected$FirstBP, collected$LastBP, collected$ApproxBpLength, collected$SNPnum, collected$fiveAge, collected$fiftyAge,
+                                                 collected$ninetyfiveAge, collected$PValue, collected$PThresh, collected$MeanAge, collected$CorrectedSNPs)
+                            if(neat){
+                              output <- output[,-c(4,5,6)]
+                              names(output) <- c("Triplet", "Sequence_Pair","Sequence_Similarity_Threshold","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh", "Mean_Age", "Corrected_Number_of_SNPs")
+                            }
+                            return(output)
+                          },
                           
                           show =
                             function(){
@@ -391,12 +407,16 @@ Triplets <- setRefClass("Triplets",
                                     if(length(selections) == 1 && selections[1] == "NOT.DATED"){
                                       ind <- which(unlist(lapply(triplets, function(x) x$blocksNotDated())))
                                     } else {
-                                      selections <- unique(selections)
-                                      if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                      if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                      if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
-                                      allNames <- do.call(rbind, getAllNames())
-                                      ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                      if(length(selections) == 1 && selections[1] == "ALL"){
+                                        ind <- 1:length(triplets)
+                                      } else {
+                                        selections <- unique(selections)
+                                        if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                        if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                        if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                        allNames <- do.call(rbind, getAllNames())
+                                        ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
+                                      }
                                     }
                                   }
                                 }
