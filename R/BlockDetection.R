@@ -145,7 +145,7 @@ block.find <- function(dist,thresh){
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, ninetyFiveAge <- NA))
     names(BlockPos2) <- thresh2
   } else {
-    BlockPos2 <- "NO SUITABLE THRESHOLD TO ID BLOCKS WITH"
+    BlockPos2 <- NULL
   }
   return(BlockPos2)
 }

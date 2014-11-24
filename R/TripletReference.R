@@ -126,11 +126,12 @@ Triplet <- setRefClass("Triplet",
                              ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
-                             Blocks <<- mergeBandD(Blocks, out.blocks)
+                             names(out.blocks) <- names(Blocks)
+                             Blocks <<- out.blocks
                            },
                          
                          tabulateBlocks = function(){
-                           "Tabulates the blocks for a given triplet."
+                           "Tabulates the blocks for a triplet."
                              message(paste("Tabulating blocks for the triplet", paste(ContigNames, collapse=":")))
                              # Check that the tables are present, if they aren't, turn them into blank data.frames.
                              temps <- lapply(1:3, function(i) do.call(rbind, Blocks[[i]]))
@@ -152,7 +153,7 @@ Triplet <- setRefClass("Triplet",
                              lines <- plotLines(plottingSettings)
                              return(arrangeGrob(bars, lines, ncol=1))
                            } else {
-                             if("Lines" %in% plottingsSettings$What){
+                             if("Lines" %in% plottingSettings$What){
                                return(plotLines(plottingSettings))
                              }
                              if("Bars" %in% plottingSettings$What){
@@ -360,15 +361,15 @@ Triplets <- setRefClass("Triplets",
 
                           tabulateBlocks = function(tripletSelections, neat){
                             if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
-                            tripletsToTabulate <- test$triplets$getTriplets("ALL")
+                            tripletsToTabulate <- getTriplets(tripletSelections)
                             listedTabulates <- lapply(tripletsToTabulate, function(x) x$tabulateBlocks())
                             collected <- do.call(rbind, listedTabulates)
                             output <- data.frame(collected$Triplet, collected$SequencePair, collected$SequenceSimilarityThreshold, collected$Length,
-                                                 collected$First, collected$Last, collected$FirstBP, collected$LastBP, collected$ApproxBpLength, collected$SNPnum, collected$fiveAge, collected$fiftyAge,
-                                                 collected$ninetyfiveAge, collected$PValue, collected$PThresh, collected$CorrectedSNPs)
+                                                 collected$First, collected$Last, collected$FirstBP, collected$LastBP, collected$ApproxBpLength, collected$SNPs, collected$CorrectedSNPs, collected$fiveAge, collected$fiftyAge,
+                                                 collected$ninetyFiveAge, collected$P_Value, collected$P_Threshold)
                             if(neat){
                               output <- output[,-c(4,5,6)]
-                              names(output) <- c("Triplet", "Sequence_Pair","Sequence_Similarity_Threshold","First_BP_Position","Last_BP_Position","Approximate_Length_BP","Number_of_SNPs","p=0.05_Age","p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh", "Corrected_Number_of_SNPs")
+                              names(output) <- c("Triplet", "Sequence_Pair","Sequence_Similarity_Threshold","First_BP_Position", "Last_BP_Position", "Approximate_Length_BP", "Number_of_SNPs", "Corrected_Number_of_SNPs", "p=0.05_Age", "p=0.5_Age","p=0.95_Age","P_Value", "P_Thresh")
                             }
                             return(output)
                           },
@@ -378,9 +379,9 @@ Triplets <- setRefClass("Triplets",
                               cat("A total of ")
                             },
 
-                          textCombinations =
+                          tripletCombinations =
                             function(){
-                              tripnames <- paste0(lapply(triplets, function(x){paste0(paste0(x$ContigNames, collapse=", "), "\n", collapse="")}), collapse="")
+                              return(unlist(lapply(triplets, function(x){paste0(x$ContigNames, collapse=", ")})))
                             },
                           
                           htmlSummary =
