@@ -91,7 +91,7 @@ BlockDatingSettings <- setRefClass("BlockDatingSettings",
 binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
 
 date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway, model){
-  if(!is.character(blocksobj)){ # Checking the blocksobj is not a string of characters.
+  if(!is.character(blocksobj) && nrow(blocksobj) > 0){ # Checking the blocksobj is not a string of characters.
     wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="raw")[1])
     if(bonfcorrect == TRUE){
       blocksobj$P_Threshold <- pthresh <- pthresh/nrow(blocksobj)
@@ -119,13 +119,15 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       blocksobj$CorrectedSNPs <- round(ActualRatio * blocksobj$ApproxBpLength)
     }
     blocksobj <- blocksobj[(blocksobj$ApproxBpLength != blocksobj$SNPs) & (blocksobj$P_Value < 1),]
-    for(i in 1:nrow(blocksobj)){
+    if(nrow(blocksobj) > 0){
+      for(i in 1:nrow(blocksobj)){
         soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B=blocksobj[i,"CorrectedSNPs"], N=blocksobj[i,"ApproxBpLength"])
         soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B=blocksobj[i,"CorrectedSNPs"], N=blocksobj[i,"ApproxBpLength"])
         soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B=blocksobj[i,"CorrectedSNPs"], N=blocksobj[i,"ApproxBpLength"])
         blocksobj[i,"fiveAge"] <- round(soln5[["root"]]/(2*mut))
         blocksobj[i,"fiftyAge"] <- round(soln50[["root"]]/(2*mut))
         blocksobj[i,"ninetyFiveAge"] <- round(soln95[["root"]]/(2*mut))
+      }
     }
   }
   return(blocksobj)

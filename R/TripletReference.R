@@ -141,9 +141,13 @@ Triplet <- setRefClass("Triplet",
                              if(blocksNotDated()){
                                temp2 <- cbind(temp2, data.frame(fiveAge = rep(NA, times=nrow(temp2)), fiftyAge = rep(NA, times=nrow(temp2)), ninetyfiveAge = rep(NA, times=nrow(temp2)), SNPnum = rep(NA, times=nrow(temp2)), PValue = rep(NA, times=nrow(temp2)), PThresh = rep(NA, times=nrow(temp2)), MeanAge = rep(NA, times=nrow(temp2)), CorrectedSNPs = rep(NA, times=nrow(temp2))))
                              }
-                             temp2["SequencePair"] <- unlist(pair)
-                             temp2["SequenceSimilarityThreshold"] <- unlist(SS)
-                             temp2["Triplet"] <- paste(ContigNames, collapse=":")
+                           temp2["SequencePair"] <- unlist(pair)
+                           temp2["SequenceSimilarityThreshold"] <- unlist(SS)
+                             if(nrow(temp2) > 0){
+                               temp2["Triplet"] <- paste(ContigNames, collapse=":")
+                             } else {
+                               temp2["Triplet"] <- character()
+                             }
                              return(temp2)
                          },
                          
