@@ -60,11 +60,12 @@ UserBlocks <- setRefClass("UserBlocks",
                               },
                             
                             dateBlocks =
-                              function(sequences, blockdatingparameters){
+                              function(sequences, parameters){
                                 for(i in 1:length(Pairs)){
                                   if(nrow(Pairs[[i]]) > 0){
                                     pair <- which(sequences$getSequenceNames() %in% unlist(strsplit(names(Pairs)[i], ":")))
-                                    dated <- date.blocks(Pairs[[i]], sequences, blockdatingparameters$MutationRate, pair, blockdatingparameters$PValue, blockdatingparameters$BonfCorrection, blockdatingparameters$DateAnyway)
+                                    #dated <- date.blocks(Pairs[[i]], sequences, blockdatingparameters$MutationRate, pair, blockdatingparameters$PValue, blockdatingparameters$BonfCorrection, blockdatingparameters$DateAnyway)
+                                    dated <- date.blocks(x, dnaobj, parameters$MutationRate, pair, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection)
                                     Pairs[[i]] <<- cbind(Pairs[[i]], dated)
                                   }
                                 }
