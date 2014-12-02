@@ -209,12 +209,12 @@ HybRIDS <- setRefClass("HybRIDS",
                                          },
                                         
                                          dateUserBlocks = function(){
-                                           userBlocks$dateBlocks(DNA, BlockDatingParameters)
+                                           userBlocks$dateBlocks(DNA, blockDatingSettings)
                                          },
-                                         
-                                         recombinationExtent = function(Selection = "ALL"){
-                                           return((sum(tabulateDetectedBlocks(Selection)$Approximate_Length_BP)/DNA$SequenceLength)*100)
-                                         }
+                                        
+                                        tabulateUserBlocks = function(){
+                                          return(userBlocks$tabulateBlocks())
+                                        }
                           )
                         )
 

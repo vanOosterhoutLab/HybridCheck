@@ -30,7 +30,8 @@ UserBlocks <- setRefClass("UserBlocks",
                                 if(class(dna) != "HybRIDSseq"){stop("Object provided is not of class HybRIDSseq")}
                                 pairs <- unlist(lapply(combn(unique(dna$getSequenceNames()),2, simplify=F), function(x) paste(x[1], x[2], sep=":")))
                                 for (i in pairs){
-                                  Pairs[[i]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric())
+                                  Pairs[[i]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric(), SNPs=as.numeric(), CorrectedSNPs=as.numeric(), P_Value=as.numeric(),
+                                                            P_Threshold=as.numeric(), fiveAge=as.numeric(), fiftyAge=as.numeric(), ninetyFiveAge=as.numeric())
                                 }
                               },
                             
@@ -39,14 +40,16 @@ UserBlocks <- setRefClass("UserBlocks",
                                 enforceUserBlocks()
                                 index <- processPair(pair)
                                 bplength <- abs(last-first)+1
-                                Pairs[[index]] <<- rbind(Pairs[[index]], c(first, last, bplength))
-                                names(Pairs[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength")
+                                Pairs[[index]] <<- rbind(Pairs[[index]], c(first, last, bplength, NA, NA, NA, NA, NA, NA, NA))
+                                names(Pairs[[index]]) <<- c("FirstBP", "LastBP", "ApproxBpLength", "SNPs", "CorrectedSNPs", "P_Value", "P_Threshold",
+                                                            "fiveAge", "fiftyAge", "ninetyFiveAge")
                               },
       
                             blankBlocks = function(pair){
                               enforceUserBlocks()
                               index <- processPair(pair)
-                              Pairs[[index]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric())
+                              Pairs[[index]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric(), SNPs=as.numeric(), CorrectedSNPs=as.numeric(), P_Value=as.numeric(),
+                                                            P_Threshold=as.numeric(), fiveAge=as.numeric(), fiftyAge=as.numeric(), ninetyFiveAge=as.numeric())
                             },
                             
                             processPair =
@@ -65,9 +68,14 @@ UserBlocks <- setRefClass("UserBlocks",
                                   if(nrow(Pairs[[i]]) > 0){
                                     pair <- which(sequences$getSequenceNames() %in% unlist(strsplit(names(Pairs)[i], ":")))
                                     #dated <- date.blocks(Pairs[[i]], sequences, blockdatingparameters$MutationRate, pair, blockdatingparameters$PValue, blockdatingparameters$BonfCorrection, blockdatingparameters$DateAnyway)
-                                    dated <- date.blocks(x, dnaobj, parameters$MutationRate, pair, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection)
-                                    Pairs[[i]] <<- cbind(Pairs[[i]], dated)
+                                    Pairs[[i]] <<- date.blocks(Pairs[[i]], sequences, parameters$MutationRate, pair, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection)
+                                    #Pairs[[i]] <<- cbind(Pairs[[i]], dated)
                                   }
                                 }
+                              },
+                            
+                            tabulateBlocks = 
+                              function(){
+                                return(do.call(rbind, Pairs))
                               }
                             ))
