@@ -1,98 +1,76 @@
 ---
-layout: manualsection
-title: Loading HybRIDS and Data Read In
+layout: default
+title: Getting Started
+subtitle: Get R and HybRIDS up and running on your machine.
 permalink: 01-manual.html
-manual: true
 ---
 
-Starting HybRIDS and Loading in Data
-------------------------------------
+Introduction
+------------
+					
+HybRIDS is written as an R package and so in order to use it you need a few things:
+First you need the core R Environment installed on your machine. The reason being if you want to write high level language like R, Python, Perl or Ruby,
+The software required to interpret the language needs to be installed.
+You then need the required R packages that the HybRIDS package relies on or gains functionality when used in tandem with HybRIDS.
+					
+***
 
-To get started fire up the R condole and enter:
+Installing R
+------------
+					
+R is simple to install for most operating systems. If you use a Mac or PC or Linux system, the process for installing it is like for installing any other software on that system. 
+					
+					
+First head over to [The Comprehensive R Archive Network [CRAN]](http://cran.r-project.org/index.html). The CRAN maintains R and officially supported packages.
+This is where you will get the version of R that is appropriate for your system. At the top of the page choose one of the links "Download R for XYZ" where XYZ is Windows, Linux or Mac OSX - depending on your system.
+The next page will display downloads for different versions of R - at the time of writing you will want either version 3.X.X or 2.15.X.
+					
+					
+The 3.X versions of R mark a major release landmark and not all packages have been updated for 3.X.X just yet.
+The packages HybRIDS depends on - and HybRIDS itself, can run on either the 3.X.X series or 2.15.X.
+If you are on a Windows system pick a version and it will download you a .exe file you just need to run and follow the instructions and it will install on your system. On the Mac it will do similarly.
+Simply go through the installer clicking 'next' and keep the defaults if you are unsure on what to do. But really it is just like installing any other program on a Windows of Mac.
+If you use a Linux system is is a little more complex but still familiar to the Linux user who has installed software on it before. Instructions for the main distros are on the site and in a nutshell you must use the package manager for your distro to download and keep R up to date. If this is not possible then it will be necessary to compile R from source - in the case it is best to console the CRAN site and R community forums should you get stuck.
+
+***
+								
+Installing HybRIDS
+------------------
+					
+If you are on a Windows machine it is highly recommended that you install RTools. It can be found [here](http://cran.r-project.org/index.html).
+					
+There are a few different ways you might install HybRIDS to your R library. We recommend installation from GitHub is recommended because it is the easiest and can be done with only 3 commands to the R console.
+				
+
+## Installing from the GitHub Repository
+
+This method should work no matter what OS you are using.
+
+To install HybRIDS from the GitHub repository executing the following code - snippet into an R session should get HybRIDS installed with minimum difficulty:
 
 ```R
+install.packages("devtools", dep=T)
+library(devtools)
+install_github("Ward9250/HybRIDS")
+```
+
+This installs a package by R community contributor Hadley Wickham which allows you to install R packages from their GitHub Repositories with minimum fuss. Hadley Wickham has contributed much to the R community and I thoroughly recomend you check out his [GitHub repository](https://github.com/hadley).
+					
+Now you have the latest version of HybRIDS installed in your R library. By default the above command install the master branch of the HybRIDS repository. This is the "safest" option by which we mean it is the version we are by far most confident in to contain no errors or bugs. Anything new that is written for HybRIDS first is written in it's own branch, before being pulled to the <b>devel</b> branch. When we are then sure this is stable it is merged into the master branch.
+
+You may wish to use some of the devel features before they are merged into the master branch. In this case you would replace the last line of code in the box above with the following:
+
+```R
+install_github("Ward9250/HybRIDS", ref="devel")
+```
+
+***
+
+Starting/Using HybRIDS
+----------------------
+
+Once you have installed HybRIDS as described above you simply need to invoke the library command as for any other installed R package:
+
+R```
 library(HybRIDS)
 ```
-
-You should see the following printed to the console:
-
-```R
-Loading required package: ggplot2
-Loading required package: grid
-Loading required package: gridExtra
-Loading required package: png
-Loading required package: ape
-
-TACTTTGTACCTAAGTATGCATTACGTTACGTTAGTAGCTGGACCTAGTAAATCGGA     
-,--.  ,--.         ,--.   ,------. ,--.,------.   ,---.
-|  '--'  |,--. ,--.|  |-. |  .--. '|  ||  .-.  \ '   .-'
-|  .--.  | \  '  / | .-. '|  '--'.'|  ||  |  \  :`.  `-.
-|  |  |  |  \   '  | `-' ||  |\  \ |  ||  '--'  /.-'    |
-`--'  `--'.-'  /    `---' `--' '--'`--'`-------' `-----'
-          `---'
-ATGAAACATGGATTCATACG - Version 1.0 - CGACCTGGATCATTTAGCCT
-
-
-Hybridisation, Recombination and Introgression Detection
-                   and Dating Package.
-
------------------=========****=========------------------
-Cite: TBD
-Licence: GPL (Like R and most packages).
-http://ward9250.github.io/HybRIDS/
------------------=========****=========------------------
-
-Enter HybRIDS_GUI() at the console prompt for the interactive GUI.
-
-> 
-```
-
-The package is now successfully loaded.
-
-If you want, enter `HybRIDS_GUI()` and press enter now and the graphical interface should appear for you.
-
-
----
-
-Loading in sequence data and starting a new HybRIDS analysis
-------------------------------------------------------------
-
-To get started using HybRIDS to analyse a set of sequences, you first have to create a new HybRIDS object. Do this either with the R console or the Graphical Interface.
-
-**With the R console:**
- 
-The HybRIDS object will contain all data, options, and will carry out the analysis. So everything you do in HybRIDS is done by interacting with this object.
-By providing a file-path to a FASTA format sequence file when the new object is created the DNA data will also be loaded and prepared automatically.
-
-```R
-> MyAnalysis <- HybRIDS$new("~/Desktop/MySequence.fasta")
-```
-With the above line I have created a new HybRIDS object and assigned it to a variable "MyAnalysis" - that is to say I made a new HybRIDS object that is called "MyAnalysis" and now it is in the R workspace ready for us to use by calling it's methods.
-
-HybRIDS prints several progress messages and let's you know when the object has been successfully created:
-
-```R
-Detected file is supposed to be a FASTA format file...
-Reading in DNA sequence file...
-Looking for duplicates...
-Done...
-Subsetting the informative segregating sites...
-Done, now saving data internally
- :Full Sequence
- :Informative bases only
-Finished DNA input.
-```
-
-The HybRIDS package has been loaded, and data has been read in and is now contained in a HybRIDS object, which also contains all analysis settings and steps.
-
-**With the GUI:**
-
-1. With the GUI loaded up, click on button 1, which says "Select and Load DNA Data (FASTA)".
-2. In the window that appears, give your new HybRIDS object/session a name and hit ok.
-3. In the next window that appears find the FASTA file you want to load and hit Open.
-4. If successful, a message should appear confirming the data has been loaded and the HybRIDS object is created. You should also be able to see it in the dropdown menu in the session selector. (Use this dropdown menu if you are working with multiple HybRIDS sessions/objects to change which one you are working on.
-
----
-
-
-
