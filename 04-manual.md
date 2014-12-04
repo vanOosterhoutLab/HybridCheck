@@ -22,7 +22,7 @@ There are three methods that can be set 1, 2 or three, the methods are as follow
 	However instead of a user defined variable, HybRIDS auto-decides on a threshold based on the distribution of distances between all sequence pairs, eliminating 
 	those lower and apart from the rest of the distribution i.e. low outliers.
 
-<br>
+---
 
 * **SortThreshold:** 
 This variable sets the threshold used for the second method of triplet generation described above. 
@@ -154,7 +154,3 @@ An integer value, 500 by default. This affects how the Bars plot is drawn. With 
 HybRIDS will print a message to the console if problems arise during plot drawing due to the MosaicScale settings.
 
 ---
-
-
-
-
