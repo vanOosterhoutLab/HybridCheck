@@ -57,7 +57,7 @@ install_github("Ward9250/HybRIDS")
 
 This installs a package by R community contributor Hadley Wickham which allows you to install R packages from their GitHub Repositories with minimum fuss. Hadley Wickham has contributed much to the R community and I thoroughly recomend you check out his [GitHub repository](https://github.com/hadley).
 					
-Now you have the latest version of HybRIDS installed in your R library. By default the above command install the master branch of the HybRIDS repository. This is the "safest" option by which we mean it is the version we are by far most confident in to contain no errors or bugs. Anything new that is written for HybRIDS first is written in it's own branch, before being pulled to the <b>devel</b> branch. When we are then sure this is stable it is merged into the master branch.
+Now you have the latest version of HybRIDS installed in your R library. By default the above command installs the master branch of the HybRIDS repository. This is the "safest" option by which we mean it is the version we are by far most confident in to contain no errors or bugs. Anything new that is written for HybRIDS first is written in it's own branch, before being pulled to the *devel* branch. When we are then sure this is stable it is merged into the master branch.
 
 You may wish to use some of the devel features before they are merged into the master branch. In this case you would replace the last line of code in the box above with the following:
 

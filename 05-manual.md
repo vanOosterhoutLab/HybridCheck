@@ -358,10 +358,3 @@ This will only test the significance of, and date significant blocks, for all tr
 
 In ending this section, the main workflow and analysis process of HybRIDS has been covered.
 The next step is really to decide how to view, assess and output your results. This is what will be covered in the next section.
-
-
-
-
-
-
- 
