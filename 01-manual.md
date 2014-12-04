@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: manualsection
 title: Getting Started
 subtitle: Get R and HybRIDS up and running on your machine.
 permalink: 01-manual.html
