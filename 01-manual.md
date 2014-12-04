@@ -72,6 +72,6 @@ Starting/Using HybRIDS
 
 Once you have installed HybRIDS as described above you simply need to invoke the library command as for any other installed R package:
 
-R```
+```R
 library(HybRIDS)
 ```
