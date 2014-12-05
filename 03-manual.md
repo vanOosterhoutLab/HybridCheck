@@ -23,15 +23,22 @@ To view the settings and state of your current HybRIDS object, you just need to 
     ## 
     ## DNA Sequence Information:
     ## -------------------------
-    ## An alignment of 3 sequences.
+    ## An alignment of 10 sequences.
     ## 
-    ## Full length of alignment: 398508
-    ## Excluding non-informative sites: 6496
+    ## Full length of alignment: 400000
+    ## Excluding non-informative sites: 33043
     ## 
     ## Sequence names:
     ## 1: Seq1
     ## 2: Seq2
     ## 3: Seq3
+    ## 4: Seq4
+    ## 5: Seq5
+    ## 6: Seq6
+    ## 7: Seq7
+    ## 8: Seq8
+    ## 9: Seq9
+    ## 10: Seq10
     ## 
     ## Settings for Sequence Scan Combinations:
     ## ----------------------------------------
@@ -43,7 +50,7 @@ To view the settings and state of your current HybRIDS object, you just need to 
     ## How many sequences from the same partition are
     ## 	allowed in a triplet (PartitionStrictness): 2
     ## 
-    ## A total of 1 triplets will be compared.
+    ## A total of 120 triplets will be compared.
     ## 
     ## A total of
 
@@ -75,9 +82,7 @@ Let's say we wanted to increace the `DistanceThreshold` parameters from 0.01 to 
 
     MyAnalysis$setParameters("TripletGeneration", DistanceThreshold = 0.1)
 
-    ## Warning: There is only one comparrison possible - presumably only 3
-    ## sequences are present.
-
+    ## Generating triplets to find recombination in sequences, between partitions.
     ## Deleting all triplets data.
     ## Initializing new triplets data.
  

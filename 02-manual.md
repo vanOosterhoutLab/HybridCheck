@@ -59,12 +59,12 @@ The HybRIDS object will contain all data, options, and will carry out the analys
 By providing a file-path to a FASTA format sequence file when the new object is created the DNA data will also be loaded and prepared automatically.
  
 
-    MyAnalysis <- HybRIDS$new("~/Desktop/MySequence.fasta")
+    MyAnalysis <- HybRIDS$new("~/Desktop/MySequences.fasta")
 
     ## File to be read is expected to be FASTA format...
     ## Reading in sequence file...
 
-    ## Warning: cannot open file '/local/yrq12edu/Desktop/MySequence.fasta': No
+    ## Warning: cannot open file '/local/yrq12edu/Desktop/MySequences.fasta': No
     ## such file or directory
 
     ## Error: cannot open the connection

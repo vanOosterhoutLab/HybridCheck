@@ -33,7 +33,7 @@ The HybRIDS object will contain all data, options, and will carry out the analys
 By providing a file-path to a FASTA format sequence file when the new object is created the DNA data will also be loaded and prepared automatically.
 
 ```{r}
-MyAnalysis <- HybRIDS$new("~/Desktop/MySequence.fasta")
+MyAnalysis <- HybRIDS$new("~/Desktop/MySequences.fasta")
 ```
 With the above line I have created a new HybRIDS object and assigned it to a variable "MyAnalysis" - that is to say I made a new HybRIDS object that is called "MyAnalysis" and now it is in the R workspace ready for us to use by calling it's methods.
 

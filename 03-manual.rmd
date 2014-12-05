@@ -9,7 +9,7 @@ status: process
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(HybRIDS)
-MyAnalysis <- HybRIDS$new("~/Dropbox/MySequence.fas")
+MyAnalysis <- HybRIDS$new("~/Dropbox/MySequences.fas")
 ```
 
 When scripting with a HybRIDS object, you execute several methods that make the HybRIDS object perform several steps of the analysis. Each analysis step is performed according to its settings. Before we walk through executing the analysis steps in detail, it's important to know how to view and alter the settings of the steps.

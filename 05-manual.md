@@ -13,26 +13,87 @@ This section now covers executing those analysis steps.
  
 ---
  
-Step 1: Generating Triplets
----------------------------
+Step 1: Specifying triplets that will be analyzed (The `TripletGeneration` step).
+--------------------------------------------------
  
 Before HybRIDS analyses the sequence similarity of sequences you need to generate the Triplets that are to be analysed.
  
-Generation of Triplets is done according to the following settings:
+This step is done automatically by HybRIDS whenever you change the settings for this step - you don't have to actually do anything other than set the settings you want. The following methods of generating triplets are provided, and are selected by changeing the `Method` parameter:
  
-* **Method:**
-This variable sets the method by which HybRIDS will generate the sequence triplets that will be analyzed. 
-There are three methods that can be set 1, 2 or three, the methods are as follows:
-  1. Doing the triplet generation step with this first method means that for the remainder of the analysis, every possible
-	combination of three sequences (called a triplet) will be prepped for by HybRIDS - internal variables will be set accordingly 
-	and placeholders for the appropriate number of triplets will be prepared to contain generated data.
-	2. Selecting this method will use distance information is used to only prepare for analysing a set of triplets which do not contain sequence pairs
-	which would likeley make for a poor analysis because of the insufficient genetic distance between them and inadequate number of informative base positions.
-	The user can specify a threshold for this method by adjusting the value of the "SortThreshold" parameter of this analysis step.
-	3. Selecting this method will also only prepare for analysing a set of triplets which do not contain sequence pairs
-	which would likeley make for a poor analysis because of the insufficient genetic distance between them and inadequate number of informative base positions.
-	However instead of a user defined variable, HybRIDS auto-decides on a threshold based on the distribution of distances between all sequence pairs, eliminating 
-	those lower and apart from the rest of the distribution i.e. low outliers.
+1. (DEFAULT) - HybRIDS will analyze sequence triplets based on a set of specified groups (defined by the `Groups` parameter, such that triplets analyzed will be made up of sequences to try and find recombination events between the groups.
+ 
+A group is any given subset of sequences from your input file. For example, the example anaysis has 10 DNA sequences. The first 3 sequences, might be from one population, the next three from a second population, and the remaining sequences from a third population. 
+ 
+If you wanted to find evidence of recombination between these populations. You would want to analyze triplets made of e.g. The first sequence, the fourth sequence, and the seventh sequence, or e.g. the second sequence, the fourth sequence, and the ninth sequence. With this default method HybRIDS will figure out all the possible triplets that need to be analyzed that might find evidence of recombination between the populations or Groups. 
+ 
+If this method of triplet generation is set, as it is by default, and no groups are provided, the HybRIDS object will analyze every possible combination of three of your provided sequences.
+ 
+2. HybRIDS will analyze sequences triplet based on how similar the sequences that make the triplet are to one another. Every possible triplet of your provided sequences will be analyzed, providing that all the pairwise distances in a triplet are above a set threshold, and this threshold is defined by the `DistanceThreshold` parameter.
+ 
+3. HybRIDS will analyze triplet based on sequence similarity as in method 2, however instead of using the `DistanceThreshold` parameter, a threshold is automatically chosen based on the distribution of pairwise distances for your provided alignment.
+ 
+Now you know what this step does and how each of the settings for this step affect it, the example demonstrates how to appropriately edit the settings of this step.
+ 
+In this example, there is an alignment of 10 sequences loaded in the HybRIDS object, and a researcer has collected the sequences from three populations/locations. Sequences one to three are from one location, sequences four to six are from the second location, and sequences 7 to 10 are from the final population or location.
+ 
+First the sequences are loaded into a HybRIDS object as demonstrated in previous sections and the summary is printed to the console:
+ 
+
+    library(HybRIDS)
+    MyAnalysis <- HybRIDS$new("~/Dropbox/MySequences.fas")
+
+    ## File to be read is expected to be FASTA format...
+    ## Reading in sequence file...
+    ## Looking for duplicates (sequences with p_distances of 0)...
+    ## Done...
+    ## Subsetting the informative segregating sites...
+    ## Finished DNA input.
+    ## Generating triplets to find recombination in sequences, between partitions.
+    ## Initializing new triplets data.
+
+    MyAnalysis
+
+    ## HybRIDS object:
+    ## 
+    ## DNA Sequence Information:
+    ## -------------------------
+    ## An alignment of 10 sequences.
+    ## 
+    ## Full length of alignment: 400000
+    ## Excluding non-informative sites: 33043
+    ## 
+    ## Sequence names:
+    ## 1: Seq1
+    ## 2: Seq2
+    ## 3: Seq3
+    ## 4: Seq4
+    ## 5: Seq5
+    ## 6: Seq6
+    ## 7: Seq7
+    ## 8: Seq8
+    ## 9: Seq9
+    ## 10: Seq10
+    ## 
+    ## Settings for Sequence Scan Combinations:
+    ## ----------------------------------------
+    ## Triplet Generation Method (Method): 1
+    ## 
+    ## Distance Threshold for eliminating triplets with
+    ## 	too similar sequences (DistanceThreshold): 0.01
+    ## 
+    ## How many sequences from the same partition are
+    ## 	allowed in a triplet (PartitionStrictness): 2
+    ## 
+    ## A total of 120 triplets will be compared.
+    ## 
+    ## A total of
+
+    ## Error: object 'BlockDetectionParams' not found
+ 
+ 
+ 
+ 
+ 
  
  
  
