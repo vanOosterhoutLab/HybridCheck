@@ -8,8 +8,6 @@ status: publish
 ---
  
 
-    ## Warning: There is only one comparrison possible - presumably only 3
-    ## sequences are present.
  
  
 Viewing HybRIDS current settings
@@ -49,3 +47,6 @@ To view the settings and state of your current HybRIDS object, you just need to 
     ## A total of
 
     ## Error: object 'BlockDetectionParams' not found
+You'll see a text summary printed like that above which shows the settings for each analysis step.
+ 
+A full description of each setting is given in the next manual section.
