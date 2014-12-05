@@ -7,7 +7,7 @@ published: false
 status: process
 ---
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, results='hide', warning=FALSE}
 library(HybRIDS)
 MyAnalysis <- HybRIDS$new("~/Dropbox/MySequence.fas")
 ```
