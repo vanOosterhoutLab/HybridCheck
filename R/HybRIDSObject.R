@@ -160,12 +160,9 @@ HybRIDS <- setRefClass("HybRIDS",
                                                 settings$setSettings(...)
                                                }
                                              }
-<<<<<<< HEAD
-                                            },
-=======
                                              return(triplets$plotTriplets(Selections, plottingSettings))
                                              },
->>>>>>> devel
+
                                          
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
@@ -210,37 +207,6 @@ HybRIDS <- setRefClass("HybRIDS",
                                          clearUserBlocks = function(selection){
                                            userBlocks$blankBlocks(selection)
                                          },
-<<<<<<< HEAD
-                                         dateCustomBlocks = function(){
-                                           for(i in 1:length(UserBlocks)){
-                                             if(nrow(UserBlocks[[i]]) > 0){
-                                                Pair <- which(DNA$SequenceNames %in% unlist(strsplit(names(UserBlocks)[i], ":")))
-                                                dated <- date.blocks(UserBlocks[[i]], DNA, BlockDatingParams$MutationRate, Pair, BlockDatingParams$PValue, BlockDatingParams$BonfCorrection, BlockDatingParams$DateAnyway)
-                                                UserBlocks[[i]] <<- cbind(UserBlocks[[i]], dated)
-                                           }
-                                         }
-                                        },
-
-                                        tabulateUserBlocks =
-                                           function(Selection = "ALL") {
-                                             if(Selection == "ALL"){
-                                             	outputTables <- lapply(1:length(UserBlocks), function(i) cbind(rep(names(UserBlocks)[i], nrow(UserBlocks[[i]])), UserBlocks[[i]]))
-                                             } else {
-                                             	outputTables <- cbind(names(UserBlocks)[which(names(UserBlocks) == Selection)], UserBlocks[[which(names(UserBlocks) == Selection)]])
-                                             }                                
-                                             outTable <- do.call(rbind, outputTables)
-                                             output <- data.frame(outTable) 
-                                             names(output) <- c("Sequence_Pair", "First_BP_Position", "Last_BP_Position", "Approximate_Length_BP", "p=0.05_Age","p=0.5_Age","p=0.95_Age", "BlockSize", "Number_of_SNPs", "P_Value", "P_Thresh", "Corrected_Number_of_SNPs", "Mean_Age")
-                                             class(output) <- c(class(output), "HybRIDStable")   
-                                             return(output)
-                                           },
-
-
-                                         
-                                         recombinationExtent = function(Selection = "ALL"){
-                                           return((sum(tabulateDetectedBlocks(Selection)$Approximate_Length_BP)/DNA$SequenceLength)*100)
-                                         }
-=======
                                         
                                          dateUserBlocks = function(){
                                            userBlocks$dateBlocks(DNA, blockDatingSettings)
@@ -249,7 +215,6 @@ HybRIDS <- setRefClass("HybRIDS",
                                         tabulateUserBlocks = function(){
                                           return(userBlocks$tabulateBlocks())
                                         }
->>>>>>> devel
                           )
                         )
 
