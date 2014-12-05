@@ -8,6 +8,13 @@ status: publish
 ---
  
 
+    ## File to be read is expected to be FASTA format...
+    ## Reading in sequence file...
+    ## Looking for duplicates (sequences with p_distances of 0)...
+    ## Done...
+    ## Subsetting the informative segregating sites...
+    ## Finished DNA input.
+    ## Initializing new triplets data.
  
  
 Viewing HybRIDS current settings
@@ -50,3 +57,10 @@ To view the settings and state of your current HybRIDS object, you just need to 
 You'll see a text summary printed like that above which shows the settings for each analysis step.
  
 A full description of each setting is given in the next manual section.
+ 
+Changeing the analysis settings
+-------------------------------
+ 
+To change the settings for any given step of the HybRIDS analysis, you use the `setParameters` method.
+ 
+This method
