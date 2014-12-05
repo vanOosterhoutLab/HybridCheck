@@ -44,7 +44,10 @@ To view the settings and state of your current HybRIDS object, you just need to 
     ## ----------------------------------------
     ## Triplet Generation Method (Method): 1
     ## 
-    ## Distance Threshold for eliminating triplets with
+    ## Sequences are organized according to the following groups: 
+    ## 
+    ## 
+    ## Distance Threshold for excluding triplets with
     ## 	too similar sequences (DistanceThreshold): 0.01
     ## 
     ## How many sequences from the same partition are

@@ -16,9 +16,12 @@ This section now covers executing those analysis steps.
 Step 1: Specifying triplets that will be analyzed (The `TripletGeneration` step).
 --------------------------------------------------
  
-Before HybRIDS analyses the sequence similarity of sequences you need to generate the Triplets that are to be analysed.
+The first thing you need to do is inform the HybRIDS object which triplets for your sequences you would like to analyze for evidence of
+recombination.
  
-This step is done automatically by HybRIDS whenever you change the settings for this step - you don't have to actually do anything other than set the settings you want. The following methods of generating triplets are provided, and are selected by changeing the `Method` parameter:
+The following methods of generating triplets are provided, and are selected by changeing the `Method` parameter:
+ 
+---
  
  **1.** (DEFAULT) - HybRIDS will analyze sequence triplets based on a set of specified groups (defined by the `Groups` parameter, such that triplets analyzed will be made up of sequences to try and find recombination events between the groups.
  
@@ -84,7 +87,10 @@ First the sequences are loaded into a HybRIDS object as demonstrated in previous
     ## ----------------------------------------
     ## Triplet Generation Method (Method): 1
     ## 
-    ## Distance Threshold for eliminating triplets with
+    ## Sequences are organized according to the following groups: 
+    ## 
+    ## 
+    ## Distance Threshold for excluding triplets with
     ## 	too similar sequences (DistanceThreshold): 0.01
     ## 
     ## How many sequences from the same partition are
@@ -96,6 +102,72 @@ First the sequences are loaded into a HybRIDS object as demonstrated in previous
 
     ## Error: object 'BlockDetectionParams' not found
  
+We can see from the print-out that 120 triplets will be analyzed - this is because we have speified no groups but are using method 1. As a result, ever possible triplet that could be generated for these sequences will be analyzed.
+ 
+Now the settings can be changed to add the groups between which we wish to find recombination, and edit the `PartitionStrictness` so as only one sequence from each group is allowed in a triplet.
+ 
+In order to specify a group, you simply make a vector of the sequence names for each group, and then combine each one into a list:
+ 
+
+    # Let's make our groups:
+     
+    FirstGroup <- c("Seq1", "Seq2", "Seq3")
+    SecondGroup <- c("Seq4", "Seq5", "Seq6")
+    ThirdGroup <- c("Seq7", "Seq8", "Seq9", "Seq10")
+    myGroups <- list(FirstGroup, SecondGroup, ThirdGroup) # Put the groups in a list.
+     
+    # Let's edit the Triplet Generation settings
+    MyAnalysis$setParameters("TripletGeneration", Groups = myGroups, PartitionStrictness = 1)
+
+    ## Error: invalid assignment for reference class field 'PartitionStrictness',
+    ## should be from class "integer" or a subclass (was class "numeric")
+
+    # All done, now let's print the summary of our HybRIDS object again:
+    MyAnalysis
+
+    ## HybRIDS object:
+    ## 
+    ## DNA Sequence Information:
+    ## -------------------------
+    ## An alignment of 10 sequences.
+    ## 
+    ## Full length of alignment: 400000
+    ## Excluding non-informative sites: 33043
+    ## 
+    ## Sequence names:
+    ## 1: Seq1
+    ## 2: Seq2
+    ## 3: Seq3
+    ## 4: Seq4
+    ## 5: Seq5
+    ## 6: Seq6
+    ## 7: Seq7
+    ## 8: Seq8
+    ## 9: Seq9
+    ## 10: Seq10
+    ## 
+    ## Settings for Sequence Scan Combinations:
+    ## ----------------------------------------
+    ## Triplet Generation Method (Method): 1
+    ## 
+    ## Sequences are organized according to the following groups: 
+    ## c("Seq1", "Seq2", "Seq3"),
+    ## c("Seq4", "Seq5", "Seq6"),
+    ## c("Seq7", "Seq8", "Seq9", "Seq10")
+    ## 
+    ## Distance Threshold for excluding triplets with
+    ## 	too similar sequences (DistanceThreshold): 0.01
+    ## 
+    ## How many sequences from the same partition are
+    ## 	allowed in a triplet (PartitionStrictness): 2
+    ## 
+    ## A total of 120 triplets will be compared.
+    ## 
+    ## A total of
+
+    ## Error: object 'BlockDetectionParams' not found
+ 
+We see after altering these settings, less triplets will be analyzed now, and each one will contain only one sequence from each group.
  
  
  
@@ -103,44 +175,9 @@ First the sequences are loaded into a HybRIDS object as demonstrated in previous
  
  
  
-```
-> MyAnalysis
-HybRIDS object - Analysis of  3  aligned sequences.
  
-DNA Alignment:
---------------
-Full Sequence File Location:  /var/folders/kp/clkqvqn9739ffw2755zjwy74_skf_z/T//Rtmpqg9BMs/FullSequencec3d3145ae9b6 
-Informative Sequence File Location:  /var/folders/kp/clkqvqn9739ffw2755zjwy74_skf_z/T//Rtmpqg9BMs/InformativeSequencec3d35ca5b62a
-Full Length:  398508 
-Informative Length:  6577 
-Sequence names:  Seq1 Seq2 Seq3 
  
-Triplet Generation Parameters:
-------------------------------
-Triplet Generation Method: 1
-Threshold for method number 2: 0.01
  
-Sequence Similarity Analysis Parameters:
-----------------------------------------
-Sliding Window Size: 100
-Sliding Window Step Size: 1
- 
-Block Detection Parameters: 
----------------------------
-Manual Thresholds: 90
-HybRIDS will attempt automatic detection of SS Thresholds for putative block searches.
-HybRIDS will fall back on user specified manual thresholds, should the autodetection fail.
- 
-Block Dating Parameters:
-------------------------
-Assumed mutation rate: 1e-07
-P-Value for acceptance of putative blocks: 0.005
- 
- 1 Triplet(s) have been generated for analysis.
- ```
- 
- The summary tells us, on the final line, that 1 Triplet has been generated in prep for analysis. HybRIDS has internally created the appropriate objects and data structures
- in preparation for the possibility of analysing all possible sequence triplets, in this case one triplet, because there are only three sequences in the example dataset.
  
  ---
  
