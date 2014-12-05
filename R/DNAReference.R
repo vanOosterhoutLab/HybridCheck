@@ -1,142 +1,184 @@
-#' Reference Class for DNA Sequence Information in HybRIDS.
-#' @export 
-HybRIDSseq <- setRefClass( "HybRIDSseq",
+#' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
+#' @name HybRIDSseq
+#' @import methods
+#' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
+#' @field InformativeSequence A matrix (of Characters) containing the elignment, with uninformative sites removed.
+HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
-                              InformativeSequence = "ANY",
-                              SequenceNames = "character",
-                              SequenceLength = "numeric",
-                              InformativeLength = "numeric",
-                              FullBp = "numeric",
-                              InformativeBp = "numeric",
-                              InformativeLoci = "numeric",
-                              NoDNA = "logical"),
+                              InformativeSequence = "ANY"),
                               
                             methods = list( 
                               initialize =
-                                function(sequenceInput = NULL, force_Format = NULL) {
-                                  NoDNA <<- TRUE
+                                function(sequenceInput = NULL) {
+                                  "Initializes the object, may be provided with a filepath to a sequence file, currently only FASTA is supported."
                                   if(!is.null(sequenceInput)){
-                                    InputDNA(sequenceInput, force_Format)
+                                    InputDNA(sequenceInput)
                                   }
                                 },
                               
                               InputDNA =
-                                function( intarget, forceFormat = NULL) {
-                                  FullSeq <- InputSequences(intarget, forceFormat)
-                                  FullBp <<- as.numeric(colnames(FullSeq))
+                                function(intarget, format) {
+                                  "Reads in sequences from file and appropriately modifies fields of the object."
+                                  FullSequence <<- InputSequences(intarget, format)
                                   message("Subsetting the informative segregating sites...")
-                                  InformativeSeq <- FullSeq[, colSums(FullSeq[-1,] != FullSeq[-nrow(FullSeq), ] ) > 0]
-                                  InformativeBp <<- as.numeric(colnames(InformativeSeq))
-                                  SequenceLength <<- ncol(FullSeq)
-                                  InformativeLength <<- ncol(InformativeSeq)
-                                  SequenceNames <<- rownames(FullSeq)
-                                  message("Done, now saving data internally")
-                                  message(" :Full Sequence")
-                                  FullSequence <<- FullSeq
-                                  message(" :Informative bases only")
-                                  InformativeSequence <<- InformativeSeq
-                                  NoDNA <<- FALSE
+                                  InformativeSeq <- FullSequence[, colSums(FullSequence[-1,] != FullSequence[-nrow(FullSequence),]) > 0]
+                                  InformativeSequence <<- InformativeSeq[, which(apply(InformativeSeq, 2, function(x) !any(x == "N" | x == "n")))]
+                                  #InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
                                   message("Finished DNA input.")
                                 },
                               
-                              plotInf =
-                                function(parameters, which="hist") {
-                                  if(which != "hist" && which != "bars") stop("You need to specify either 'bars' or 'hist' as the which option!")
-                                  if (which == "bars"){
-                                    # Figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
-                                    div <- FullBp[SequenceLength] / parameters$MosaicScale
-                                    bpstart <- seq(from = 1, to = FullBp[SequenceLength], by = div)
-                                    bpend <- seq(from=div, to = FullBp[SequenceLength], by = div)
-                                    bpX <- round(bpstart + (div / 2))
-                                    frame <- data.frame(bpstart = bpstart, bpend = bpend, bpX = bpX)
-                                    rm(bpstart, bpend)
-                                    Bar <- round(apply(frame, 1, function(x) vertbar_create2(InformativeBp, x)))
-                                    plotFrame <- data.frame(bpstart = frame$bpstart, bpend = frame$bpend, X = frame$bpX, numberSNPs = Bar)
-                                    thePlot <- ggplot(plotFrame, aes(x = X, y = 1)) + geom_raster(aes(fill = numberSNPs))
-                                    thePlot <- applyPlottingParams(thePlot, parameters, title="Number of SNP Polymorphisms Between All Sequences")
-                                    thePlot <- thePlot + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
-                                  } else {
-                                    thePlot <- ggplot(data.frame(InformativeBP = InformativeBp), aes(x = InformativeBP)) + geom_histogram(aes(fill=..count..)) +
-                                      scale_fill_gradient2("SNP Count", low="white", high="red")
-                                    thePlot <- applyPlottingParams(thePlot, parameters, title="Number of SNP Polymorphisms Between All Sequences")
-                                    thePlot <- thePlot + ylab("Count")
-                                  }
-                                  thePlot <- thePlot + xlab("Base Pair Position")
-                                  return(thePlot)
+                              hasDNA =
+                                function(){
+                                  "Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false."
+                                  a <- is.initialized(FullSequence)
+                                  b <- is.initialized(InformativeSequence)
+                                  if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
+                                  return(a)
+                                },
+                              
+                              enforceDNA =
+                                function(){
+                                  "Enforces some rules about the content of the sequence object and throws errors should they occur."
+                                  if(!hasDNA()){stop("Error: HybRIDSdna object has not got any sequences loaded in.")}
+                                  if(nrow(InformativeSequence) != nrow(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
+                                },
+                              
+                              numberOfSequences =
+                                function(){
+                                  "Returns the number of sequences in the stored alignment."
+                                  enforceDNA()
+                                  return(nrow(InformativeSequence))
+                                },
+                              
+                              getFullBp =
+                                function(){
+                                  "Returns the "
+                                  enforceDNA()
+                                  return(as.numeric(colnames(FullSequence)))
+                                },
+                              
+                              getInformativeBp =
+                                function(){
+                                  enforceDNA()
+                                  return(as.numeric(colnames(InformativeSequence)))
+                                },
+                              
+                              getFullLength =
+                                function(){
+                                  enforceDNA()
+                                  return(ncol(FullSequence))
+                                },
+                              
+                              getInformativeLength =
+                                function(){
+                                  enforceDNA()
+                                  return(ncol(InformativeSequence))
+                                },
+                              
+                              getSequenceNames =
+                                function(){
+                                  enforceDNA()
+                                  return(rownames(InformativeSequence))
+                                },
+                              
+                              pullTriplet =
+                                function(selection){
+                                  if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
+                                  return(InformativeSequence[selection, ])
+                                },
+                              
+                              textSummary =
+                                function(){
+                                  start <- paste0("DNA Sequence Information:\n",
+                                                  "-------------------------\nAn alignment of ", numberOfSequences(), 
+                                                  " sequences.\n\nFull length of alignment: ", getFullLength(),
+                                                  "\nExcluding non-informative sites: ", getInformativeLength(),
+                                                  "\n\nSequence names:\n")
+                                  names <- getSequenceNames()
+                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="\n")
+                                  return(paste0(start, end))
+                                },
+                              
+                              htmlSummary =
+                                function(){
+                                  start <- paste0("<h1>DNA Sequence Information:</h1>",
+                                                  "<p>An alignment of ", numberOfSequences(),
+                                                  " sequences.</p><p><b>Full length of alignment:</b> ", getFullLength(),
+                                                  " bp</p><p><b>Excluding non-informative sites:</b> ", getInformativeLength(),
+                                                  " bp</p><p><b>Sequence names:</b><br>")
+                                  names <- getSequenceNames()
+                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="<br>")
+                                  return(paste0(start, end))
+                                },
+                              
+                              show =
+                                function(){
+                                  "Prints a text summary of the object to console."
+                                  cat(textSummary())
                                 }
                             ))
 
 
-HybRIDSseq_fastadisk <- setRefClass( "HybRIDSseq_fastadisk",
-                                     contains = "HybRIDSseq",
-                           fields = list( 
-                             FullSequenceFile = "character",
-                             FullSequence = function( value ) {
-                               if( missing( value ) ){
-                                 as.character( read.dna( file = FullSequenceFile, format = "fasta", as.matrix = TRUE ) )
-                               } else {
-                                 write.dna( as.DNAbin(value), file = FullSequenceFile, format = "fasta" )
-                               }
-                             },
-                             InformativeSequenceFile = "character",
-                             InformativeSequence = function( value ) {
-                               if( missing( value ) ){
-                                 as.character( read.dna( file = InformativeSequenceFile, format = "fasta", as.matrix = TRUE ) )
-                               } else {
-                                 write.dna( value, file = InformativeSequenceFile, format = "fasta" )
-                               }
-                             }),
-                           
-                           methods = list( 
-                             initialize =
-                               function(sequenceInput = NULL, force_Format = NULL){
-                                 FullSequenceFile <<- tempfile( pattern = "FullSequence" )
-                                 InformativeSequenceFile <<- tempfile( pattern = "InformativeSequence" )
-                                 if(!is.null(sequenceInput)){
-                                   InputDNA(sequenceInput, force_Format)
-                                 }
-                               }
-                           ))
+# INTERNAL FUNCTIONS:
 
+InputSequences <- function(input, format) {
+  dna <- sortInput(input, format)
+  dna <- checkForDuplicates(dna)
+  dna <- as.character(dna)
+  colnames(dna) <- 1:ncol(dna)
+  message("Done...")
+  return(dna)
+}
 
-# Internal function For reading in sequence files, based on the format deteted.
-InputSequences <- function(input, Format) {
+decideFileFormat <- function(input){
+  if(grepl(".fas", input) || grepl(".fasta", input)){
+    message("File to be read is expected to be FASTA format...")
+    return("fasta")
+  } else {
+    stop("Could not determine format.")
+  }
+}
+
+sortInput <- function(input, format){
   classOfInput <- class(input)
   if(classOfInput == "character"){
-    # Class of input is text, so we assume it is a filepath...
-    # We need to check the format of the file to be read in and then indeed read it in.
-    if(grepl(".fas", input) || Format == "FASTA" || Format == "fasta"){
-      message("File to be read is expected to be FASTA format...")
-      Format <- "fasta"
+    if(is.null(format)){
+      format <- decideFileFormat(input)
     }
     message("Reading in sequence file...")
-    dna <- read.dna( file = input, format = Format, as.matrix = TRUE )
+    dna <- read.dna(file=input, format=format, as.matrix=TRUE)
   } else {
     if(classOfInput == "DNAbin"){
       message("Class of input is DNAbin from ape package.")
       dna <- input
+    } else {
+      error("Input is not a valid path to a DNA file, nor is it a valid DNA object, for example, DNAbin from package ape.")
     }
   }
-  message("Looking for duplicates...")
-  distances <- dist.dna(dna, model = "N")
+  return(dna)
+}
+
+checkForDuplicates <- function(dna){
+  message("Looking for duplicates (sequences with p_distances of 0)...")
+  distances <- dist.dna(dna, model="N")
   if(any(distances == 0)){
-    message("Some duplicated sequences were found! - We will get rid of these...")
+    message("Duplicated sequences were found! - These will be deleted...")
     indicies <- distrowcol(which(distances == 0), attr(distances, "Size"))
     dna <- dna[-indicies[,2],]
     message("Double Checking for duplicated sequences again to be safe...")
     distances <- dist.dna(dna, model="N")
     if(any(distances == 0)) stop("Duplicates were still found in the sequences - this should not happen - aborting. Inform package maintainer.")
   }
-  dna <- as.character(dna)
-  colnames(dna) <- 1:ncol(dna)
-  message("Done...")
   return(dna)
 }
-  
-    
+
 distrowcol <- function(ix,n){
   nr <- ceiling(n-(1+sqrt(1+4*(n^2-n-2*ix)))/2)
   nc <- n-(2*n-nr+1)*nr/2+ix+nr
   return(cbind(nr,nc))
+}
+
+is.initialized <- function(x){
+  return(class(x) != "uninitializedField")
 }

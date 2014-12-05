@@ -4,23 +4,11 @@ HybRIDS
 **An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
 **Visit the website ward9250.github.io/HybRIDS**
 
-# Recent Major Changes:
-
-1. A Major BUG fix changing how DNA sequences are passed to the recombination block dating process - removed many error messages that would occur with some datasets - we recommend not to use any versions before this commit with datasets of more than 3 sequences.
-
-2. The HybRIDS optional GUI has been re-written to be simpler to use and more compatible with the latest incarnation of the HybRIDS object system, which now uses reference objects
-instead of the S3 object system. The GUI is functional and has been tested but there may be bugs.
-
-
 # Introduction
 
-HybRIDS is an R package that began life as some code to allow colleagues to attractively visualize the mosaic structure of
-a sequence - what was wanted turned out to be more complex than usual plotting in R the casual user may usually do and required use of several libraries and a non-trivial amount of data-munging and code.
+The HybRIDS project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets. In brief, it allows the following to be scripted in and R session:
 
-Therefore we decided to provide this package for other researchers so they can quickly visualize the mosaic structure of sequences in a visually appealing way - thanks to R's wonderful graphical system - 
-along with the ability to detect potential blocks based on the analysis method, and also to date those putative blocks. We then also coded a graphical user interface for the package to assist the occasional R user.  
-HybRIDS then can cater to the individual who is comfortable with code and who wants to script many analyses steps together and want's to include some HybRIDS visualisation and dating, and also to the user who wants to quickly get output 
-without having to do any scripting.
+1. 
 
 # Installation from Github Repository
 
@@ -129,7 +117,3 @@ Contribution can be done by the usual github cycle of sending pull requests, alt
 If you have trouble working the package on your data there may be many causes from a genuine bug in the code - a misreading of a file leading to downstream issues, or unsuitability of the data for the kind of analysis HybRIDS does.
 HybRIDS has been developed and tested using both real datasets and simulated data. However of course that does not mean there are no datasets which may cause problems. If you run into problems, you can contact the maintainer or file an issue on the repository. 
 Be descriptive and detailed in what you did so as the error can be reproduced, a sample of the data that causes the error might be needed to get to the bottom of the issue.
-
-# Known issues:
-
-1. There is an error that occurs for some datasets particularity if the number of informative sites is too low - usually HybRIDS produces a descriptive error when this happens but sometimes another error is produced - we know what this is and how to fix it, it's on my TODO list.
