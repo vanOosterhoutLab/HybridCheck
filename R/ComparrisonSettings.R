@@ -112,9 +112,12 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          return(paste('Settings for Sequence Scan Combinations:\n',
                                                       '----------------------------------------\n',
                                                       'Triplet Generation Method (Method): ', Method,
-                                                '\n\nDistance Threshold for eliminating triplets with\n\ttoo similar sequences (DistanceThreshold): ', DistanceThreshold,
-                                                '\n\nHow many sequences from the same partition are\n\tallowed in a triplet (PartitionStrictness): ', PartitionStrictness, 
-                                                '\n\nA total of ', numberOfAcceptedCombinations(), ' triplets will be compared.', sep=""))
+                                                      '\n\nSequences are organized according to the following groups: \n',
+                                                      paste(Groups, collapse = ',\n'),
+                                                      '\n\nDistance Threshold for excluding triplets with\n\ttoo similar sequences (DistanceThreshold): ', DistanceThreshold,
+                                                      '\n\nHow many sequences from the same partition are\n\tallowed in a triplet (PartitionStrictness): ', PartitionStrictness, 
+                                                      '\n\nA total of ', numberOfAcceptedCombinations(), ' triplets will be compared.', 
+                                                      sep=""))
                                        },
                                      
                                      printCombinations =
