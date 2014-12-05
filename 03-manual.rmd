@@ -1,0 +1,23 @@
+---
+layout: manualsection
+title: Viewing and editing analysis settings
+permalink: 03-manual.html
+manual: true
+published: false
+status: process
+---
+
+```{r echo=FALSE, message=FALSE}
+library(HybRIDS)
+MyAnalysis <- HybRIDS$new("~/Dropbox/MySequence.fas")
+```
+
+
+Viewing HybRIDS current settings
+--------------------------------
+
+To view the settings and state of your current HybRIDS object, you just need to enter the name of the variable you used to assign the HybRIDS object, in the case of this example, the HybRIDS object created was assigned to the name *MyAnalysis*
+
+```{r}
+MyAnalysis
+```
