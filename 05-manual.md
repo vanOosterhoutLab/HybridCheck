@@ -1,6 +1,6 @@
 ---
 layout: manualsection
-title: Specifying triplets that will be analyzed (The `TripletGeneration` step).
+title: The Triplet Generation step
 permalink: 05-manual.html
 manual: true
 published: true
