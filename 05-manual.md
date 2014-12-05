@@ -20,7 +20,7 @@ Before HybRIDS analyses the sequence similarity of sequences you need to generat
  
 This step is done automatically by HybRIDS whenever you change the settings for this step - you don't have to actually do anything other than set the settings you want. The following methods of generating triplets are provided, and are selected by changeing the `Method` parameter:
  
-1. (DEFAULT) - HybRIDS will analyze sequence triplets based on a set of specified groups (defined by the `Groups` parameter, such that triplets analyzed will be made up of sequences to try and find recombination events between the groups.
+ **1.** (DEFAULT) - HybRIDS will analyze sequence triplets based on a set of specified groups (defined by the `Groups` parameter, such that triplets analyzed will be made up of sequences to try and find recombination events between the groups.
  
 A group is any given subset of sequences from your input file. For example, the example anaysis has 10 DNA sequences. The first 3 sequences, might be from one population, the next three from a second population, and the remaining sequences from a third population. 
  
@@ -28,9 +28,15 @@ If you wanted to find evidence of recombination between these populations. You w
  
 If this method of triplet generation is set, as it is by default, and no groups are provided, the HybRIDS object will analyze every possible combination of three of your provided sequences.
  
-2. HybRIDS will analyze sequences triplet based on how similar the sequences that make the triplet are to one another. Every possible triplet of your provided sequences will be analyzed, providing that all the pairwise distances in a triplet are above a set threshold, and this threshold is defined by the `DistanceThreshold` parameter.
+---
  
-3. HybRIDS will analyze triplet based on sequence similarity as in method 2, however instead of using the `DistanceThreshold` parameter, a threshold is automatically chosen based on the distribution of pairwise distances for your provided alignment.
+**2.** HybRIDS will analyze sequences triplet based on how similar the sequences that make the triplet are to one another. Every possible triplet of your provided sequences will be analyzed, providing that all the pairwise distances in a triplet are above a set threshold, and this threshold is defined by the `DistanceThreshold` parameter.
+ 
+---
+ 
+**3.** HybRIDS will analyze triplet based on sequence similarity as in method 2, however instead of using the `DistanceThreshold` parameter, a threshold is automatically chosen based on the distribution of pairwise distances for your provided alignment.
+ 
+---
  
 Now you know what this step does and how each of the settings for this step affect it, the example demonstrates how to appropriately edit the settings of this step.
  
