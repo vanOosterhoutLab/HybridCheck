@@ -60,10 +60,10 @@ To change the settings for any given step of the HybRIDS analysis, you use the `
  
 This method accepts first a word that dictates which analysis step it is you want to change:
  
-1. "TripletGeneration" - Settings for Sequence Scan Combinations.
-2. "SSAnalysis" - Settings for the sequence similarity scan step.
-3. "BlockDetection" - Settings for detecting recombinant blocks from sequence similarity scan data generated from the sequence similarity scan step.
-4. "BlockDating" - Settings for calculating the significance values and divergence time estimates, for recombinant blocks detected in the `BlockDetection` step.
+1. `TripletGeneration` - Settings for Sequence Scan Combinations.
+2. `SSAnalysis` - Settings for the sequence similarity scan step.
+3. `BlockDetection` - Settings for detecting recombinant blocks from sequence similarity scan data generated from the sequence similarity scan step.
+4. `BlockDating` - Settings for calculating the significance values and divergence time estimates, for recombinant blocks detected in the `BlockDetection` step.
  
 In addition the method is then provided a series of name, value pairs where a name is one of the settings, and the value is the value to change it to.
  
