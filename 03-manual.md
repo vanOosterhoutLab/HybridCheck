@@ -67,9 +67,11 @@ This method accepts first a word that dictates which analysis step it is you wan
  
 In addition the method is then provided a series of name, value pairs where a name is one of the settings, and the value is the value to change it to.
  
-To use an example, we know from the text summary printed for the HybRIDS object above, that the `TripletGeneration` step has several settings: `Method`, `DistanceThreshold`, and `PartitionStrictness`. (Don't worry about what these settings do right now they are described more fully in the next manual sections - although the nice text summary gives you a clue e.g. `DistanceThreshold` is a *Distance Threshold for eliminating triplets with too similar sequences*)
+To use an example, we know from the text summary printed for the HybRIDS object above, that the `TripletGeneration` step has several settings: `Method`, `DistanceThreshold`, and `PartitionStrictness`.
  
-Let's say we wanted to increace the `DistanceThreshold` parameters from 0.01 to 0.1. We can do that by calling the setParameters method:
+(Don't worry about what these settings do right now, they are described more fully in the next manual sections - although the nice text summary gives you a clue e.g. `DistanceThreshold` is a *Distance Threshold for eliminating triplets with too similar sequences*)
+ 
+Let's say we wanted to increace the `DistanceThreshold` parameters from 0.01 to 0.1. We can do that by calling the `setParameters` method:
 
     MyAnalysis$setParameters("TripletGeneration", DistanceThreshold = 0.1)
 
@@ -85,3 +87,5 @@ MyAnalysis$setParameters("TripletGeneration", DistanceThreshold = 0.1, Partition
 ```
  
 To summarize: Each step of a HybRIDS analysis has settings associated with them, but the settings of each step are all easily changed by calling the `setParameters` method of the HybRIDS object.
+ 
+In the next sections, each step of the HybRIDS analysis, and how to execute them, will be described.
