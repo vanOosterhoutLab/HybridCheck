@@ -7,7 +7,7 @@ published: false
 status: process
 ---
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, include=FALSE}
 library(HybRIDS)
 MyAnalysis <- HybRIDS$new("~/Dropbox/MySequence.fas")
 ```
@@ -21,3 +21,6 @@ To view the settings and state of your current HybRIDS object, you just need to 
 ```{r}
 MyAnalysis
 ```
+You'll see a text summary printed like that above which shows the settings for each analysis step.
+
+A full description of each setting is given in the next manual section.
