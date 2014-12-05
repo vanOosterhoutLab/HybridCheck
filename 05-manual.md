@@ -1,22 +1,13 @@
 ---
 layout: manualsection
-title: Executing Analysis Steps
+title: Specifying triplets that will be analyzed (The `TripletGeneration` step).
 permalink: 05-manual.html
 manual: true
 published: true
 status: publish
 ---
  
-The previous manual sections dealt with the viewing and setting of the parameters of the HybRIDS analysis stages.
- 
-This section now covers executing those analysis steps.
- 
----
- 
-Step 1: Specifying triplets that will be analyzed (The `TripletGeneration` step).
---------------------------------------------------
- 
-The first thing you need to do is inform the HybRIDS object which triplets for your sequences you would like to analyze for evidence of
+The first thing you need to do after creating the HybRIDS object for your alignment file, is inform the HybRIDS object which triplets for your sequences you would like to analyze for evidence of
 recombination.
  
 The following methods of generating triplets are provided, and are selected by changeing the `Method` parameter:
@@ -117,10 +108,11 @@ In order to specify a group, you simply make a vector of the sequence names for 
     myGroups <- list(FirstGroup, SecondGroup, ThirdGroup) # Put the groups in a list.
      
     # Let's edit the Triplet Generation settings
-    MyAnalysis$setParameters("TripletGeneration", Groups = myGroups, PartitionStrictness = 1)
+    MyAnalysis$setParameters("TripletGeneration", Groups = myGroups, PartitionStrictness = 1L)
 
-    ## Error: invalid assignment for reference class field 'PartitionStrictness',
-    ## should be from class "integer" or a subclass (was class "numeric")
+    ## Generating triplets to find recombination in sequences, between partitions.
+    ## Deleting all triplets data.
+    ## Initializing new triplets data.
 
     # All done, now let's print the summary of our HybRIDS object again:
     MyAnalysis
@@ -159,27 +151,19 @@ In order to specify a group, you simply make a vector of the sequence names for 
     ## 	too similar sequences (DistanceThreshold): 0.01
     ## 
     ## How many sequences from the same partition are
-    ## 	allowed in a triplet (PartitionStrictness): 2
+    ## 	allowed in a triplet (PartitionStrictness): 1
     ## 
-    ## A total of 120 triplets will be compared.
+    ## A total of 36 triplets will be compared.
     ## 
     ## A total of
 
     ## Error: object 'BlockDetectionParams' not found
+Note in the above example, that `1L` is used and not `1` when setting the `PartitionStrictness` as `1L` specifies the value is a whole number integer and not the floating point `1.0`.
  
 We see after altering these settings, less triplets will be analyzed now, and each one will contain only one sequence from each group.
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- ---
+Now that you have instructed the HybRIDS object on which triplets will be analyzed, the recombination signal in each triplet can be scanned. This is explained in the next section.
+---
  
  Step 2: Sequence Similarity Analysis
  ------------------------------------
