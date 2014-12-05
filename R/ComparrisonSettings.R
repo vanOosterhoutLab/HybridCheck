@@ -1,6 +1,5 @@
 #' A reference class to represent settings for triplet generation.
 #' @name ComparrisonSettings.
-#' @description
 #' @field Method An integer vector of length 1.
 #' @field DistanceThreshold A numeric vector of length 1.
 #' @field PartitionStrictness An integer vector of length 1.

@@ -17,12 +17,12 @@ A reference class to represent settings for triplet generation.
 \item{\code{PartitionStrictness}}{An integer vector of length 1.}
 
 \item{\code{Refine}}{A logical vector of length 1.}
-
-\item{\code{TripletCombinations}}{A list of integer vectors of length 3.}
 }}
 \section{Methods}{
 
 \describe{
-\item{\code{initialize()}}{Creates the object and sets all parameters to their default.}
+\item{\code{initialize(dna)}}{Creates the object and sets all parameters to their default.}
+
+\item{\code{textSummary()}}{Creates a character vector of a summary of the comparrison settings.}
 }}
 

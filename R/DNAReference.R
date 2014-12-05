@@ -22,7 +22,9 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   "Reads in sequences from file and appropriately modifies fields of the object."
                                   FullSequence <<- InputSequences(intarget, format)
                                   message("Subsetting the informative segregating sites...")
-                                  InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
+                                  InformativeSeq <- FullSequence[, colSums(FullSequence[-1,] != FullSequence[-nrow(FullSequence),]) > 0]
+                                  InformativeSequence <<- InformativeSeq[, which(apply(InformativeSeq, 2, function(x) !any(x == "N" | x == "n")))]
+                                  #InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
                                   message("Finished DNA input.")
                                 },
                               

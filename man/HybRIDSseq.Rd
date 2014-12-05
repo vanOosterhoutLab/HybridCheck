@@ -16,7 +16,7 @@ An internal Reference Class to represent a DNA alignment, read from a FASTA file
 \section{Methods}{
 
 \describe{
-\item{\code{InputDNA(intarget)}}{Reads in sequences from file and appropriately modifies fields of the object.}
+\item{\code{InputDNA(intarget, format)}}{Reads in sequences from file and appropriately modifies fields of the object.}
 
 \item{\code{enforceDNA()}}{Enforces some rules about the content of the sequence object and throws errors should they occur.}
 

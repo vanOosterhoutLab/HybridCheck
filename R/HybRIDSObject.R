@@ -6,7 +6,6 @@ NULL
 
 #' A Reference Class for managing a HybRIDS analysis.
 #' @name HybRIDS
-#' @description 
 #' @import methods
 #' @export HybRIDS
 #' @exportClass HybRIDS

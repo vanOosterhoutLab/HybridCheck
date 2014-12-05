@@ -2,9 +2,9 @@
 \docType{class}
 \name{HybRIDS}
 \alias{HybRIDS}
-\title{A Reference Class for manageing a HybRIDS analysis.}
+\title{A Reference Class for managing a HybRIDS analysis.}
 \description{
-A Reference Class for manageing a HybRIDS analysis.
+A Reference Class for managing a HybRIDS analysis.
 }
 \section{Fields}{
 
@@ -14,6 +14,6 @@ A Reference Class for manageing a HybRIDS analysis.
 \section{Methods}{
 
 \describe{
-\item{\code{initialize(dnafile = NULL, inGUI = FALSE)}}{Create HybRIDS object with default values for fields. The path to the FASTA file can be provided.}
+\item{\code{initialize(dnafile = NULL)}}{Create HybRIDS object with default values for fields. The path to the FASTA file can be provided.}
 }}
 
