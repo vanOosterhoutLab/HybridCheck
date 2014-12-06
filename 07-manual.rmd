@@ -61,6 +61,10 @@ You also cannot search for blocks for triplets which have not been analyzed by `
 ```{r}
 tripletsToSearch <- list(c("Seq1", "Seq4", "Seq9"))
 MyAnalysis$findBlocks(tripletsToSearch)
+
+# A triplet must be scanned for recombination signal first
+MyAnalysis$analyzeSS(tripletsToSearch)
+MyAnalysis$findBlocks(tripletsToSearch)
 ```
 
 

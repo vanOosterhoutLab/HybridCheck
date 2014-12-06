@@ -63,6 +63,15 @@ You also cannot search for blocks for triplets which have not been analyzed by `
     MyAnalysis$findBlocks(tripletsToSearch)
 
     ## Finished finding potential blocks for all triplet selections.
+
+    # A triplet must be scanned for recombination signal first
+    MyAnalysis$analyzeSS(tripletsToSearch)
+
+    ## Finished Sequence Similarity Analysis.
+
+    MyAnalysis$findBlocks(tripletsToSearch)
+
+    ## Finished finding potential blocks for all triplet selections.
  
  
  
