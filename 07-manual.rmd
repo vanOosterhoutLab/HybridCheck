@@ -1,6 +1,6 @@
 ---
 layout: manualsection
-title: Detection recombination is signal
+title: Detection of recombination block in signal
 permalink: 07-manual.html
 manual: true
 published: false
@@ -47,7 +47,7 @@ By default this is set to `"NOT.SEARCHED"` which will find blocks for triplets w
 The below example finds blocks in the two triplets that were scanned for recombination signal in the previous section:
 ```{r}
 tripletsToSearch <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
-MyAnalysis$findblocks(tripletsToSearch)
+MyAnalysis$findBlocks(tripletsToSearch)
 ```
 
 

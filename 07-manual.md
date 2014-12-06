@@ -1,6 +1,6 @@
 ---
 layout: manualsection
-title: Detection recombination is signal
+title: Detection of recombination block in signal
 permalink: 07-manual.html
 manual: true
 published: true
@@ -39,10 +39,15 @@ By default this is set to `"NOT.SEARCHED"` which will find blocks for triplets w
 The below example finds blocks in the two triplets that were scanned for recombination signal in the previous section:
 
     tripletsToSearch <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
-    MyAnalysis$findblocks(tripletsToSearch)
+    MyAnalysis$findBlocks(tripletsToSearch)
 
-    ## Error: 'findblocks' is not a valid field or method name for reference
-    ## class "HybRIDS"
+    ## Using the autodetect thresholds method...
+    ## Deciding on suitable thresholds...
+    ## Now beginning Block Search...
+    ## Using the autodetect thresholds method...
+    ## Deciding on suitable thresholds...
+    ## Now beginning Block Search...
+    ## Finished finding potential blocks for all triplet selections.
  
  
  
