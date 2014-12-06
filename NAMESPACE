@@ -2,7 +2,6 @@
 
 export(HybRIDS)
 exportClasses(HybRIDS)
-exportClasses(UserBlocks)
 import(ape)
 import(ggplot2)
 import(grid)

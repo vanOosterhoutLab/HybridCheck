@@ -443,6 +443,28 @@ MyAnalysis$tabulateUserBlocks()
 
 -----
 
+# The HybRIDSapp
+
+We provide a Shiny based webapp that allows and R session with HybRIDS to be run as a webapp - providing either a web-based graphical user interface on the user's local machine, or a means of a centalized platform.
+
+It can be obtained from its GitHub repository by using git on the terminal:
+
+```sh
+git clone https://github.com/Ward9250/HybRIDSapp.git
+```
+
+Once it has been downloaded, you can open the project file in RStudio and hit the Run App button to run the app on your machine. You will need the `shiny` and [`shinyBS`](https://github.com/ebailey78/shinyBS) packages installed to R.  
+
+There are multiple options and avenues for deploying a Shiny based web app. See the [Shiny webpage and documentation](http://shiny.rstudio.com/) for details on these.
+
+The settings and steps of the analysis are exactly the same as those presented in this manual. The web-app provides a way for people to use HybRIDS in an exporatory manner if they are not proficient at coding, or want to change the settings of the analysis frequently.
+
+The HybRIDS package was designed to be easy to use in an exploratory way on the R console, or in a script for batch processing. The 'reactive' design of Shiny and the web-app is particularily suited for exploratory analyses: Whenever a setting is altered the analysis is updated and the results are displayed to the user in real-time automatically.
+
+The HybRIDSapp is much newer than the package and some bugs may be likely and the design of the app may change.
+
+-----
+
 # Problems, Bugs, and assistance
 
 If you have any trouble using the HybRIDS package, or find an error or bug you are unfamiliar with, don't hesitate to contact code author and repo maintainer Ben J. Ward (Ward9250) at b.ward@uea.ac.uk, or visit the GitHub Repository Ward9250/HybRIDS and file a bug report or message there.

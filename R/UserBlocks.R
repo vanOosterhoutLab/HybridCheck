@@ -2,7 +2,6 @@
 #' @name UserBlocks
 #' @description 
 #' The UserBlocks reference class is the class used to store and manipulate user defined blocks in HybRIDS.
-#' @export
 UserBlocks <- setRefClass("UserBlocks",
                           
                           fields = list(
