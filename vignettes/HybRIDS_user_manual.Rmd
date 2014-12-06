@@ -13,16 +13,22 @@ output:
     fig_width: 10
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{HybRIDS User Manual}
+  %\VignetteIndexEntry{HybRIDS-user-manual}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
+
+This manual is provided as a vignette to the HybRIDS package for R. It can be acessed from an R session with with following:
+
+```{r eval=FALSE}
+vignette("HybRIDS-user-manual")
+```
 
 # Installing HybRIDS
 
 To install HybRIDS from the GitHub repository executing the following code - snippet into an R session should get HybRIDS installed with minimum difficulty:
 
-```{r, eval=FALSE}
+```{r eval=FALSE}
 install.packages("devtools", dep=T)
 library(devtools)
 install_github("Ward9250/HybRIDS", build_vignettes=TRUE)
