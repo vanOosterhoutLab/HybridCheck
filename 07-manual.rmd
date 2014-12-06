@@ -52,13 +52,13 @@ MyAnalysis$findBlocks(tripletsToSearch)
 
 Note that, as with the `analyzeSS` method, you cannot specify a triplet which was not specified by the `TripletGeneration` settings:
 
-```{r message=TRUE}
+```{r error=TRUE}
 tripletsToSearch <- list(c("Seq1", "Seq2", "Seq3"))
 MyAnalysis$findBlocks(tripletsToSearch)
 ```
 
 You also cannot search for blocks for triplets which have not been analyzed by `analyzeSS`:
-```{r message=TRUE}
+```{r error=TRUE}
 tripletsToSearch <- list(c("Seq1", "Seq4", "Seq9"))
 MyAnalysis$findBlocks(tripletsToSearch)
 
