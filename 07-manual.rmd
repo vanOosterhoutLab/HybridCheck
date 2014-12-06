@@ -67,5 +67,15 @@ MyAnalysis$analyzeSS(tripletsToSearch)
 MyAnalysis$findBlocks(tripletsToSearch)
 ```
 
+If you want to get a Data Frame containing a table of the detected blocks in some triplets, use the `tabulateDetectedBlocks` method.
+
+This method needs to be given a set of sequence names to set the triplets that will be tabulated:
+
+```{r}
+tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq7"))
+MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
+```
+
+
 
 

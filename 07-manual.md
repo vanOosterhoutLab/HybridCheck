@@ -73,5 +73,41 @@ You also cannot search for blocks for triplets which have not been analyzed by `
 
     ## Finished finding potential blocks for all triplet selections.
  
+If you want to get a Data Frame containing a table of the detected blocks in some triplets, use the `tabulateDetectedBlocks` method.
+ 
+This method needs to be given a set of sequence names to set the triplets that will be tabulated:
+ 
+
+    tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq7"))
+    MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
+
+    ## Tabulating blocks for the triplet Seq1:Seq4:Seq7
+
+    ##          Triplet Sequence_Pair Sequence_Similarity_Threshold
+    ## 1 Seq1:Seq4:Seq7     Seq1:Seq4                            65
+    ## 2 Seq1:Seq4:Seq7     Seq1:Seq7                            85
+    ## 3 Seq1:Seq4:Seq7     Seq1:Seq7                            68
+    ## 4 Seq1:Seq4:Seq7     Seq1:Seq7                            68
+    ## 5 Seq1:Seq4:Seq7     Seq4:Seq7                            68
+    ##   First_BP_Position Last_BP_Position Approximate_Length_BP Number_of_SNPs
+    ## 1            287454           295896                  8443             NA
+    ## 2            283984           287383                  3400             NA
+    ## 3            283957           283980                    24             NA
+    ## 4            287386           287407                    22             NA
+    ## 5            269143           280337                 11195             NA
+    ##   Corrected_Number_of_SNPs p=0.05_Age p=0.5_Age p=0.95_Age P_Value
+    ## 1                       NA         NA        NA         NA      NA
+    ## 2                       NA         NA        NA         NA      NA
+    ## 3                       NA         NA        NA         NA      NA
+    ## 4                       NA         NA        NA         NA      NA
+    ## 5                       NA         NA        NA         NA      NA
+    ##   P_Thresh
+    ## 1       NA
+    ## 2       NA
+    ## 3       NA
+    ## 4       NA
+    ## 5       NA
+ 
+ 
  
  
