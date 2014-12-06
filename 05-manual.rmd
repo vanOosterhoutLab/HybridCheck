@@ -10,7 +10,7 @@ status: process
 The first thing you need to do after creating the HybRIDS object for your alignment file, is inform the HybRIDS object which triplets for your sequences you would like to analyze for evidence of
 recombination.
 
-The following methods of generating triplets are provided, and are selected by changeing the `Method` parameter:
+The following methods of generating triplets are provided denoted by the integers 1, 2 and 3, and are selected by changeing the `Method` parameter:
 
 ---
 
@@ -25,11 +25,13 @@ The following methods of generating triplets are provided, and are selected by c
 
 ---
 
-**2.** HybRIDS will analyze sequences triplet based on how similar the sequences that make the triplet are to one another. Every possible triplet of your provided sequences will be analyzed, providing that all the pairwise distances in a triplet are above a set threshold, and this threshold is defined by the `DistanceThreshold` parameter.
+2
+  : HybRIDS will analyze sequences triplet based on how similar the sequences that make the triplet are to one another. Every possible triplet of your provided sequences will be analyzed, providing that all the pairwise distances in a triplet are above a set threshold, and this threshold is defined by the `DistanceThreshold` parameter.
 
 ---
 
-**3.** HybRIDS will analyze triplet based on sequence similarity as in method 2, however instead of using the `DistanceThreshold` parameter, a threshold is automatically chosen based on the distribution of pairwise distances for your provided alignment.
+3
+  : HybRIDS will analyze triplet based on sequence similarity as in method 2, however instead of using the `DistanceThreshold` parameter, a threshold is automatically chosen based on the distribution of pairwise distances for your provided alignment.
 
 ---
 
