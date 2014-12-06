@@ -1,6 +1,6 @@
 ---
 layout: manualsection
-title: Detection of recombination block in signal
+title: Detection of recombination blocks in signal
 permalink: 07-manual.html
 manual: true
 published: true
@@ -47,6 +47,21 @@ The below example finds blocks in the two triplets that were scanned for recombi
     ## Using the autodetect thresholds method...
     ## Deciding on suitable thresholds...
     ## Now beginning Block Search...
+    ## Finished finding potential blocks for all triplet selections.
+ 
+Note that, as with the `analyzeSS` method, you cannot specify a triplet which was not specified by the `TripletGeneration` settings:
+ 
+
+    tripletsToSearch <- list(c("Seq1", "Seq2", "Seq3"))
+    MyAnalysis$findBlocks(tripletsToSearch)
+
+    ## Finished finding potential blocks for all triplet selections.
+ 
+You also cannot search for blocks for triplets which have not been analyzed by `analyzeSS`:
+
+    tripletsToSearch <- list(c("Seq1", "Seq4", "Seq9"))
+    MyAnalysis$findBlocks(tripletsToSearch)
+
     ## Finished finding potential blocks for all triplet selections.
  
  
