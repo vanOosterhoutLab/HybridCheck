@@ -12,4 +12,4 @@ getting to grips with R in detail, would be a huge and arguably unrelated segmen
 
 The manual is divided up according to the tasks you would perform with HybRIDS, from loading the package and reading in data, to altering the options for and running the analysis, and exporting data and plotting data.
 
-<embed src="http://ward9250.github.io/HybRIDS/HybRIDS_user_manual.pdf" width="1000" height="1000">
+<iframe src="http://ward9250.github.io/HybRIDS/HybRIDS_user_manual.pdf"></iframe>
