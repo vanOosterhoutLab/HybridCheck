@@ -16,11 +16,11 @@ BlockDatingSettings <- setRefClass("BlockDatingSettings",
                                    methods = list(
                                      initialize =
                                        function(){
-                                         MutationRate <<- 10e-08
+                                         MutationRate <<- 10e-09
                                          PValue <<- 0.005
                                          BonfCorrection <<- TRUE
                                          DateAnyway <<- FALSE
-                                         MutationCorrection <<- "HybRIDS"
+                                         MutationCorrection <<- "JC69"
                                        },
                                      
                                      setMutationRate =
@@ -102,22 +102,14 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       #Extract the two sequences required...
       Seq <- dnaobj$FullSequence[pair,c(which(dnaobj$getFullBp() == blocksobj[i,"FirstBP"]):which(dnaobj$getFullBp() == blocksobj[i,"LastBP"]))]
       blocksobj[i,"SNPs"] <- dist.dna(as.DNAbin(Seq), model="N")[1]
-      if(model!="HybRIDS"){
-        distanceByModel <- dist.dna(as.DNAbin(Seq), model=model)[1]
-        blocksobj[i,"CorrectedSNPs"] <- round(distanceByModel * blocksobj[i,"ApproxBpLength"])
-      }
+      distanceByModel <- dist.dna(as.DNAbin(Seq), model=model)[1]
+      blocksobj[i,"CorrectedSNPs"] <- round(distanceByModel * blocksobj[i,"ApproxBpLength"])
     }
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)
     if(!danyway){
       blocksobj <- blocksobj[which(blocksobj$P_Value < pthresh),]
     }
     ObservedRatio <- blocksobj$SNPs / blocksobj$ApproxBpLength
-    if(model == "HybRIDS"){
-      ActualRatio <- seq(from=0, to=2, by=0.0001)
-      OutputRatio <- (0.992582633 * ActualRatio) - (0.605566567 * (ActualRatio^2) ) + (0.166571989 * (ActualRatio^3))
-      ActualRatio <- unlist(lapply(ObservedRatio, function(x) ActualRatio[which(OutputRatio >= x)][1]))
-      blocksobj$CorrectedSNPs <- round(ActualRatio * blocksobj$ApproxBpLength)
-    }
     blocksobj <- blocksobj[(blocksobj$ApproxBpLength != blocksobj$SNPs) & (blocksobj$P_Value < 1),]
     if(nrow(blocksobj) > 0){
       for(i in 1:nrow(blocksobj)){
