@@ -24,11 +24,14 @@ MyAnalysis
 ```
 You'll see a text summary printed like that above which shows the settings for each analysis step.
 
-A full description of each setting is given in the upcoming manual sections dedicated to each step.
+Alternatively if you want to view the settings of only a single step, the `showParameters` method can be used:
+```{r}
+MyAnalysis$showParameters("TripletGeneration")
+```
 
 Changeing the analysis settings
 -------------------------------
-The settings of each analysis step is altered in a consistent way, using the same method of the HybRIDS object.
+The settings of each analysis step are altered in a consistent way, using the same method of the HybRIDS object.
 
 To change the settings for any given step of the HybRIDS analysis, you use the `setParameters` method.
 

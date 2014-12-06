@@ -65,11 +65,28 @@ To view the settings and state of your current HybRIDS object, you just need to 
     ## A total of
 You'll see a text summary printed like that above which shows the settings for each analysis step.
  
-A full description of each setting is given in the upcoming manual sections dedicated to each step.
+Alternatively if you want to view the settings of only a single step, the `showParameters` method can be used:
+
+    MyAnalysis$showParameters("TripletGeneration")
+
+    ## Settings for Sequence Scan Combinations:
+    ## ----------------------------------------
+    ## Triplet Generation Method (Method): 1
+    ## 
+    ## Sequences are organized according to the following groups: 
+    ## 
+    ## 
+    ## Distance Threshold for excluding triplets with
+    ## 	too similar sequences (DistanceThreshold): 0.01
+    ## 
+    ## How many sequences from the same partition are
+    ## 	allowed in a triplet (PartitionStrictness): 2
+    ## 
+    ## A total of 120 triplets will be compared.
  
 Changeing the analysis settings
 -------------------------------
-The settings of each analysis step is altered in a consistent way, using the same method of the HybRIDS object.
+The settings of each analysis step are altered in a consistent way, using the same method of the HybRIDS object.
  
 To change the settings for any given step of the HybRIDS analysis, you use the `setParameters` method.
  
