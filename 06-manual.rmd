@@ -16,8 +16,9 @@ MyAnalysis$setParameters("TripletGeneration", Groups = myGroups, PartitionStrict
 MyAnalysis
 ```
 
-This step can be started by using the `analyzeSS()` method of the HybRIDS object.
-As a reminder the parameters of the step are:
+This step will use a sliding window to measure pairwise sequence similarity across the informative sites of sequence
+triplets. It is started by using the `analyzeSS()` method of the HybRIDS object.
+The parameters of the step are:
 
 WindowSize
   : The size in bases of the Sliding Window. The default size is 100.

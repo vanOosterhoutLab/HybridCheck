@@ -154,8 +154,6 @@ It is also possible to combine method 1 with either method 2 or 3, thereby only 
     ## Deleting all triplets data.
     ## Initializing new triplets data.
  
- 
- 
 Now that you have instructed the HybRIDS object on which triplets will be analyzed, the recombination signal in each triplet can be scanned. This is explained in the next section.
  
 ---
