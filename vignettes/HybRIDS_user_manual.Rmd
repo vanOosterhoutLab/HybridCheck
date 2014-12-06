@@ -21,7 +21,7 @@ vignette: >
 This manual is provided as a vignette to the HybRIDS package for R. It can be acessed from an R session with with following:
 
 ```{r eval=FALSE}
-vignette("HybRIDS-user-manual")
+vignette("HybRIDS_user_manual")
 ```
 
 # Installing HybRIDS
