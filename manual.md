@@ -1,9 +1,12 @@
 ---
 layout: manualsection
 title: Manual Home
-permalink: 00-manual.html
+permalink: manual.html
 manual: true
 ---
+
+<embed src="http://ward9250.github.io/HybRIDS/HybRIDS_user_manual.pdf" width="500" height="375">
+
 
 The HybRIDS manual
 ------------------
