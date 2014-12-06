@@ -55,9 +55,14 @@ To view the settings and state of your current HybRIDS object, you just need to 
     ## 
     ## A total of 120 triplets will be compared.
     ## 
+    ## Settings for sliding window scan of recombination signal:
+    ## ---------------------------------------------------------
+    ## Size of the sliding window in base pairs (WindowSize): 100
+    ## 
+    ## Number of base pairs to move the sliding window on
+    ## 	each iteration of the scan (StepSize): 1
+    ## 
     ## A total of
-
-    ## Error: object 'BlockDetectionParams' not found
 You'll see a text summary printed like that above which shows the settings for each analysis step.
  
 A full description of each setting is given in the upcoming manual sections dedicated to each step.
