@@ -48,11 +48,19 @@ SSAnalysisSettings <- setRefClass("SSAnalysisSettings",
                                         }
                                       },
                                     
-                                    showSettings =
+                                    textSummary =
                                       function(){
-                                        message("Settings Sequence Scans of Triplets")
-                                        return(paste('Size of the sliding window in base pairs (WindowSize): ', getWindowSize(),
-                                                     '\n\nNumber of base pairs to move the sliding window on\n\teach iteration of the scan (StepSize): ', getStepSize(), sep=""))
+                                        return(paste('Settings for sliding window scan of recombination signal:\n',
+                                                     '---------------------------------------------------------\n',
+                                                     'Size of the sliding window in base pairs (WindowSize): ',
+                                                     getWindowSize(),
+                                                     '\n\nNumber of base pairs to move the sliding window on\n\teach iteration of the scan (StepSize): ', 
+                                                     getStepSize(), sep=""))
+                                      },
+                                    
+                                    show = 
+                                      function(){
+                                        cat(textSummary())
                                       }
                                     )
 )
