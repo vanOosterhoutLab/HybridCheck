@@ -19,15 +19,33 @@ Note for this you must have the "devtools" installed.
 
 Once R is open, and you have installed HybRIDS as described above you simply need to invoke the library command:
 
-``` library(HybRIDS) ```
+```R library(HybRIDS) ```
 
 ## Documentation
 
 The documentation of each HybRIDS class and method function can be viewed from within R by typing:
-``` ?function_name_here ``` in the R console.
+```R ?function_name_here ``` in the R console.
 
 New users should start with the HybRIDS User Manual vignette provided with the package in the vignettes directory.
 It is also available as a PDF from the website.
+
+To get the vignette enter in your R session:
+```R
+vignette("HybRIDS_user_manual")
+```
+
+## Test Data
+
+An example sequence alignment 10 10 sequences as a DNAbin object is available in the package to use to test HybRIDS functionality. 
+```R
+data("MySequences")
+```
+
+# HybRIDSapp
+
+A Shiny based web-app is available to help people use this package's functionality with a GUI or on a server / cluster.
+It is very new compared to this R package so feedback is always welcome and it's layout and functionality is likely to change in the future. It is located at the [following repo.](https://github.com/Ward9250/HybRIDSapp)
+
 
 # Contributing
 
