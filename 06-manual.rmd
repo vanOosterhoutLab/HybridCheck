@@ -19,16 +19,23 @@ MyAnalysis
 This step can be started by using the `analyzeSS()` method of the HybRIDS object.
 As a reminder the parameters of the step are:
 
+WindowSize
+  : The size in bases of the Sliding Window. The default size is 100.
 
- 
+StepSize
+  : The number of bases that the sliding window moves across sequences. The default size is 1. 
+
+The `analyzeSS` method also accepts an argument which tells it which triplets
+(of the set you have defined in the `TripletGeneration` step).
+
+This argument can be one of the following:
+
+1.  
 
 
-Again these settings are described in the previous manual page, but by adjusting the WindowSize and Step size you adjust the size (in base pairs),
-and the number of steps (in base pairs) that the sliding window slides along the Triplets during the analysis.
 
-The SSAnalysis step is run very simply with the `analyzeSS()` method:
 
-Without any arguments, the `analyzeSS()` method will run the analysis for all triplets.
+
 
 The analyzeSS method will analyse all the triplets by default, but you can also specify a triplet(s) to analyse:
 This is useful if you have perhaps run the method for all your triplets (assuming you have more than one) and 
