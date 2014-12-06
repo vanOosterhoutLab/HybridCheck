@@ -11,7 +11,7 @@ status: publish
  
 Having searched for blocks in the desired sequence triplets, the `BlockDating` step is executed using the `dateBlocks` method.
  
-This step assigns a significance value to blocks based on the size of a block, the number of mutations observed, and the binomial probability distribution.
+This step assigns a significance value to blocks based on the size of a block, the number of mutations observed, and the binomial probability distribution. Afterwards, 95%CI regions for the divergence time of the blocks are calculated, assuming a mutational model and a strict molecular clock.
  
 The parameters for this step are:
  
@@ -28,6 +28,22 @@ DateAnyway
   : Logical (`TRUE` / `FALSE`) when `TRUE` (`FALSE` by default), all detected blocks will be kept and dated.
   : When `FALSE`, blocks that do not pass the critical alpha when testing for significance are not kept in the results
   : and are not dated.
+  
+MutationCorrection
+  : Set to one of "raw", "TS", "TV", "JC69", "K80", "F81", "K81", "F84", "BH87", "T92", "TN93", "GG95".
+  : Base frequencies are calculated from the recombinant block if they are required by the model.
+ 
+ 
+As was the case with the `analyzeSS` and `findBlocks` methods, `dateBlocks` needs a first argument that dictates which triplets of the set defined by the `TripletGeneration` parameters will have their blocks tested and dated. By default this is `"NOT.DATED"`, which means all triplets with blocks detected, that have not been tested or dated, will have their detected blocks tested and dated witht the current settings for the step. This can be set to `"ALL"`, or, as previously, can be set as a list of vectors that each contain three sequence names.
+ 
+The following example finds blocks in the two triplets that were scanned for recombination signal and had blocks identified in the examples of the previous two sections:
+
+    tripletsToDate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
+    MyAnalysis$dateBlocks(tripletsToDate)
+
+    ## Now dating blocks
+    ## Now dating blocks
+ 
   
   
  
