@@ -122,30 +122,9 @@ In order to specify a group, you simply make a vector of the sequence names for 
     ## Deleting all triplets data.
     ## Initializing new triplets data.
 
-    # All done, now let's print the summary of our HybRIDS object again:
-    MyAnalysis
+    # All done, now let's print the settings again:
+    MyAnalysis$showParameters("TripletGeneration")
 
-    ## HybRIDS object:
-    ## 
-    ## DNA Sequence Information:
-    ## -------------------------
-    ## An alignment of 10 sequences.
-    ## 
-    ## Full length of alignment: 400000
-    ## Excluding non-informative sites: 33043
-    ## 
-    ## Sequence names:
-    ## 1: Seq1
-    ## 2: Seq2
-    ## 3: Seq3
-    ## 4: Seq4
-    ## 5: Seq5
-    ## 6: Seq6
-    ## 7: Seq7
-    ## 8: Seq8
-    ## 9: Seq9
-    ## 10: Seq10
-    ## 
     ## Settings for Sequence Scan Combinations:
     ## ----------------------------------------
     ## Triplet Generation Method (Method): 1
@@ -162,18 +141,18 @@ In order to specify a group, you simply make a vector of the sequence names for 
     ## 	allowed in a triplet (PartitionStrictness): 1
     ## 
     ## A total of 36 triplets will be compared.
-    ## 
-    ## Settings for sliding window scan of recombination signal:
-    ## ---------------------------------------------------------
-    ## Size of the sliding window in base pairs (WindowSize): 100
-    ## 
-    ## Number of base pairs to move the sliding window on
-    ## 	each iteration of the scan (StepSize): 1
-    ## 
-    ## A total of
 Note in the above example, that `1L` is used and not `1` when setting the `PartitionStrictness` as `1L` specifies the value is a whole number integer and not the floating point `1.0`.
  
 We see after altering these settings, less triplets will be analyzed now, and each one will contain only one sequence from each group.
+ 
+It is also possible to combine method 1 with either method 2 or 3, thereby only generating triplets that contain A). One sequence from each group, and B). Sequences that are all sufficiently diverged.
+ 
+
+    MyAnalysis$setParameters("TripletGeneration", Method = c(1, 2), Groups = myGroups, PartitionStrictness = 1L)
+
+    ## Error: You must enter integer values between 1 and 3.
+ 
+ 
  
 Now that you have instructed the HybRIDS object on which triplets will be analyzed, the recombination signal in each triplet can be scanned. This is explained in the next section.
  

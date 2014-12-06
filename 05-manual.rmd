@@ -64,12 +64,20 @@ myGroups <- list(FirstGroup, SecondGroup, ThirdGroup) # Put the groups in a list
 # Let's edit the Triplet Generation settings
 MyAnalysis$setParameters("TripletGeneration", Groups = myGroups, PartitionStrictness = 1L)
 
-# All done, now let's print the summary of our HybRIDS object again:
-MyAnalysis
+# All done, now let's print the settings again:
+MyAnalysis$showParameters("TripletGeneration")
 ```
 Note in the above example, that `1L` is used and not `1` when setting the `PartitionStrictness` as `1L` specifies the value is a whole number integer and not the floating point `1.0`.
 
 We see after altering these settings, less triplets will be analyzed now, and each one will contain only one sequence from each group.
+
+It is also possible to combine method 1 with either method 2 or 3, thereby only generating triplets that contain A). One sequence from each group, and B). Sequences that are all sufficiently diverged.
+
+```{r}
+MyAnalysis$setParameters("TripletGeneration", Method = c(1, 2), Groups = myGroups, PartitionStrictness = 1L)
+```
+
+
 
 Now that you have instructed the HybRIDS object on which triplets will be analyzed, the recombination signal in each triplet can be scanned. This is explained in the next section.
 
