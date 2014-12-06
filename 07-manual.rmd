@@ -73,7 +73,8 @@ This method needs to be given a set of sequence names to set the triplets that w
 
 ```{r}
 tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq7"))
-MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
+collected <- MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
+unique(collected$Triplet)
 ```
 
 
