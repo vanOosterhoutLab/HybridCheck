@@ -49,13 +49,21 @@ To get started using HybRIDS to analyse a set of sequences, you first have to cr
 The HybRIDS object will contain all data, options, and will carry out the analysis. So everything you do in HybRIDS is done by interacting with this object.
 By providing a file-path to a FASTA format sequence file when the new object is created the DNA data will also be loaded and prepared automatically. Base positions of the alignment which are non-informative, or positions with 'N's will be excluded.
 
-```{r}
+```{r eval=FALSE}
 MyAnalysis <- HybRIDS$new("~/Dropbox/MySequences.fas")
 ```
 
-With the above line a new HybRIDS object was created and assigned it to a variable "MyAnalysis".
+With the above line a new HybRIDS object would be created and assigned to a variable "MyAnalysis".
 
 The HybRIDS package has been loaded, and data has been read in and is now contained in a HybRIDS object, which also contains all analysis settings and steps.
+
+You can also create a new HybRIDS object from sequences you already have loaded into R as a `DNAbin` object (the DNA type used in the `ape` package). The HybRIDS package comes with an example datasets that is used in this user manual.
+It can be accessed with the `data` command after loading the HybRIDS package.
+
+```{r}
+data(MySequences)
+MyAnalysis <- HybRIDS$new(MySequences)
+```
 
 -----
 
