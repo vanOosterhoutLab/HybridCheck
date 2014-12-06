@@ -129,6 +129,4 @@ This method needs to be given a set of sequence names to set the triplets that w
     ## 9        NA
     ## 10       NA
  
- 
- 
- 
+Note that some columns are NA because they are produced from the next step, which is discussed in the next section.

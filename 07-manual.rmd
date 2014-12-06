@@ -76,6 +76,4 @@ tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
 MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
 ```
 
-
-
-
+Note that some columns are NA because they are produced from the next step, which is discussed in the next section.
