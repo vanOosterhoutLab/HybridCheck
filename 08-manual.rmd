@@ -52,6 +52,12 @@ tripletsToDate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
 MyAnalysis$dateBlocks(tripletsToDate)
 ```
 
+The blocks can then be tabulated again, the columns of the table that were previously `NA` are now filled with values:
+
+```{r}
+MyAnalysis$tabulateDetectedBlocks(tripletsToDate)
+```
+
   
   
 
