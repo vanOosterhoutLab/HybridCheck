@@ -5,7 +5,7 @@ permalink: manual.html
 manual: true
 ---
 
-<embed src="http://ward9250.github.io/HybRIDS/HybRIDS_user_manual.pdf" width="500" height="375">
+<embed src="http://ward9250.github.io/HybRIDS/HybRIDS_user_manual.pdf" width="1000" height="1000">
 
 
 The HybRIDS manual
