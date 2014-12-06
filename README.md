@@ -38,7 +38,7 @@ vignette("HybRIDS_user_manual")
 
 An example sequence alignment 10 10 sequences as a DNAbin object is available in the package to use to test HybRIDS functionality. 
 ```R
-data("MySequences")
+data(MySequences)
 ```
 
 # HybRIDSapp
