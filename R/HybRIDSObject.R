@@ -178,26 +178,10 @@ HybRIDS <- setRefClass("HybRIDS",
                                            cat("\n\n")
                                            comparrisonSettings$show()
                                            cat("\n\n")
+                                           ssAnalysisSettings$show()
+                                           cat("\n\n")
                                            triplets$show()
                                            cat("\n\n")
-                                            
-                                           if(BlockDetectionParams$AutoThresholds == TRUE){
-                                             cat("\nHybRIDS will attempt automatic detection of SS Thresholds for putative block searches.")
-                                             if(BlockDetectionParams$ManualFallback == TRUE){
-                                               cat("\nHybRIDS will fall back on user specified manual thresholds, should the autodetection fail.")
-                                             } else {
-                                               cat("\nHybRIDS will not fall back on user specified manual thresholds, should the autodetection fail.")
-                                             }
-                                           } else {
-                                             cat("\nHybRIDS will not attempt automatic detection of SS Thresholds for putative block searches.\nOnly the manually specified thresholds will be used.")
-                                           }
-                                           cat("\n\nBlock Dating Parameters:\n------------------------\nAssumed mutation rate: ",BlockDatingParams$MutationRate,
-                                               "\nP-Value for acceptance of putative blocks: ",BlockDatingParams$PValue,sep="")
-                                           if( length(Triplets) < 1 ){
-                                             cat("\n\nNo Triplets have been generated with the method makeTripletCombos yet.")
-                                           } else {
-                                             cat("\n\n",length(Triplets),"Triplet(s) have been generated for analysis.")
-                                           }  
                                          },
                                          
                                          addUserBlock = function(selection, firstbp, lastbp){
