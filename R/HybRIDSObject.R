@@ -197,13 +197,16 @@ HybRIDS <- setRefClass("HybRIDS",
                                          show = function() {
                                            cat("HybRIDS object:\n\n")
                                            DNA$show()
-                                           cat("\n\n")
+                                           cat("\n\n\n")
                                            comparrisonSettings$show()
-                                           cat("\n\n")
+                                           cat("\n\n\n")
                                            ssAnalysisSettings$show()
-                                           cat("\n\n")
-                                           triplets$show()
-                                           cat("\n\n")
+                                           cat("\n\n\n")
+                                           blockDetectionSettings$show()
+                                           cat("\n\n\n")
+                                           blockDatingSettings$show()
+                                           cat("\n\nPlotting Settings are not shown because of the number of settings.")
+                                           cat("\nuse showParameters('Plotting') to view them.")
                                          },
                                          
                                          addUserBlock = function(selection, firstbp, lastbp){

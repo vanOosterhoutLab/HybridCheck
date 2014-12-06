@@ -53,8 +53,38 @@ PlottingSettings <- setRefClass("PlottingSettings",
                                     What <<- value
                                   },
                                   
+                                  textSummary =
+                                    function(){
+                                      return(paste('Settings for plotting recombination signal in triplets:\n',
+                                                   '-------------------------------------------------------\n\n',
+                                                   'What graphs will be plotted (What): ', paste(What, collapse=", "),
+                                                   '\n\nWhether to include a title with the plot. (PlotTitle): ',
+                                                   PlotTitle,
+                                                   '\n\nOne overall title for a Lines and Bars plot on the same canvas (CombinedTitle): ',
+                                                   CombinedTitle,
+                                                   '\n\nFont size of titles (TitleSize): ', TitleSize,
+                                                   '\n\nFace of the title (TitleFace): ', TitleFace,
+                                                   '\n\nColour of the plot titles (TitleColour): ', TitleColour,
+                                                   '\n\nInclude labels of the x axes in plots (XLabels): ', XLabels,
+                                                   '\n\nSize of the x axes labels (XLabelSize): ', XLabelSize,
+                                                   '\n\nColiur of the x axes labels (XLabelColour): ', XLabelColour,
+                                                   '\n\nInclude the title of the x axis in plots (XTitle): ', XTitle,
+                                                   '\n\nFont size of the x axis title (XTitleFontSize): ', XTitleFontSize,
+                                                   '\n\nColour of the x axis title (XTitleColour): ', XTitleColour,
+                                                   '\n\nInclude labels of the y axes in plots (YLabels): ', YLabels,
+                                                   '\n\nSize of the y axes labels (YLabelSize): ', YLabelSize,
+                                                   '\n\nColiur of the y axes labels (YLabelColour): ', YLabelColour,
+                                                   '\n\nInclude the title of the y axis in plots (YTitle): ', YTitle,
+                                                   '\n\nFont size of the y axis title (YTitleFontSize): ', YTitleFontSize,
+                                                   '\n\nColour of the y axis title (YTitleColour): ', YTitleColour,
+                                                   '\n\nInclude legends for plots (Legends): ', Legends,
+                                                   '\n\nFont size for legends (LegendFontSize): ', LegendFontSize,
+                                                   '\n\nMosaicScale: ', MosaicScale      
+                                        ))
+                                    },
+                                  
                                   show = function(){
-                                    
+                                    cat(textSummary())
                                   },
                                   
                                   setSettings = function(...){

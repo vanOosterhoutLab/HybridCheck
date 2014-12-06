@@ -55,9 +55,9 @@ BlockDatingSettings <- setRefClass("BlockDatingSettings",
                                        function(model){
                                          "Set the model of sequence evolution to correct the distances/number of mutations used in block dating algorithm."
                                          if(length(model) > 1){stop("Input must be a single value.")}
-                                         if(!any(model == c("HybRIDS", "raw", "TS", "TV", "JC69", "K80", "F81",
+                                         if(!any(model == c("raw", "TS", "TV", "JC69", "K80", "F81",
                                                            "K81", "F84", "BH87", "T92", "TN93", "GG95"))){
-                                           stop(paste0("Provided model must be one of the following: ", paste(c("HybRIDS", "raw", "TS", "TV", "JC69", "K80", "F81",
+                                           stop(paste0("Provided model must be one of the following: ", paste(c("raw", "TS", "TV", "JC69", "K80", "F81",
                                                                                                                 "K81", "F84", "BH87", "T92", "TN93", "GG95."), collapse=", ")))
                                          }
                                          MutationCorrection <<- model
@@ -84,8 +84,26 @@ BlockDatingSettings <- setRefClass("BlockDatingSettings",
                                              setMutationRate(settings[[i]])
                                            }
                                          }
-                                       }
+                                       },
                                      
+                                     textSummary =
+                                       function(){
+                                         return(paste0('Settings for testing and dating recombination blocks:\n',
+                                                      '-----------------------------------------------------\n',
+                                                      'Assumed substitution rate for dating (MutationRate): ',
+                                                      MutationRate,
+                                                      '\n\nCritical alpha value for significance testing (PValue): ',
+                                                      PValue,
+                                                      '\n\nApply bonferroni correction to critical alpha (BonfCorrection): ',
+                                                      BonfCorrection,
+                                                      '\n\nKeep and date blocks that fail the alpha (DateAnyway): ', DateAnyway,
+                                                      '\n\nAssumed mutation model for dating (MutationCorrection): ', MutationCorrection))
+                                       },
+                                     
+                                     show =
+                                       function(){
+                                         cat(textSummary())
+                                       }
                                      ))
 
 binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}

@@ -8,6 +8,10 @@ output:
     fig_width: 10
     toc: yes
     toc_depth: 3
+  html_document:
+    fig_height: 7
+    fig_width: 10
+    toc: yes
 ---
 
 # Installing HybRIDS
@@ -333,7 +337,9 @@ MyAnalysis$tabulateDetectedBlocks(tripletsToDate)
 
 # Plotting the recombination signal of a triplet
 
-To generate a graphic of the recombination signal for a givn set of triplets, the `plotTriplet` method is used.
+To generate a graphic of the recombination signal for a given set of triplets, the `plotTriplet` method is used.
+This method also takes a list of vectors, each containing 3 sequence names that specifies the triplets to plot.
+The method returns a list containing ggplot objects of each triplet chosen to be visualized.
 
 The parameters for plotting are as follows:
 
@@ -403,6 +409,28 @@ MosaicScale:
 
 ```{r}
 MyAnalysis$plotTriplets(c("Seq1", "Seq4", "Seq7"))[[1]]
+```
+
+-----
+
+# Testing known blocks
+It is possible to tell HybRIDS to assume a given region between your two sequences is recombinant, and then test them for significance and estimate their date.
+
+This is done using the `addUserBlock` method, providing the two sequence names, the base position the block starts at,
+and the base position the block ends at.
+
+User defined blocks can then be tabulated with the `tabulateUserBlocks` method, and they can be tested for significance and dated according to the `BlockDating` step settings, with the `dateUserBlocks` method.
+```{r}
+MyAnalysis$addUserBlock(c("Seq1", "Seq4"), firstbp = 287463, lastbp = 295890)
+MyAnalysis$tabulateUserBlocks()
+MyAnalysis$dateUserBlocks()
+MyAnalysis$tabulateUserBlocks()
+```
+
+To clear the user added blocks, use the `clearUserBlocks` method:
+```{r}
+MyAnalysis$clearUserBlocks(c("Seq1", "Seq4"))
+MyAnalysis$tabulateUserBlocks()
 ```
 
 -----

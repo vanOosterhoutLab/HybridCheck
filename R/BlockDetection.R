@@ -52,6 +52,25 @@ BlockDetectionSettings <- setRefClass("BlockDetectionSettings",
                                                 setSDstringency(settings[[i]])
                                               }
                                             }
+                                          },
+                                        
+                                        textSummary =
+                                          function(){
+                                            return(paste0('Settings for detecting blocks from recombination signal:\n',
+                                                         '--------------------------------------------------------\n',
+                                                         'Manual sequence similarity thresholds (ManualThresholds): ',
+                                                         paste(ManualThresholds, collapse=", "),
+                                                         '\n\nAutomatically decide on thresholds (AutoThresholds): ',
+                                                         AutoThresholds,
+                                                         '\n\nFall back to manual thresholds (ManualFallback): ',
+                                                         ManualFallback,
+                                                         '\n\nStandard deviation divisor (SDStringency): ', SDstringency
+                                              ))
+                                          },
+                                        
+                                        show =
+                                          function(){
+                                            cat(textSummary())
                                           }
                                         )
                                       )
