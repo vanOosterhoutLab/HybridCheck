@@ -84,7 +84,7 @@ Alternatively if you want to view the settings of only a single step, the `showP
     ## 
     ## A total of 120 triplets will be compared.
  
-Changeing the analysis settings
+Changing the analysis settings
 -------------------------------
 The settings of each analysis step are altered in a consistent way, using the same method of the HybRIDS object.
  

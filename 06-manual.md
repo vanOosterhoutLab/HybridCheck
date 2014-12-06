@@ -10,7 +10,9 @@ status: publish
 
  
 This step can be started by using the `analyzeSS()` method of the HybRIDS object.
- As a reminder the parameters of the step are:
+As a reminder the parameters of the step are:
+ 
+ 
  
  
  
