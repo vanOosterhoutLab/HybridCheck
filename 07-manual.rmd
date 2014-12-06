@@ -72,9 +72,8 @@ If you want to get a Data Frame containing a table of the detected blocks in som
 This method needs to be given a set of sequence names to set the triplets that will be tabulated:
 
 ```{r}
-tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq7"))
-collected <- MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
-unique(collected$Triplet)
+tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
+MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
 ```
 
 
