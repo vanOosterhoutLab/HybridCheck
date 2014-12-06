@@ -1,7 +1,8 @@
 seq.similarity <- function(dna, triplet, settings){
   message(paste0("Scanning sequence similarity for triplet ", paste0(triplet$ContigNames, collapse=", ")))
   dnain <- dna$pullTriplet(triplet$ContigNames)
-  cutDNA <- dnain[, sequenceChecker_cpp(dnain)]
+  #cutDNA <- dnain[, sequenceChecker_cpp(dnain)]
+  cutDNA <- dnain[, colSums(dnain[-1,] != dnain[-nrow(dnain),]) > 0]
   triplet$readSettings(cutDNA, settings)
   if(triplet$InformativeDNALength >= 1){
     message("Checking the sliding window parameters...")
