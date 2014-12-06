@@ -1,5 +1,5 @@
 ---
-title: "The HybRIDS user manual"
+title: "The HybRIDS User Manual"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
 output:
@@ -12,6 +12,10 @@ output:
     fig_height: 7
     fig_width: 10
     toc: yes
+vignette: >
+  %\VignetteIndexEntry{HybRIDS User Manual}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 # Installing HybRIDS
