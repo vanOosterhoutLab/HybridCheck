@@ -1,6 +1,6 @@
 ---
 layout: manualsection
-title: The Triplet Generation step
+title: Specifying sequence triplets
 permalink: 05-manual.html
 manual: true
 published: true

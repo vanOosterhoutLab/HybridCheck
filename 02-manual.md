@@ -1,6 +1,6 @@
 ---
 layout: manualsection
-title: Loading HybRIDS and Entering Sequence Data
+title: Loading HybRIDS and entering sequences
 permalink: 02-manual.html
 manual: true
 published: true
