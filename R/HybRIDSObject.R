@@ -69,10 +69,32 @@ HybRIDS <- setRefClass("HybRIDS",
                                             triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                           },
                                          
+                                        showParameters =
+                                          function(Step = NULL){
+                                            for(i in Step){
+                                              if(i == "TripletGeneration"){
+                                                comparrisonSettings$show()
+                                              }
+                                              if(i == "SSAnalysis"){
+                                                ssAnalysisSettings$show()
+                                              }
+                                              if(i == "BlockDetection"){
+                                                blockDetectionSettings$show()
+                                              }
+                                              if(i == "BlockDetection"){
+                                                blockDatingSettings$show()
+                                              }
+                                              if(i == "Plotting"){
+                                                plottingSettings$show()
+                                              }
+                                              cat('\n\n')
+                                            }
+                                          },
+                                        
                                          # Method for setting any parameter for any stage.
                                          setParameters =
                                            function(Step = NULL, ...){
-                                             if(!any(Step == c("TripletGeneration", "SSAnalysis", "BlockDetection", "BlockDating", "Plotting"))){
+                                             if(!any(Step == c("TripletGeneration", "SSAnalysis", "BlockDetection", "BlockDating", "Plotting")) || length(Step) != 1){
                                                stop("You need to specify a valid analysis 'Step' to alter the paramerters of.\nThe steps are TripletGeneration, SSAnalysis, BlockDetection, BlockDating, and Plotting.")
                                              }
                                              Parameters <- list(...)
