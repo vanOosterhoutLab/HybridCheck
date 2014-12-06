@@ -36,7 +36,7 @@ vignette("HybRIDS_user_manual")
 
 ## Test Data
 
-An example sequence alignment 10 10 sequences as a DNAbin object is available in the package to use to test HybRIDS functionality. 
+An example sequence alignment of 10 sequences as a DNAbin object is available in the package to use to test HybRIDS functionality. 
 ```R
 data(MySequences)
 ```
