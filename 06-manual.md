@@ -49,7 +49,7 @@ For example just two triplets could be scanned:
  
 It is important to note that you can't enter a triplet of names which either contains names which are not names
 of your sequences, or is not allowed by the `TripletGeneration` settings. This is demonstrated in the example below.
-Recall from the previous section that the sequences "Seq1", "Seq2", and "Seq3" were defined as being in the same group, and because of the settings, only triplets that compared sequences from different groups were set. Therefore the following is not allowed. 
+Recall from the previous section that the sequences "Seq1", "Seq2", and "Seq3" were defined as being in the same group, and because of the settings, only triplets that compared sequences from different groups were set. Therefore the following will not analyze any triplets, as the selected triplet does not exist. 
  
 
     # This triplet is not allowed, because earlier the TripletGeneration

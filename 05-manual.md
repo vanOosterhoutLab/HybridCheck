@@ -148,9 +148,11 @@ We see after altering these settings, less triplets will be analyzed now, and ea
 It is also possible to combine method 1 with either method 2 or 3, thereby only generating triplets that contain A). One sequence from each group, and B). Sequences that are all sufficiently diverged.
  
 
-    MyAnalysis$setParameters("TripletGeneration", Method = c(1, 2), Groups = myGroups, PartitionStrictness = 1L)
+    MyAnalysis$setParameters("TripletGeneration", Method = c(1L, 2L), Groups = myGroups, PartitionStrictness = 1L)
 
-    ## Error: You must enter integer values between 1 and 3.
+    ## Generating triplets to find recombination in sequences, between partitions.
+    ## Deleting all triplets data.
+    ## Initializing new triplets data.
  
  
  
