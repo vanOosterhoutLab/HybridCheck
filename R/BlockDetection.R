@@ -155,13 +155,13 @@ block.find <- function(dist,thresh){
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, LastBP <- dist[x$Last,4])) # We define the end of a block as the central bp position of the last window that covers it with a high enough SS to meet the threshold.
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, ApproxBpLength <- (x$LastBP - x$FirstBP) + 1))
     BlockPos2 <- lapply(BlockPos2, function(x) x[which(x$ApproxBpLength > 1 ),]) # Remove any blocks with a bpsize of 1 straight away.
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, SNPs <- NA))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, CorrectedSNPs <- NA))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, P_Value <- NA))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, P_Threshold <- NA))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, fiveAge <- NA))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, fiftyAge <- NA))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, ninetyFiveAge <- NA))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, SNPs <- NA)))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, CorrectedSNPs <- NA)))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, P_Value <- NA)))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, P_Threshold <- NA)))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, fiveAge <- NA)))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, fiftyAge <- NA)))
+    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, ninetyFiveAge <- NA)))
     names(BlockPos2) <- thresh2
   } else {
     BlockPos2 <- NULL
