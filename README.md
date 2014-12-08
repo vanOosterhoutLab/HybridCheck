@@ -79,7 +79,8 @@ These triplets were used to assess the false positive rate of HybRIDS and how it
 
 **Founding_Pop.py**
   : The simuPOP program that was used to generate the simulated sequences of populations that evolved in isolation.
-  : It was run on a cluster and outputed CSV and GENEPOP files which were converted into fasta files with a Perl script.
+  : It was run on a cluster and outputed CSV and GENEPOP files which were converted into fasta files with a Perl 
+  : script.
   : The produced fasta files were the files used in HybRIDS.
 
   **simuCSVtoFASTA2.pl**
@@ -94,8 +95,8 @@ These triplets were used to assess the false positive rate of HybRIDS and how it
 ### Data Files
 
 **FASTA Sequences.zip**
-  : This folder contains the FASTA formatted sequences output from `Founding_Pop.py` and converted into FASTA from CSV, by 
-  : `simuCSVtoFASTA2.pl`.
+  : This folder contains the FASTA formatted sequences output from `Founding_Pop.py` and converted into FASTA from 
+  : CSV, by `simuCSVtoFASTA2.pl`.
   
 **fullFalsePos.csv**
   : A data frame demonstrating how the false positive rate is affected by the amount of time the three sequences in the

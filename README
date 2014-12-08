@@ -160,7 +160,9 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <dt><strong>Founding_Pop.py</strong></dt>
 <dd>The simuPOP program that was used to generate the simulated sequences of populations that evolved in isolation.
 </dd>
-<dd>It was run on a cluster and outputed CSV and GENEPOP files which were converted into fasta files with a Perl script.
+<dd>It was run on a cluster and outputed CSV and GENEPOP files which were converted into fasta files with a Perl
+</dd>
+<dd>script.
 </dd>
 <dd><p>The produced fasta files were the files used in HybRIDS.</p>
 </dd>
@@ -182,9 +184,9 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <h3>Data Files</h3>
 <dl>
 <dt><strong>FASTA Sequences.zip</strong></dt>
-<dd>This folder contains the FASTA formatted sequences output from <code>Founding_Pop.py</code> and converted into FASTA from CSV, by
+<dd>This folder contains the FASTA formatted sequences output from <code>Founding_Pop.py</code> and converted into FASTA from
 </dd>
-<dd><p><code>simuCSVtoFASTA2.pl</code>.</p>
+<dd><p>CSV, by <code>simuCSVtoFASTA2.pl</code>.</p>
 </dd>
 <dt><strong>fullFalsePos.csv</strong></dt>
 <dd>A data frame demonstrating how the false positive rate is affected by the amount of time the three sequences in the
