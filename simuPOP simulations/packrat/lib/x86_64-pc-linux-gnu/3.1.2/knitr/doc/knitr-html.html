@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{An R HTML Vignette with knitr}
+-->
+<head>
+<style type="text/css">
+.knitr.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+},
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0em 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.rimage.left {
+  text-align: left;
+}
+.rimage.right {
+  text-align: right;
+}
+.rimage.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+body,td{width:800px;margin:auto;}
+</style>
+  <title>An R HTML vignette with knitr</title>
+</head>
+
+
+<body>
+
+<p>This is an R HTML vignette. The file extension is <code>*.Rhtml</code>, and
+it has to include a special comment to tell R that this file needs to be
+compiled by <strong>knitr</strong>:</p>
+
+<pre>&lt;!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{The Title of Your Vignette}
+--&gt;
+</pre>
+
+<p>Now you can write R code chunks:</p>
+
+<div class="chunk" id="cars-demo"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">summary</span><span class="hl std">(cars)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##      speed           dist    
+##  Min.   : 4.0   Min.   :  2  
+##  1st Qu.:12.0   1st Qu.: 26  
+##  Median :15.0   Median : 36  
+##  Mean   :15.4   Mean   : 43  
+##  3rd Qu.:19.0   3rd Qu.: 56  
+##  Max.   :25.0   Max.   :120
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">fit</span> <span class="hl kwb">=</span> <span class="hl kwd">lm</span><span class="hl std">(dist</span> <span class="hl opt">~</span> <span class="hl std">speed,</span> <span class="hl kwc">data</span> <span class="hl std">= cars)</span>
+<span class="hl kwd">summary</span><span class="hl std">(fit)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## 
+## Call:
+## lm(formula = dist ~ speed, data = cars)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -29.07  -9.53  -2.27   9.21  43.20 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  -17.579      6.758   -2.60    0.012 *  
+## speed          3.932      0.416    9.46  1.5e-12 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 15.4 on 48 degrees of freedom
+## Multiple R-squared:  0.651,	Adjusted R-squared:  0.644 
+## F-statistic: 89.6 on 1 and 48 DF,  p-value: 1.49e-12
+</pre></div>
+</div></div>
+
+<p>You can also embed plots, for example:</p>
+
+<div class="chunk" id="cars-plot"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">par</span><span class="hl std">(</span><span class="hl kwc">mar</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">4</span><span class="hl std">,</span> <span class="hl num">4</span><span class="hl std">,</span> <span class="hl num">0.1</span><span class="hl std">,</span> <span class="hl num">0.1</span><span class="hl std">))</span>
+<span class="hl kwd">plot</span><span class="hl std">(cars,</span> <span class="hl kwc">pch</span> <span class="hl std">=</span> <span class="hl num">19</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage center"><img src="data:image/png;base64,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" title="plot of chunk cars-plot" alt="plot of chunk cars-plot" class="plot" /></div></div>
+
+<p>For package vignettes, you need to encode images in base64 strings using the
+<code>knitr::image_uri()</code> function so that the image files are no longer
+needed after the vignette is compiled. For example, you can add this chunk in
+the beginning of a vignette:</p>
+
+<div class="chunk" id="setup"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(knitr)</span>
+<span class="hl com"># to base64 encode images</span>
+<span class="hl std">opts_knit</span><span class="hl opt">$</span><span class="hl kwd">set</span><span class="hl std">(</span><span class="hl kwc">upload.fun</span> <span class="hl std">= image_uri)</span>
+</pre></div>
+</div></div>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+Package: rstudioapi
+Title: Safely access the RStudio API.
+Description: This package provides functions to make it easy to access
+    the RStudio API when available, and provide informative error
+    messages when not.
+Version: 0.1
+Author: RStudio
+Maintainer: Hadley Wickham <hadley@rstudio.com>
+License: MIT + file LICENSE
+Roxygen: list(wrap = FALSE)
+Packaged: 2014-03-12 18:51:18 UTC; hadley
+NeedsCompilation: no
+Repository: CRAN
+Date/Publication: 2014-03-27 16:27:00
+Built: R 3.1.2; ; 2014-12-02 14:28:01 UTC; unix
+InstallAgent: packrat 0.4.1.1
+InstallSource: CRAN
+Hash: 5bd4449a873ec652a05c932312dcf04b

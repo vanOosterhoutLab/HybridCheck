@@ -1,0 +1,13 @@
+Package: manipulate
+Type: Package
+Title: Interactive Plots for RStudio
+Version: 0.98.1091
+Date: 2011-04-11
+Author: RStudio
+Maintainer: RStudio <info@rstudio.com>
+Description: Interactive Plots for RStudio
+Depends: R (>= 2.10.0)
+Suggests: graphics, grid, lattice, ggplot2
+License:
+LazyLoad: yes
+Built: R 3.1.2; ; 2014-12-02 14:26:06 UTC; unix

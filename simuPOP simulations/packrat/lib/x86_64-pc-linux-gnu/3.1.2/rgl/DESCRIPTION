@@ -1,0 +1,31 @@
+Package: rgl
+Version: 0.95.1158
+Title: 3D visualization device system (OpenGL)
+Author: Daniel Adler <dadler@uni-goettingen.de>, Duncan Murdoch
+    <murdoch@stats.uwo.ca>, and others (see README)
+Maintainer: Duncan Murdoch <murdoch@stats.uwo.ca>
+Depends: R (>= 2.15.0),stats,grDevices
+Suggests: MASS
+Description: Provides medium to high level functions for 3D interactive
+    graphics, including functions modelled on base graphics (plot3d(),
+    etc.) as well as functions for constructing representations of
+    geometric objects (cube3d(), etc.).  Output may be on screen using
+    OpenGL, or to various standard 3D file formats including WebGL,
+    PLY, OBJ, STL as well as 2D image formats, including PNG,
+    Postscript, SVG, PGF.
+License: GPL
+URL: https://r-forge.r-project.org/projects/rgl/
+SystemRequirements: OpenGL, GLU Library, zlib (optional), libpng
+    (>=1.2.9, optional), FreeType (optional)
+BugReports: https://r-forge.r-project.org/projects/rgl/
+Repository: CRAN
+Repository/R-Forge/Project: rgl
+Repository/R-Forge/Revision: 1158
+Repository/R-Forge/DateTimeStamp: 2014-11-11 17:27:21
+Date/Publication: 2014-11-12 08:33:28
+Packaged: 2014-11-11 17:45:10 UTC; rforge
+NeedsCompilation: yes
+Built: R 3.1.2; x86_64-pc-linux-gnu; 2014-12-02 14:40:07 UTC; unix
+InstallAgent: packrat 0.4.1.1
+InstallSource: CRAN
+Hash: c99e8b2fce9e69517ff2b27f6338f5a8

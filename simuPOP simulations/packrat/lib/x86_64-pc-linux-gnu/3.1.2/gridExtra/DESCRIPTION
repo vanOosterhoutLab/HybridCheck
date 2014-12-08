@@ -1,0 +1,24 @@
+Package: gridExtra
+Maintainer: baptiste <baptiste.auguie@gmail.com>
+License: GPL (>= 2)
+Title: functions in Grid graphics
+Type: Package
+Author: Baptiste Auguie
+Description: misc. high-level Grid functions
+Version: 0.9.1
+URL: http://code.google.com/p/gridextra/
+Date: 2012-09-08
+Depends: R(>= 2.5.0), grid
+Suggests: RGraphics, pixmap, EBImage, ggplot2, lattice
+Collate: 'arcText.r' 'arrange.r' 'barbedGrob.r' 'borderGrob.r'
+    'colorstripGrob.r' 'ebimage.r' 'ellipseGrob.r'
+    'gridExtra-package.r' 'grob-utils.r' 'polygon.regular.r'
+    'ngonGrob.r' 'patternGrob.r' 'pixmap.r' 'rpattern.r' 'stextGrob.r'
+    'tableGrob.r'
+Packaged: 2012-08-09 00:55:23 UTC; auguieba
+Repository: CRAN
+Date/Publication: 2012-08-09 05:38:06
+Built: R 3.1.2; ; 2014-12-02 14:30:38 UTC; unix
+InstallAgent: packrat 0.4.1.1
+InstallSource: CRAN
+Hash: 1cb7af8c140431ec4e99905f1d8adcc4

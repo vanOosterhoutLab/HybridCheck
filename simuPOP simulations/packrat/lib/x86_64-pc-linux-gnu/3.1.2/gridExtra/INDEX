@@ -1,0 +1,25 @@
+arcTextGrob             place text labels on a circle and display
+                        relations with arcs
+arrangeGrob             arrangeGrob
+barbedGrob              barbedGrob
+borderGrob              borderGrob
+colorstripGrob          colorstrip
+ebimageGrob             create a grob from EBImage object
+ellipseGrob             ellipseGrob
+expand.arguments        expand.arguments
+gridExtra-package       misc. high-level functions for Grid graphics
+interleaven             interleaven
+marrangeGrob            marrangeGrob
+ngonGrob                ngonGrob
+patternGrob             patternGrob
+pixmapGrob              create a grob from pixmap object
+polygon.regular         polygon.regular
+polygon.star            polygon.star
+polygon1                polygon1
+read.tiff               read tiff files with pixmap
+rowMax.units            rowMax.units
+rpatternGrob            rpatternGrob
+stextGrob               stextGrob
+tableGrob               tableGrob
+theme.default           theme
+virtualGrob             virtualGrob

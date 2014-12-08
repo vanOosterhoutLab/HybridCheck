@@ -1,0 +1,27 @@
+		 CHANGES IN mime VERSION 0.2
+
+NEW FEATURES
+
+  o added a function parse_multipart() to parse multipart form data submited via
+  HTTP POST
+
+		 CHANGES IN mime VERSION 0.1.2
+
+BUG FIXES
+
+  o guess_type() returned wrong values for filenames without extensions: it
+  should have used the 'empty' argument.
+
+		 CHANGES IN mime VERSION 0.1.1
+
+BUG FIXES
+
+  o mime::guess_type() may not work when mime is loaded but not attached,
+  because R does not load the mimemap data in this case. Now mimemap is exported
+  in the package namespace.
+
+		 CHANGES IN mime VERSION 0.1
+
+NEW FEATURES
+
+  o The initial version of mime. The main function is mime::guess_type().

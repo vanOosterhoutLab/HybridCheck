@@ -1,0 +1,19 @@
+Package: fastmatch
+Version: 1.0-4
+Title: Fast match() function
+Author: Simon Urbanek <simon.urbanek@r-project.org>
+Maintainer: Simon Urbanek <simon.urbanek@r-project.org>
+Description: Package providing a fast match() replacement for cases
+    that require repeated look-ups. It is slightly faster that R's
+    built-in match() function on first match against a table, but
+    extremely fast on any subsequent lookup as it keeps the hash table
+    in memory.
+License: GPL-2
+URL: http://www.rforge.net/fastmatch
+Packaged: 2012-01-21 10:09:18 UTC; svnuser
+Repository: CRAN
+Date/Publication: 2012-01-21 10:22:24
+Built: R 3.1.2; x86_64-pc-linux-gnu; 2014-12-02 14:40:03 UTC; unix
+InstallAgent: packrat 0.4.1.1
+InstallSource: CRAN
+Hash: 6a5f2beca355d3dd8cadba8151b9880f

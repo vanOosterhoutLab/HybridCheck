@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>R: A General-Purpose Package for Dynamic Report Generation in R</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="R.css">
+</head><body>
+<h1> A General-Purpose Package for Dynamic Report Generation in R
+<img class="toplogo" src="../../../doc/html/logo.jpg" alt="[R logo]">
+</h1>
+<hr>
+<div align="center">
+<a href="../../../doc/html/packages.html"><img src="../../../doc/html/left.jpg" alt="[Up]" width="30" height="30" border="0"></a>
+<a href="../../../doc/html/index.html"><img src="../../../doc/html/up.jpg" alt="[Top]" width="30" height="30" border="0"></a>
+</div><h2>Documentation for package &lsquo;knitr&rsquo; version 1.8</h2>
+
+<ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../demo">Code demos</a>.  Use <a href="../../utils/help/demo">demo()</a> to run them.</li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table width="100%">
+<tr><td width="25%"><a href="knitr-package.html">knitr-package</a></td>
+<td>A general-purpose tool for dynamic report generation in R</td></tr>
+<tr><td width="25%"><a href="all_labels.html">all_labels</a></td>
+<td>Get all chunk labels in a document</td></tr>
+<tr><td width="25%"><a href="all_patterns.html">all_patterns</a></td>
+<td>All built-in patterns</td></tr>
+<tr><td width="25%"><a href="asis_output.html">asis_output</a></td>
+<td>Mark an R object with a special class</td></tr>
+<tr><td width="25%"><a href="current_input.html">current_input</a></td>
+<td>Query the current input filename</td></tr>
+<tr><td width="25%"><a href="dep_auto.html">dep_auto</a></td>
+<td>Build automatic dependencies among chunks</td></tr>
+<tr><td width="25%"><a href="dep_prev.html">dep_prev</a></td>
+<td>Make later chunks depend on previous chunks</td></tr>
+<tr><td width="25%"><a href="eclipse_theme.html">eclipse_theme</a></td>
+<td>Download and convert a theme from eclipsecolorthemes.org to CSS</td></tr>
+<tr><td width="25%"><a href="engine_output.html">engine_output</a></td>
+<td>An output wrapper for language engine output</td></tr>
+<tr><td width="25%"><a href="fig_chunk.html">fig_chunk</a></td>
+<td>Obtain the figure filenames for a chunk</td></tr>
+<tr><td width="25%"><a href="fig_path.html">fig_path</a></td>
+<td>Path for figure files</td></tr>
+<tr><td width="25%"><a href="hook_animation.html">hook_ffmpeg_html</a></td>
+<td>Hooks to create animations in HTML output</td></tr>
+<tr><td width="25%"><a href="hook_document.html">hook_movecode</a></td>
+<td>Some potentially useful document hooks</td></tr>
+<tr><td width="25%"><a href="chunk_hook.html">hook_optipng</a></td>
+<td>Built-in chunk hooks to extend knitr</td></tr>
+<tr><td width="25%"><a href="chunk_hook.html">hook_pdfcrop</a></td>
+<td>Built-in chunk hooks to extend knitr</td></tr>
+<tr><td width="25%"><a href="hook_plot.html">hook_plot_asciidoc</a></td>
+<td>Default plot hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="chunk_hook.html">hook_plot_custom</a></td>
+<td>Built-in chunk hooks to extend knitr</td></tr>
+<tr><td width="25%"><a href="hook_plot.html">hook_plot_html</a></td>
+<td>Default plot hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="hook_plot.html">hook_plot_md</a></td>
+<td>Default plot hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="hook_plot.html">hook_plot_rst</a></td>
+<td>Default plot hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="hook_plot.html">hook_plot_tex</a></td>
+<td>Default plot hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="hook_plot.html">hook_plot_textile</a></td>
+<td>Default plot hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="chunk_hook.html">hook_purl</a></td>
+<td>Built-in chunk hooks to extend knitr</td></tr>
+<tr><td width="25%"><a href="hook_animation.html">hook_r2swf</a></td>
+<td>Hooks to create animations in HTML output</td></tr>
+<tr><td width="25%"><a href="chunk_hook.html">hook_rgl</a></td>
+<td>Built-in chunk hooks to extend knitr</td></tr>
+<tr><td width="25%"><a href="hook_animation.html">hook_scianimator</a></td>
+<td>Hooks to create animations in HTML output</td></tr>
+<tr><td width="25%"><a href="chunk_hook.html">hook_webgl</a></td>
+<td>Built-in chunk hooks to extend knitr</td></tr>
+<tr><td width="25%"><a href="image_uri.html">image_uri</a></td>
+<td>Encode an image file to a data URI</td></tr>
+<tr><td width="25%"><a href="imgur_upload.html">imgur_upload</a></td>
+<td>Upload an image to imgur.com</td></tr>
+<tr><td width="25%"><a href="inline_expr.html">inline_expr</a></td>
+<td>Wrap code using the inline R expression syntax</td></tr>
+<tr><td width="25%"><a href="kable.html">kable</a></td>
+<td>Create tables in LaTeX, HTML, Markdown and reStructuredText</td></tr>
+<tr><td width="25%"><a href="knit.html">knit</a></td>
+<td>Knit a document</td></tr>
+<tr><td width="25%"><a href="knit2html.html">knit2html</a></td>
+<td>Convert markdown to HTML using knit() and markdownToHTML()</td></tr>
+<tr><td width="25%"><a href="knit2pdf.html">knit2pdf</a></td>
+<td>Convert Rnw or Rrst files to PDF using knit() and texi2pdf() or rst2pdf()</td></tr>
+<tr><td width="25%"><a href="knit2wp.html">knit2wp</a></td>
+<td>Knit an R Markdown document and post it to WordPress</td></tr>
+<tr><td width="25%"><a href="knitr-package.html">knitr</a></td>
+<td>A general-purpose tool for dynamic report generation in R</td></tr>
+<tr><td width="25%"><a href="knit_child.html">knit_child</a></td>
+<td>Knit a child document</td></tr>
+<tr><td width="25%"><a href="knit_engines.html">knit_engines</a></td>
+<td>Engines of other languages</td></tr>
+<tr><td width="25%"><a href="knit_exit.html">knit_exit</a></td>
+<td>Exit knitting early</td></tr>
+<tr><td width="25%"><a href="knit_expand.html">knit_expand</a></td>
+<td>A simple macro preprocessor for templating purposes</td></tr>
+<tr><td width="25%"><a href="knit_filter.html">knit_filter</a></td>
+<td>Spell check filter for source documents</td></tr>
+<tr><td width="25%"><a href="knit_global.html">knit_global</a></td>
+<td>The global environment in which code chunks are evaluated</td></tr>
+<tr><td width="25%"><a href="knit_hooks.html">knit_hooks</a></td>
+<td>Hooks for R code chunks, inline R code and output</td></tr>
+<tr><td width="25%"><a href="knit_meta.html">knit_meta</a></td>
+<td>Metadata about objects to be printed</td></tr>
+<tr><td width="25%"><a href="knit_patterns.html">knit_patterns</a></td>
+<td>Patterns to match and extract R code in a document</td></tr>
+<tr><td width="25%"><a href="knit_print.html">knit_print</a></td>
+<td>A custom printing function</td></tr>
+<tr><td width="25%"><a href="knit_rd.html">knit_rd</a></td>
+<td>Knit package documentation</td></tr>
+<tr><td width="25%"><a href="knit_rd.html">knit_rd_all</a></td>
+<td>Knit package documentation</td></tr>
+<tr><td width="25%"><a href="knit_theme.html">knit_theme</a></td>
+<td>Syntax highlighting themes</td></tr>
+<tr><td width="25%"><a href="knit_print.html">normal_print</a></td>
+<td>A custom printing function</td></tr>
+<tr><td width="25%"><a href="opts_chunk.html">opts_chunk</a></td>
+<td>Default and current chunk options</td></tr>
+<tr><td width="25%"><a href="opts_chunk.html">opts_current</a></td>
+<td>Default and current chunk options</td></tr>
+<tr><td width="25%"><a href="opts_knit.html">opts_knit</a></td>
+<td>Options for the knitr package</td></tr>
+<tr><td width="25%"><a href="opts_template.html">opts_template</a></td>
+<td>Template for creating reusable chunk options</td></tr>
+<tr><td width="25%"><a href="pandoc.html">pandoc</a></td>
+<td>A Pandoc wrapper to convert Markdown documents to other formats</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_asciidoc</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_brew</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_html</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_md</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_rnw</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_rst</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_tex</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="pat_fun.html">pat_textile</a></td>
+<td>Set regular expressions to read input documents</td></tr>
+<tr><td width="25%"><a href="plot_crop.html">plot_crop</a></td>
+<td>Crop a plot (remove the edges) using PDFCrop or ImageMagick</td></tr>
+<tr><td width="25%"><a href="knit.html">purl</a></td>
+<td>Knit a document</td></tr>
+<tr><td width="25%"><a href="rand_seed.html">rand_seed</a></td>
+<td>An unevaluated expression to return .Random.seed if exists</td></tr>
+<tr><td width="25%"><a href="read_chunk.html">read_chunk</a></td>
+<td>Read chunks from an external script</td></tr>
+<tr><td width="25%"><a href="read_chunk.html">read_demo</a></td>
+<td>Read chunks from an external script</td></tr>
+<tr><td width="25%"><a href="read_rforge.html">read_rforge</a></td>
+<td>Read source code from R-Forge</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_asciidoc</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_html</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_jekyll</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_latex</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_listings</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_markdown</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_rst</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_sweave</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="output_hooks.html">render_textile</a></td>
+<td>Set output hooks for different output formats</td></tr>
+<tr><td width="25%"><a href="rocco.html">rocco</a></td>
+<td>Knit R Markdown using the classic Docco style</td></tr>
+<tr><td width="25%"><a href="rst2pdf.html">rst2pdf</a></td>
+<td>A wrapper for rst2pdf</td></tr>
+<tr><td width="25%"><a href="set_alias.html">set_alias</a></td>
+<td>Set aliases for chunk options</td></tr>
+<tr><td width="25%"><a href="set_header.html">set_header</a></td>
+<td>Set the header information</td></tr>
+<tr><td width="25%"><a href="set_parent.html">set_parent</a></td>
+<td>Specify the parent document of child documents</td></tr>
+<tr><td width="25%"><a href="spin.html">spin</a></td>
+<td>Spin goat's hair into wool</td></tr>
+<tr><td width="25%"><a href="spin_child.html">spin_child</a></td>
+<td>Spin a child R script</td></tr>
+<tr><td width="25%"><a href="stitch.html">stitch</a></td>
+<td>Automatically create a report based on an R script and a template</td></tr>
+<tr><td width="25%"><a href="stitch.html">stitch_rhtml</a></td>
+<td>Automatically create a report based on an R script and a template</td></tr>
+<tr><td width="25%"><a href="stitch.html">stitch_rmd</a></td>
+<td>Automatically create a report based on an R script and a template</td></tr>
+<tr><td width="25%"><a href="Sweave2knitr.html">Sweave2knitr</a></td>
+<td>Convert Sweave to knitr documents</td></tr>
+<tr><td width="25%"><a href="vignette_engines.html">vignette_engines</a></td>
+<td>Package vignette engines</td></tr>
+<tr><td width="25%"><a href="wrap_rmd.html">wrap_rmd</a></td>
+<td>Wrap long lines in Rmd files</td></tr>
+<tr><td width="25%"><a href="write_bib.html">write_bib</a></td>
+<td>Generate BibTeX bibliography databases for R packages</td></tr>
+</table>
+</body></html>

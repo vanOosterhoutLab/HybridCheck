@@ -1,0 +1,23 @@
+BlockDatingSettings     A reference class storing the settings for
+                        recombination block dating.
+BlockDetectionSettings
+                        Reference type for storing the settings for
+                        block detection.
+ComparrisonSettings.    A reference class to represent settings for
+                        triplet generation.
+HybRIDS                 A Reference Class for managing a HybRIDS
+                        analysis.
+HybRIDSseq              An internal Reference Class to represent a DNA
+                        alignment, read from a FASTA file.
+SimilarityScan.         Reference class to store the results from
+                        sequence similarity analyses, and block
+                        detection runs for a given triplet.
+Triplet                 Reference class to store and manage triplet
+                        data.
+Triplets                Reference class storing all triplets in a
+                        HybRIDS analysis.
+UserBlocks              UserBlocks reference class
+col_deter               Internal function to determine colours for the
+                        bars.
+vertbar_create          Internal function to create the vertical bars
+                        for mosaic plot.

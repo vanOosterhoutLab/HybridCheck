@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Fetching JSON data from REST APIs with jsonlite</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<!--
+\usepackage[utf8]{inputenc}
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Fetching JSON data from REST APIs}
+-->
+
+<h1>Fetching JSON data from REST APIs with jsonlite</h1>
+
+<p>This section lists some examples of public HTTP APIs that publish data in JSON format. These are great to get a sense of the complex structures that are encountered in real world JSON data. All services are free, but some require registration/authentication. Each example returns lots of data, therefore not all output is printed in this document.</p>
+
+<pre><code class="r">library(jsonlite)
+</code></pre>
+
+<h2>Github</h2>
+
+<p>Github is an online code repository and has APIs to get live data on almost all activity. Below some examples from a well known R package and author:</p>
+
+<pre><code class="r">hadley_orgs &lt;- fromJSON(&quot;https://api.github.com/users/hadley/orgs&quot;)
+hadley_repos &lt;- fromJSON(&quot;https://api.github.com/users/hadley/repos&quot;)
+gg_commits &lt;- fromJSON(&quot;https://api.github.com/repos/hadley/ggplot2/commits&quot;)
+gg_issues &lt;- fromJSON(&quot;https://api.github.com/repos/hadley/ggplot2/issues&quot;)
+
+#latest issues
+paste(format(gg_issues$user$login), &quot;:&quot;, gg_issues$title)
+</code></pre>
+
+<pre><code> [1] &quot;Henrik-P      : &#39;guides&#39; documentation, possible improvement in last example&quot;                                    
+ [2] &quot;richierocks   : scatterplots of categorical variables cause &#39;row names were found from a short variable&#39; warning&quot;
+ [3] &quot;lselzer       : created fortify.glm&quot;                                                                             
+ [4] &quot;petrbouchal   : scale_colour_manual fails when elements of named matrix are passed to values&quot;                    
+ [5] &quot;smirarab      : stat_ecdf plots extra points&quot;                                                                    
+ [6] &quot;dorvak        : Suggestion: Geom replace infix operator&quot;                                                         
+ [7] &quot;rpruim        : documentation of fun.data (in stat_summary) incorrect?&quot;                                          
+ [8] &quot;ttuggle       : Memory overflow with scale_x_discrete()&quot;                                                         
+ [9] &quot;pengyu        : Added ..Name to each prototype so that str.proto() can show the names correctly&quot;                 
+[10] &quot;pharaveej     : ggplot - geom_step error&quot;                                                                        
+[11] &quot;noamross      : New theme option to put panel/grid on top of data&quot;                                               
+[12] &quot;krlmlr        : geom_boxplot with continuous x and without group aesthetics&quot;                                     
+[13] &quot;lccanon       : rqss in stat_quantile ignore the quantile with large number of values&quot;                           
+[14] &quot;bergsmat      : Geom not exported?&quot;                                                                              
+[15] &quot;iagomosqueira : size in geom_point using variable with all but 1 as NAs&quot;                                         
+[16] &quot;xsaintmleux   : allow ggplot_build to return an additional value: the processed data as ...&quot;                     
+[17] &quot;mkcor         : Edit warning message to reflect intuitive use&quot;                                                   
+[18] &quot;tsibley       : Rebased and redocumented version of PR #744&quot;                                                     
+[19] &quot;BrianDiggs    : sqrt_trans, scale limit expansion, and missing breaks&quot;                                           
+[20] &quot;marvel64      : Documentation for geom_boxplot&quot;                                                                  
+[21] &quot;blaquans      : Would it be possible to add notes to a ggplot graph ?&quot;                                           
+[22] &quot;jiho          : New theme_void(), completely empty&quot;                                                              
+[23] &quot;veraanadi     : Add new function geom_curve&quot;                                                                     
+[24] &quot;lionelgit     : Facet titles&quot;                                                                                    
+[25] &quot;kent37        : Error in stat_density example text&quot;                                                              
+[26] &quot;tonytonov     : geom_violin throws error on data with zero variance&quot;                                             
+[27] &quot;cboettig      : scales=\&quot;free\&quot; on facet_grid no longer has any effect on `y` axis within rows&quot;                  
+[28] &quot;baptiste      : check.class argument to ggsave&quot;                                                                  
+[29] &quot;lionelgit     : Coord expand&quot;                                                                                    
+[30] &quot;croach        : Fix for bad URL in qplot docs&quot;                                                                   
+</code></pre>
+
+<h2>CitiBike NYC</h2>
+
+<p>A single public API that shows location, status and current availability for all stations in the New York City bike sharing imitative.</p>
+
+<pre><code class="r">citibike &lt;- fromJSON(&quot;http://citibikenyc.com/stations/json&quot;)
+stations &lt;- citibike$stationBeanList
+colnames(stations)
+</code></pre>
+
+<pre><code> [1] &quot;id&quot;                    &quot;stationName&quot;          
+ [3] &quot;availableDocks&quot;        &quot;totalDocks&quot;           
+ [5] &quot;latitude&quot;              &quot;longitude&quot;            
+ [7] &quot;statusValue&quot;           &quot;statusKey&quot;            
+ [9] &quot;availableBikes&quot;        &quot;stAddress1&quot;           
+[11] &quot;stAddress2&quot;            &quot;city&quot;                 
+[13] &quot;postalCode&quot;            &quot;location&quot;             
+[15] &quot;altitude&quot;              &quot;testStation&quot;          
+[17] &quot;lastCommunicationTime&quot; &quot;landMark&quot;             
+</code></pre>
+
+<pre><code class="r">nrow(stations)
+</code></pre>
+
+<pre><code>[1] 332
+</code></pre>
+
+<h2>Ergast</h2>
+
+<p>The Ergast Developer API is an experimental web service which provides a historical record of motor racing data for non-commercial purposes.</p>
+
+<pre><code class="r">res &lt;- fromJSON(&#39;http://ergast.com/api/f1/2004/1/results.json&#39;)
+drivers &lt;- res$MRData$RaceTable$Races$Results[[1]]$Driver
+colnames(drivers)
+</code></pre>
+
+<pre><code>[1] &quot;driverId&quot;        &quot;code&quot;            &quot;url&quot;             &quot;givenName&quot;      
+[5] &quot;familyName&quot;      &quot;dateOfBirth&quot;     &quot;nationality&quot;     &quot;permanentNumber&quot;
+</code></pre>
+
+<pre><code class="r">drivers[1:10, c(&quot;givenName&quot;, &quot;familyName&quot;, &quot;code&quot;, &quot;nationality&quot;)]
+</code></pre>
+
+<pre><code>   givenName    familyName code nationality
+1    Michael    Schumacher  MSC      German
+2     Rubens   Barrichello  BAR   Brazilian
+3   Fernando        Alonso  ALO     Spanish
+4       Ralf    Schumacher  SCH      German
+5       Juan Pablo Montoya  MON   Colombian
+6     Jenson        Button  BUT     British
+7      Jarno        Trulli  TRU     Italian
+8      David     Coulthard  COU     British
+9     Takuma          Sato  SAT    Japanese
+10 Giancarlo    Fisichella  FIS     Italian
+</code></pre>
+
+<h2>ProPublica</h2>
+
+<p>Below an example from the <a href="http://projects.propublica.org/nonprofits/api">ProPublica Nonprofit Explorer API</a> where we retrieve the first 10 pages of tax-exempt organizations in the USA, ordered by revenue. The <code>rbind.pages</code> function is used to combine the pages into a single data frame.</p>
+
+<pre><code class="r">#store all pages in a list first
+baseurl &lt;- &quot;http://projects.propublica.org/nonprofits/api/v1/search.json?order=revenue&amp;sort_order=desc&quot;
+pages &lt;- list()
+for(i in 0:10){
+  mydata &lt;- fromJSON(paste0(baseurl, &quot;&amp;page=&quot;, i), flatten=TRUE)
+  message(&quot;Retrieving page &quot;, i)
+  pages[[i+1]] &lt;- mydata$filings
+}
+
+#combine all into one
+filings &lt;- rbind.pages(pages)
+
+#check output
+nrow(filings)
+</code></pre>
+
+<pre><code>[1] 275
+</code></pre>
+
+<pre><code class="r">filings[1:10, c(&quot;organization.sub_name&quot;, &quot;organization.city&quot;, &quot;totrevenue&quot;)]
+</code></pre>
+
+<pre><code>               organization.sub_name organization.city totrevenue
+1  KAISER FOUNDATION HEALTH PLAN INC          PORTLAND  4.015e+10
+2  KAISER FOUNDATION HEALTH PLAN INC          PORTLAND  3.779e+10
+3        KAISER FOUNDATION HOSPITALS          PORTLAND  1.854e+10
+4        KAISER FOUNDATION HOSPITALS          PORTLAND  1.798e+10
+5    PARTNERS HEALTHCARE SYSTEM INC             BOSTON  1.045e+10
+6    PARTNERS HEALTHCARE SYSTEM INC             BOSTON  9.637e+09
+7                     DIGNITY HEALTH           PHOENIX  9.212e+09
+8   THRIVENT FINANCIAL FOR LUTHERANS       MINNEAPOLIS  8.507e+09
+9                         UPMC GROUP        PITTSBURGH  7.698e+09
+10      CLEVELAND CLINIC FOUNDATION          CLEVELAND  7.011e+09
+</code></pre>
+
+<h2>New York Times</h2>
+
+<p>The New York Times has several APIs as part of the NYT developer network. These interface to data from various departments, such as news articles, book reviews, real estate, etc. Registration is required (but free) and a key can be obtained at <a href="http://developer.nytimes.com/docs/reference/keys">here</a>. The code below includes some example keys for illustration purposes.</p>
+
+<pre><code class="r">#search for articles
+article_key &lt;- &quot;&amp;api-key=c2fede7bd9aea57c898f538e5ec0a1ee:6:68700045&quot;
+url &lt;- &quot;http://api.nytimes.com/svc/search/v2/articlesearch.json?q=obamacare+socialism&quot;
+req &lt;- fromJSON(paste0(url, article_key))
+articles &lt;- req$response$docs
+colnames(articles)
+</code></pre>
+
+<pre><code> [1] &quot;web_url&quot;          &quot;snippet&quot;          &quot;lead_paragraph&quot;  
+ [4] &quot;abstract&quot;         &quot;print_page&quot;       &quot;blog&quot;            
+ [7] &quot;source&quot;           &quot;multimedia&quot;       &quot;headline&quot;        
+[10] &quot;keywords&quot;         &quot;pub_date&quot;         &quot;document_type&quot;   
+[13] &quot;news_desk&quot;        &quot;section_name&quot;     &quot;subsection_name&quot; 
+[16] &quot;byline&quot;           &quot;type_of_material&quot; &quot;_id&quot;             
+[19] &quot;word_count&quot;      
+</code></pre>
+
+<pre><code class="r">#search for best sellers
+bestseller_key &lt;- &quot;&amp;api-key=5e260a86a6301f55546c83a47d139b0d:3:68700045&quot;
+url &lt;- &quot;http://api.nytimes.com/svc/books/v2/lists/overview.json?published_date=2013-01-01&quot;
+req &lt;- fromJSON(paste0(url, bestseller_key))
+bestsellers &lt;- req$results$list
+category1 &lt;- bestsellers[[1, &quot;books&quot;]]
+subset(category1, select = c(&quot;author&quot;, &quot;title&quot;, &quot;publisher&quot;))
+</code></pre>
+
+<pre><code>           author                title                  publisher
+1   Gillian Flynn            GONE GIRL           Crown Publishing
+2    John Grisham        THE RACKETEER Knopf Doubleday Publishing
+3       E L James FIFTY SHADES OF GREY Knopf Doubleday Publishing
+4 Nicholas Sparks           SAFE HAVEN   Grand Central Publishing
+5  David Baldacci        THE FORGOTTEN   Grand Central Publishing
+</code></pre>
+
+<pre><code class="r">#movie reviews
+movie_key &lt;- &quot;&amp;api-key=5a3daaeee6bbc6b9df16284bc575e5ba:0:68700045&quot;
+url &lt;- &quot;http://api.nytimes.com/svc/movies/v2/reviews/dvd-picks.json?order=by-date&quot;
+req &lt;- fromJSON(paste0(url, movie_key))
+reviews &lt;- req$results
+colnames(reviews)
+</code></pre>
+
+<pre><code> [1] &quot;nyt_movie_id&quot;     &quot;display_title&quot;    &quot;sort_name&quot;       
+ [4] &quot;mpaa_rating&quot;      &quot;critics_pick&quot;     &quot;thousand_best&quot;   
+ [7] &quot;byline&quot;           &quot;headline&quot;         &quot;capsule_review&quot;  
+[10] &quot;summary_short&quot;    &quot;publication_date&quot; &quot;opening_date&quot;    
+[13] &quot;dvd_release_date&quot; &quot;date_updated&quot;     &quot;seo_name&quot;        
+[16] &quot;link&quot;             &quot;related_urls&quot;     &quot;multimedia&quot;      
+</code></pre>
+
+<pre><code class="r">reviews[1:5, c(&quot;display_title&quot;, &quot;byline&quot;, &quot;mpaa_rating&quot;)]
+</code></pre>
+
+<pre><code>                   display_title              byline mpaa_rating
+1                        Boyhood      Manohla Dargis           R
+2 Dawn of the Planet of the Apes         A. O. Scott       PG-13
+3                The Empty Hours Jeannette Catsoulis        &lt;NA&gt;
+4                      Gabrielle      Stephen Holden           R
+5                       Wrinkles Jeannette Catsoulis          NR
+</code></pre>
+
+<h2>CrunchBase</h2>
+
+<p>CrunchBase is the free database of technology companies, people, and investors that anyone can edit.</p>
+
+<pre><code class="r">key &lt;- &quot;f6dv6cas5vw7arn5b9d7mdm3&quot;
+res &lt;- fromJSON(paste0(&quot;http://api.crunchbase.com/v/1/search.js?query=R&amp;api_key=&quot;, key))
+str(res$results)
+</code></pre>
+
+<h2>Sunlight Foundation</h2>
+
+<p>The Sunlight Foundation is a non-profit that helps to make government transparent and accountable through data, tools, policy and journalism. Register a free key at <a href="http://sunlightfoundation.com/api/accounts/register/">here</a>. An example key is provided.</p>
+
+<pre><code class="r">key &lt;- &quot;&amp;apikey=39c83d5a4acc42be993ee637e2e4ba3d&quot;
+
+#Find bills about drones
+drone_bills &lt;- fromJSON(paste0(&quot;http://openstates.org/api/v1/bills/?q=drone&quot;, key))
+drone_bills$title &lt;- substring(drone_bills$title, 1, 40)
+print(drone_bills[1:5, c(&quot;title&quot;, &quot;state&quot;, &quot;chamber&quot;, &quot;type&quot;)])
+</code></pre>
+
+<pre><code>                                     title state chamber type
+1 &quot;An Act relating to a prohibition on the    ak   upper bill
+2            DRONE SURVEIL-LAW ENFORCEMENT    il   upper bill
+3 Sets forth certain standards to be follo    nj   upper bill
+4  Unmanned aerial vehicle regulation act.    ks   lower bill
+5 Prohibiting the use of drones by law enf    ks   lower bill
+</code></pre>
+
+<pre><code class="r">#Congress mentioning &quot;constitution&quot;
+res &lt;- fromJSON(paste0(&quot;http://capitolwords.org/api/1/dates.json?phrase=immigration&quot;, key))
+wordcount &lt;- res$results
+wordcount$day &lt;- as.Date(wordcount$day)
+summary(wordcount)
+</code></pre>
+
+<pre><code>     count             day               raw_count     
+ Min.   :   1.0   Min.   :1996-01-02   Min.   :   1.0  
+ 1st Qu.:   3.0   1st Qu.:2000-10-26   1st Qu.:   3.0  
+ Median :   8.0   Median :2005-07-16   Median :   8.0  
+ Mean   :  25.1   Mean   :2005-06-01   Mean   :  25.1  
+ 3rd Qu.:  21.0   3rd Qu.:2009-11-28   3rd Qu.:  21.0  
+ Max.   :1835.0   Max.   :2014-08-05   Max.   :1835.0  
+</code></pre>
+
+<pre><code class="r">#Local legislators
+legislators &lt;- fromJSON(paste0(&quot;http://congress.api.sunlightfoundation.com/&quot;,
+  &quot;legislators/locate?latitude=42.96&amp;longitude=-108.09&quot;, key))
+subset(legislators$results, select=c(&quot;last_name&quot;, &quot;chamber&quot;, &quot;term_start&quot;, &quot;twitter_id&quot;))
+</code></pre>
+
+<pre><code>  last_name chamber term_start      twitter_id
+1    Lummis   house 2013-01-03   CynthiaLummis
+2      Enzi  senate 2009-01-06     SenatorEnzi
+3  Barrasso  senate 2013-01-03 SenJohnBarrasso
+</code></pre>
+
+<h2>Twitter</h2>
+
+<p>The twitter API requires OAuth2 authentication. Some example code:</p>
+
+<pre><code class="r">#Create your own appication key at https://dev.twitter.com/apps
+consumer_key = &quot;EZRy5JzOH2QQmVAe9B4j2w&quot;;
+consumer_secret = &quot;OIDC4MdfZJ82nbwpZfoUO4WOLTYjoRhpHRAWj6JMec&quot;;
+
+#Use basic auth
+library(httr)
+secret &lt;- RCurl::base64(paste(consumer_key, consumer_secret, sep = &quot;:&quot;));
+req &lt;- POST(&quot;https://api.twitter.com/oauth2/token&quot;,
+  config(httpheader = c(
+    &quot;Authorization&quot; = paste(&quot;Basic&quot;, secret),
+    &quot;Content-Type&quot; = &quot;application/x-www-form-urlencoded;charset=UTF-8&quot;
+  )),
+  body = &quot;grant_type=client_credentials&quot;,
+  encode = &quot;multipart&quot;
+);
+
+#Extract the access token
+token &lt;- paste(&quot;Bearer&quot;, content(req)$access_token)
+
+#Actual API call
+url &lt;- &quot;https://api.twitter.com/1.1/statuses/user_timeline.json?count=10&amp;screen_name=Rbloggers&quot;
+req &lt;- GET(url, config(httpheader = c(&quot;Authorization&quot; = token)))
+json &lt;- content(req, as = &quot;text&quot;)
+tweets &lt;- fromJSON(json)
+substring(tweets$text, 1, 100)
+</code></pre>
+
+<pre><code> [1] &quot;LAST CHANCE TO REGISTER FOR EARL (15-17 September, London) http://t.co/7ZT7cKGP8N #rstats&quot;
+ [2] &quot;Looking For Life http://t.co/luFwXnyF78 #rstats&quot;                                          
+ [3] &quot;Adding the SPSS MEAN.n Function to R http://t.co/gTw60cxWEd #rstats&quot;                      
+ [4] &quot;Brazilian Presidential Election http://t.co/G08Tu63YFn #rstats&quot;                           
+ [5] &quot;Hortonworks Seminar Series: The Modern Data Architecture http://t.co/M4A1S3SRMy #rstats&quot;  
+ [6] &quot;Introducing simmer: Discrete Event Simulation for R http://t.co/vBImwcKP3F #rstats&quot;       
+ [7] &quot;Notifications from R http://t.co/KaQqzFKd6F #rstats&quot;                                      
+ [8] &quot;rNOMADS 2.0.2 released http://t.co/Bcy2D1QBgk #rstats&quot;                                    
+ [9] &quot;New R job: Senior Operations Research Consultant http://t.co/Fimizb8mwg #rstats #jobs&quot;    
+[10] &quot;httr 0.5 http://t.co/hGWvZxrhdu #rstats&quot;                                                  
+</code></pre>
+
+</body>
+
+</html>
