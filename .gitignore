@@ -10,4 +10,3 @@ src/RcppExports.o
 inst/doc
 R/RcppExports.R
 packrat/lib*/
-packrat/src/
