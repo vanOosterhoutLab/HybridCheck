@@ -1,4 +1,0 @@
-callFun                 Call an Rstudio API function
-getVersion              Return the current version of the RStudio api.
-hasFun                  Exists/get for Rstudio functions
-isAvailable             Check if RStudio is running.

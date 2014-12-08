@@ -1,6 +1,0 @@
-callFun	callFun
-findFun	hasFun
-getVersion	getVersion
-hasFun	hasFun
-isAvailable	isAvailable
-verifyAvailable	isAvailable
