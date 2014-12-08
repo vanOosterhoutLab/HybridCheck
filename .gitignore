@@ -9,5 +9,5 @@ src/RcppExports.cpp
 src/RcppExports.o
 inst/doc
 R/RcppExports.R
-packrat/lib*/
-packrat/src/
+packrat/lib*/*
+packrat/src/*
