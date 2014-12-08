@@ -10,16 +10,13 @@ Here we list each file and describe what it contains / shows.
 ## Testing Power and Dating Folder:
 
 ### Code Files
-
-**Simulation_Functions.R**
-  : Contains functions used to simulate sequence triplets containing recombination and process results. It is used by
-  : the files `Analyzing_Known_Events.R` and `Analyzing_Detected_Events`.
-  
-**Analyzing_Known_Events.R**
-  : Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
-  : Then analyzes them with HybRIDS, informing HybRIDS of the locations of the recombinant blocks. This acts
-  : as a test of HybRIDS dating algorithm when all of the block is known. This code produces the datasets
-  : `KnownDatedAll.csv`, `KnownDatedSummary.csv`, and `SimulatedWithKnown.RData`.
+<dl>
+<dt>**Simulation_Functions.R**</dt>
+<dd>Contains functions used to simulate sequence triplets containing recombination and process results. It is used by the files `Analyzing_Known_Events.R` and `Analyzing_Detected_Events`.</dd>
+<dt>**Analyzing_Known_Events.R**</dt>
+<dd>Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
+Then analyzes them with HybRIDS, informing HybRIDS of the locations of the recombinant blocks. This acts as a test of HybRIDS dating algorithm when all of the block is known. This code produces the datasets `KnownDatedAll.csv`, `KnownDatedSummary.csv`, and `SimulatedWithKnown.RData`.</dd>
+</dl>
   
 **Analyzing_Detected_Events.R**
   : Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
