@@ -18,7 +18,7 @@ Here we list each file and describe what it contains / shows.
 Then analyzes them with HybRIDS, informing HybRIDS of the locations of the recombinant blocks. This acts as a test of HybRIDS dating algorithm when all of the block is known. This code produces the datasets <code>KnownDatedAll.csv</code>, <code>KnownDatedSummary.csv</code>, and <code>SimulatedWithKnown.RData</code>.</dd>
   
 <dt><strong>Analyzing_Detected_Events.R</strong></dt>
-<dl>Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
+<dd>Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
 Then analyzes them with HybRIDS, first detecting blocks, and then dating the regions that are detected.
 The code in this files produces the datasets <code>DetectionDatedAll.csv</code>, <code>DetectionDatedSummary.csv</code>, <code>detectionPercentagesFull.csv</code>, and <code>detectionPercentagesSummary.csv</code>, 
 and <code>SimulatedWithDetection</code>.</dd>
