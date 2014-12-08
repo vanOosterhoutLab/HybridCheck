@@ -11,61 +11,60 @@ Here we list each file and describe what it contains / shows.
 
 ### Code Files
 <dl>
-<dt>**Simulation_Functions.R**</dt>
-<dd>Contains functions used to simulate sequence triplets containing recombination and process results. It is used by the files `Analyzing_Known_Events.R` and `Analyzing_Detected_Events`.</dd>
-<dt>**Analyzing_Known_Events.R**</dt>
+<dt><strong>Simulation_Functions.R</strong></dt>
+<dd>Contains functions used to simulate sequence triplets containing recombination and process results. It is used by the files <code>Analyzing_Known_Events.R</code> and <code>Analyzing_Detected_Events</code>.</dd>
+<dt><strong>Analyzing_Known_Events.R<strong></dt>
 <dd>Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
-Then analyzes them with HybRIDS, informing HybRIDS of the locations of the recombinant blocks. This acts as a test of HybRIDS dating algorithm when all of the block is known. This code produces the datasets `KnownDatedAll.csv`, `KnownDatedSummary.csv`, and `SimulatedWithKnown.RData`.</dd>
+Then analyzes them with HybRIDS, informing HybRIDS of the locations of the recombinant blocks. This acts as a test of HybRIDS dating algorithm when all of the block is known. This code produces the datasets <code>KnownDatedAll.csv</code>, <code>KnownDatedSummary.csv</code>, and <code>SimulatedWithKnown.RData</code>.</dd>
+  
+<dt><strong>Analyzing_Detected_Events.R</strong></dt>
+<dl>Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
+Then analyzes them with HybRIDS, first detecting blocks, and then dating the regions that are detected.
+The code in this files produces the datasets <code>DetectionDatedAll.csv</code>, <code>DetectionDatedSummary.csv</code>, <code>detectionPercentagesFull.csv</code>, and <code>detectionPercentagesSummary.csv</code>, 
+and <code>SimulatedWithDetection</code>.</dd>
 </dl>
   
-**Analyzing_Detected_Events.R**
-  : Simulates sequence triplets with a recombination breakpoint as described in the main text of the publication.
-  : Then analyzes them with HybRIDS, first detecting blocks, and then dating the regions that are detected.
-  : The code in this files produces the datasets `DetectionDatedAll.csv`, `DetectionDatedSummary.csv`,
-  : `detectionPercentagesFull.csv`, and `detectionPercentagesSummary.csv`, and `SimulatedWithDetection`.
-  
 ### Data Files
+<dl>
+<dt><strong>SimulatedWithKnown.RData<strong></dt>
+<dd>The raw blocks table output from simulated triplets tested and dated with HybRIDS when HybRIDS was given the locations of the blocks. This file was processed in <code>Analyzing_Known_Events.R</code> to produce <code>KnownDatedAll.csv</code> and
+<code>KnownDatedSummary.csv</code>.</dd>
 
-**SimulatedWithKnown.RData**
-  : The raw blocks table output from simulated triplets tested and dated with HybRIDS when HybRIDS was given the
-  : locations of the blocks. This file was processed in `Analyzing_Known_Events.R` to produce `KnownDatedAll.csv` and
-  : `KnownDatedSummary.csv`.
-
-**SimulatedWithDetection.RData**
-  : The raw blocks table output from simulated triplets tested and dated with HybRIDS when HybRIDS was used to detect
-  : blocks. This file was processed in `Analyzing_Detected_Events.R` to produce `DetectionDatedAll.csv`,
-  : `DetectionDatedSummary.csv`, `detectionPercentagesFull.csv`, and `detectionPercentagesSummary`.
+<dt><strong>SimulatedWithDetection.RData<strong></dt>
+<dd>The raw blocks table output from simulated triplets tested and dated with HybRIDS when HybRIDS was used to detect
+blocks. This file was processed in <code>Analyzing_Detected_Events.R</code> to produce <code>DetectionDatedAll.csv</code>,
+<code>DetectionDatedSummary.csv</code>, <code>detectionPercentagesFull.csv</code>, and <code>detectionPercentagesSummary</code>.</dd>
   
-**KnownDatedAll.csv**
-  : Full processed dataset of the blocks detected and dated in simulations, when HybRIDS was given the locations of 
-  : the recombination regions. The dataset shows how the estimated ages of blocks relate to the true ages of blocks,
-  : and the amount of divergence between the parental sequences in the triplets.
+<dt><strong>KnownDatedAll.csv<strong></dt>
+<dd>Full processed dataset of the blocks detected and dated in simulations, when HybRIDS was given the locations of 
+the recombination regions. The dataset shows how the estimated ages of blocks relate to the true ages of blocks,
+and the amount of divergence between the parental sequences in the triplets.</dd>
   
-**KnownDatedSummary.csv**
-  : Summary processed dataset of the blocks detected and dated in simulations, when HybRIDS was given the locations of 
-  : the recombination regions. The dataset shows how the estimated ages of blocks relate to the true ages of blocks,
-  : and the amount of divergence between the parental sequences in the triplets. It is a summary of `KnownDatedAll.csv`.
+<dt><strong>KnownDatedSummary.csv<strong></dt>
+<dd>Summary processed dataset of the blocks detected and dated in simulations, when HybRIDS was given the locations of 
+the recombination regions. The dataset shows how the estimated ages of blocks relate to the true ages of blocks,
+and the amount of divergence between the parental sequences in the triplets. It is a summary of <code>KnownDatedAll.csv</code>.</dd>
   
-**DetectionDatedAll.csv**
-  : Full processed dataset of the blocks detected and dated in simulations, when HybRIDS detected recombination regions.
-  : The dataset shows how the estimated ages of blocks relate to the true ages of blocks, and the amount of divergence
-  : between the parental sequences in the triplets.
+<dt><strong>DetectionDatedAll.csv<strong></dt>
+<dd>Full processed dataset of the blocks detected and dated in simulations, when HybRIDS detected recombination regions.
+The dataset shows how the estimated ages of blocks relate to the true ages of blocks, and the amount of divergence
+between the parental sequences in the triplets.</dd>
   
-**DetectionDatedSummary.csv**
-  : Summary processed dataset of the blocks detected and dated in simulations, when HybRIDS detected recombination
-  : regions.
-  : The dataset shows how the estimated ages of blocks relate to the true ages of blocks, and the amount of divergence
-  : between the parental sequences in the triplets. It is a summary of `DetectionDatedAll.csv`.
+<dt><strong>DetectionDatedSummary.csv<strong></dt>
+<dd>Summary processed dataset of the blocks detected and dated in simulations, when HybRIDS detected recombination
+regions.
+The dataset shows how the estimated ages of blocks relate to the true ages of blocks, and the amount of divergence
+between the parental sequences in the triplets. It is a summary of <code>DetectionDatedAll.csv</code>.</dd>
    
-**detectionPercentagesFull.csv**
-  : Full processed dataset of the percentage of the recombination regions correctly detected by HybRIDS and how it
-  : relates to the amount of divergence between parental sequences, and the amount of divergence after the recombination
-  : event in the triplets. 
+<dt><strong>detectionPercentagesFull.csv<strong></dt>
+<dd>Full processed dataset of the percentage of the recombination regions correctly detected by HybRIDS and how it relates to the amount of divergence between parental sequences, and the amount of divergence after the recombination
+event in the triplets.</dd>
   
-**detectionPercentagesSummary.csv**
-  : Summary processed dataset of the percentage of the recombination regions correctly detected by HybRIDS and how it
-  : relates to the amount of divergence between parental sequences, and the amount of divergence after the recombination
-  : event in the triplets. It is a summary dataset of the dataset in `detectionPercentagesFull.csv`.
+<dt><strong>detectionPercentagesSummary.csv<strong></dt>
+<dd>Summary processed dataset of the percentage of the recombination regions correctly detected by HybRIDS and how it
+relates to the amount of divergence between parental sequences, and the amount of divergence after the recombination
+event in the triplets. It is a summary dataset of the dataset in <code>detectionPercentagesFull.csv</code>.</dd>
+</dl>
   
 ## Testing False Positive Rate Folder:
 
@@ -73,35 +72,36 @@ This folder contains code that was used to generate null scenarios - that is - t
 These triplets were used to assess the false positive rate of HybRIDS and how it relates to the amount of divergence between the populations.
 
 ### Code Files
+<dl>
+<dt><strong>Founding_Pop.py<strong></dt>
+<dd>The simuPOP program that was used to generate the simulated sequences of populations that evolved in isolation.
+It was run on a cluster and outputed CSV and GENEPOP files which were converted into fasta files with a Perl script.
+The produced fasta files were the files used in HybRIDS.</dd>
 
-**Founding_Pop.py**
-  : The simuPOP program that was used to generate the simulated sequences of populations that evolved in isolation.
-  : It was run on a cluster and outputed CSV and GENEPOP files which were converted into fasta files with a Perl 
-  : script.
-  : The produced fasta files were the files used in HybRIDS.
-
-  **simuCSVtoFASTA2.pl**
-  : This Perl script is used to generate FASTA formatted sequence files from the CSV files generated by the simuPOP
-  : python script.
+<dt><strong>simuCSVtoFASTA2.pl<strong></dt>
+<dd>This Perl script is used to generate FASTA formatted sequence files from the CSV files generated by the simuPOP
+python script.</dd>
   
-**False_Detection_Analysis.R**
-  : Generates the files `fullFalsePos.csv` and `summaryFalsePos.csv`. It analyzes many triplets in which there is no
-  : recombination, and calculates a false postive rate. The results allow one to see how the false positive rate is
-  : affected by the amount of time the three sequences in the triplet have evolved independently of each other.
+<dt><strong>False_Detection_Analysis.R<strong></dt>
+<dd>Generates the files <code>fullFalsePos.csv</code> and <code>summaryFalsePos.csv</code>. It analyzes many triplets in which there is no
+recombination, and calculates a false postive rate. The results allow one to see how the false positive rate is
+affected by the amount of time the three sequences in the triplet have evolved independently of each other.</dd>
+</dl>
     
 ### Data Files
-
-**FASTA Sequences.zip**
-  : This folder contains the FASTA formatted sequences output from `Founding_Pop.py` and converted into FASTA from 
-  : CSV, by `simuCSVtoFASTA2.pl`.
+<dl>
+<dt><strong>FASTA Sequences.zip<strong></dt>
+<dd>This folder contains the FASTA formatted sequences output from <code>Founding_Pop.py</code> and converted into FASTA from 
+CSV, by <code>simuCSVtoFASTA2.pl</code>.</dd>
   
-**fullFalsePos.csv**
-  : A data frame demonstrating how the false positive rate is affected by the amount of time the three sequences in the
-  : triplet have evolved independently of one another.
+<dt><strong>fullFalsePos.csv<strong></dt>
+<dd>A data frame demonstrating how the false positive rate is affected by the amount of time the three sequences in the
+triplet have evolved independently of one another.</dd>
   
-**summaryFalsePos.csv**
-  : A data frame that is a summary of `fullFalsePos.csv`. It also demonstrates how the (mean) false positive rate is
-  : affected by the amount of time the three sequences in the triplet have evolved independently of one another.
+<dt><strong>summaryFalsePos.csv<strong></dt>
+<dd>A data frame that is a summary of <code>fullFalsePos.csv</code>. It also demonstrates how the (mean) false positive rate is
+affected by the amount of time the three sequences in the triplet have evolved independently of one another.</dd>
+</dl>
   
 
   
