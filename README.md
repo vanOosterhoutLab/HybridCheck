@@ -70,7 +70,7 @@ Here we list each file and describe what it contains / shows.
   : relates to the amount of divergence between parental sequences, and the amount of divergence after the recombination
   : event in the triplets. It is a summary dataset of the dataset in `detectionPercentagesFull.csv`.
   
-## Testing False Positive Rate
+## Testing False Positive Rate Folder:
 
 This folder contains code that was used to generate null scenarios - that is - triplets that don't show recombination.
 These triplets were used to assess the false positive rate of HybRIDS and how it relates to the amount of divergence between the populations.
