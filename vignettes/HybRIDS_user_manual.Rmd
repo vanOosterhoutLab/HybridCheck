@@ -3,6 +3,7 @@ title: "The HybRIDS User Manual"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
 output:
+  word_document: default
   pdf_document:
     fig_height: 7
     fig_width: 10
@@ -12,10 +13,8 @@ output:
     fig_height: 7
     fig_width: 10
     toc: yes
-vignette: >
-  %\VignetteIndexEntry{HybRIDS-user-manual}
-  %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+vignette: |
+  %\VignetteIndexEntry{HybRIDS-user-manual} %\VignetteEngine{knitr::rmarkdown} \usepackage[utf8]{inputenc}
 ---
 
 This manual is provided as a vignette to the HybRIDS package for R. It can be acessed from an R session with with following:
