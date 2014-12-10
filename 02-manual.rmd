@@ -1,0 +1,52 @@
+---
+layout: manualsection
+title: Loading HybRIDS and Entering Sequence Data
+permalink: 02-manual.html
+manual: true
+published: false
+status: process
+---
+
+Starting HybRIDS and Loading Data
+------------------------------------
+
+To get started fire up the R condole and enter:
+
+```{r}
+library(HybRIDS)
+```
+
+You should see the above result in the console:
+
+The package is now successfully loaded.
+
+---
+
+Loading in sequence data and starting a new HybRIDS analysis
+------------------------------------------------------------
+
+To get started using HybRIDS to analyse a set of sequences, you first have to create a new HybRIDS object.
+ 
+The HybRIDS object will contain all data, options, and will carry out the analysis. So everything you do in HybRIDS is done by interacting with this object.
+By providing a file-path to a FASTA format sequence file when the new object is created the DNA data will also be loaded and prepared automatically.
+
+```{r}
+MyAnalysis <- HybRIDS$new("~/Dropbox/MySequence.fas")
+```
+The new HybRIDS object is ssigned to a variable "MyAnalysis".
+
+HybRIDS prints several progress messages and let's you know when the object has been successfully created:
+
+```R
+Detected file is supposed to be a FASTA format file...
+Reading in DNA sequence file...
+Looking for duplicates...
+Done...
+Subsetting the informative segregating sites...
+Done, now saving data internally
+ :Full Sequence
+ :Informative bases only
+Finished DNA input.
+```
+
+The HybRIDS package has been loaded, and data has been read in and is now contained in a HybRIDS object, which also contains all analysis settings and steps.
