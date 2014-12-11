@@ -1,0 +1,147 @@
+---
+title: "HybRIDS User Manual"
+author: "Ben J. Ward"
+date: '`r Sys.Date()`'
+output:
+  word_document: default
+  pdf_document:
+    fig_height: 7
+    fig_width: 10
+    toc: yes
+    toc_depth: 3
+  html_document:
+    fig_height: 7
+    fig_width: 10
+    toc: yes
+---
+
+![HybRIDS logo.](http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png)
+
+# Introduction
+This manual is written for the researcher that has an alignment of sequences, and wants to use HybRIDS to analyze them. But is not familiar with R, or coding with R. We have created a GUI for HybRIDS based on a web-app framework and a launcher for Windows and OSX which can be used to install what you need and HybRIDS, and run it with the GUI, all with one click. Using HybRIDS in this way is intended for exploratory analysis of some sequence triplets in which the parameters of the analysis are varied and the results updated and displayed to you in real time. 
+
+When batch processing and analysis of many triplets or files, with a given set of settings is desired, HybRIDS is better used as an R library in a script. In which case the document "Programming with HybRIDS" will be more useful than this manual. However, it does assume the user is familar with R at a user level and that they are comfortable with the console and syntax of R.
+
+# What is needed before installing HybRIDS
+HybRIDS is an R library, and so you will need R installed on the computer. R must be installed on the machine before using one of our launchers for Windows or OSX.
+
+## Installing R on Windows
+Go to the [CRAN webpage for R for Windows](http://cran.r-project.org/bin/windows/), click on the link to get 'base' R and choose the latest version - this will download an installer for Windows. Run the downloaded installer and install R in the default location on the machine.
+
+After this, click on 'Rtools' and download the installer that is applicable to the version of R you chose to download and install. Once downloaded, click and install Rtools according to the default settings.
+
+## Installing R on OSX
+Go to the [CRAN webpage for R for OSX](http://cran.r-project.org/bin/macosx/), click on the version of R most applicable - this is likely to be the version of OSX mavericks or higher. Run the download, keep the default settings and R.app will be downloaded to the Applications folder.
+
+# Installing and running HybRIDS on my machine with the installers and launchers for OSX and Windows.
+Go to the [HybRIDS website](http://ward9250.github.io/HybRIDS/) and download the appropriate launcher for your system.
+
+## OSX
+On OSX simply copy the downloaded .app file to the Applications folder.
+Clicking on the app from Launcher will present you with the option to Run HybRIDS or force an update of HybRIDS and the packages it depends on.
+
+
+## Windows
+On Windows, double click the downloaded file and go through the guided installer. Once it's done, in the 'Start Menu' under 'All Programs' there will be a new HybRIDS section with three executable options:
+
+HybRIDS
+  : Run the HybRIDS program.
+  
+Uninstall
+  : Uninstall the HybRIDS launcher. R and the R library will still be on the machine.
+  
+Update
+  : Force an update of the HybRIDS library and the packages it depends on.
+
+# Running HybRIDS on your machine with the launcher.
+
+On Windows click on the HybRIDS option in the All Programs menu, on OSX run the app from Launcher and choose the Run HybRIDS option.
+
+In both cases the launcher will check that all packages HybRIDS depends on, and HybRIDS is installed in the system's R libary. If it is not, it will install them.
+
+Then the launcher will load the HybRIDS library in a background R session, fetch the latest version of the Graphical User Interface from the repository, and open it up in the users browser. HybRIDS is ready for a FASTA alignment file. From here on, it does not matter which operating system or computer is used, the interface and options are the same.
+
+## Using HybRIDS with the GUI to carry out an analysis of sequences.
+The HybRIDS GUI will open on the first out of three tabs:
+
+Sequence Data
+  : Where you begin, use the choose file button to select a FASTA formatted sequence alignment file and load it into HybRIDS.
+  
+Specify Triplets to Analyze
+  : Where you place the sequences you provide in the file, into groups, and in doing so specify the Triplets that HybRIDS will prepare for furthur analysis.
+  
+Analyze Triplets
+  : A responsive page where you can select triplets to view and edit the settings of the various analysis steps - the results are updated according to those settings in real time.
+
+
+### Sequence Data
+This first tab is the Sequence Data tab it is very simple and has just one button, to load in a FASTA formatted data file.
+
+![The sequence data tab is simple and has one button.](http://ward9250.github.io/HybRIDS/img/Sequence.png)
+
+Once you have loaded in the DNA sequence data, the screen updates and displays some information about the sequences that have been loaded in.
+![The page updates to show information about the sequence file.](http://ward9250.github.io/HybRIDS/img/SequenceLoaded.png)
+
+Once the triplets have been loaded in, you can click on the hotbar at the top of the page and go to the next step: Specify Triplets to Analyze.
+
+### Specify Triplets to Analyze
+This tab is where you refine the triplets you want to analyze. By default, you will see all possible triplets are listed. In the example image, for 10 sequences, thats 120 possible triplets.
+
+![The page lets you refine the triplets to analyze.](http://ward9250.github.io/HybRIDS/img/TripletGen.png)
+
+Let's say we know the 10 sequences come from three populations, Seq1, Seq2, and Seq3 come from one population. Seq4, Seq5, and Seq6 come from a second population, and sequences 7 through 10 come from a third population. We can set this on this tab by entering the sequence names into the Group boxes, and you can vary the number of groups using the *How Many Groups?* option. The Group boxes will show a list of sequence names or will auto-complete if you type sequence names into them.
+
+![Refining the groups.](http://ward9250.github.io/HybRIDS/img/TripletGen2.png)
+
+In the example the groups are set, and the number of sequences from each group allowed in a triplet is set to 1. There is now 36 triplets listed.
+
+![The groups have been refined.](http://ward9250.github.io/HybRIDS/img/TripletGen3.png)
+
+With the triplet selection set, the next stage one the final tab is the Analyze Triplets stage.
+
+### Analyze Triplets
+The Analyze triplets tab is where you both set options for and see the results of analyses of the triplets.
+
+When you first move to this tab, by default the first triplet in the set defined in the previous step, is analyzed with the default settings.
+
+The settings pane is layed out with the different steps of a HybRIDS analysis in an appropriate section:
+
+How to scan sequence similarity:
+  : Set the sliding window size and step, for the HybRIDS to use when it scans the pairwise sequence similarity in triplets, across the informative sites of a sequence.
+  : Smaller windows for scans will pick up smaller regions of elevated sequence similarity, but data may be prone to more noise. Smaller windows and step sizes will also require more memory and more computation time.
+
+Block detection settings:
+  : Set HybRIDS to either try to determine suitable thresholds for identifying sufficiently elevated regions of sequence similarity from noise, alternatively, based on your observations of the plots, set some manual thresholds for HybRIDS to use, or fall back on, should the manual detection fail.
+  
+Block dating settings:
+  : Set whether you want to eliminate identified regions that fail an exact probability test (the equation is described in the publication), and set the critical alpha value for this test. You can also set whether you want to apply bonferroni correction to the alpha value.
+  : Set an assumed substitution rate and select a choice of mutation model from the selection. These are used in estimating the divergence times of recombinant regions. This assumes a molecular clock and may not always be suitable - depending on the nature of your data and system of study. The suitability of molecular clocks in molecular dating and caveats are discussed in the Phylogenetic and Molecular Evolution literature.
+  
+![The Analyze Triplets tab.](http://ward9250.github.io/HybRIDS/img/AnalyzeTriplets.png)
+
+Below the settings pane two collapsable panes showing plots of the recombination signal can be viewed, and below those plot panes, is a data table of the blocks detected for the triplet.
+
+![Pretty graphs are showin in panels.](http://ward9250.github.io/HybRIDS/img/AnalyzeTriplets2.png)
+
+To save the plots, you simply right click on them and select "Save Image As...", exactly as for any image in a web browser.
+
+The data table can easily be copied and pasted into an excel spreadsheet.
+
+![Copying the datatable.](http://ward9250.github.io/HybRIDS/img/AnalyzeTriplets3.png)
+
+![Copied the datatable.](http://ward9250.github.io/HybRIDS/img/AnalyzeTriplets4.png)
+
+This page is reactive: select a different triplet from the "Selected Triplet" box, or alter one of the settings, and the analysis is re-run for the given triplet and the updated results are shown to the screen. In the below example, the size of the sliding window in the "How to scan sequence similarity" box is altered from 100 to 10, and the plot has been updated - and look more noisy than the plot that was shown previously for a default window size of 100.
+
+![Copied the datatable.](http://ward9250.github.io/HybRIDS/img/UpdatingSettings.png)
+
+Whilst you are using the HybRIDS graphical interface, an R session is running the the background and you can see its progress and printed messages in this console:
+
+![Background R console.](http://ward9250.github.io/HybRIDS/img/BackGroundSession.png)
+
+Closing this background session will stop HybRIDS and the graphical interface will go grey and inactive, and you can simply close it.
+
+## I'm stuck!
+If you get stuck or something goes wrong - HybRIDS is an open source and continually improving set of software.
+Contact Ben J. Ward at b.ward@uea.ac.uk. Alternatively head to the [GitHub repository for HybRIDS](https://github.com/Ward9250/HybRIDS) and file a bug report, question, or feature request. We will do our best to assist you.
+

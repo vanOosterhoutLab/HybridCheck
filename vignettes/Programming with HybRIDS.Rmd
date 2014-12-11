@@ -1,5 +1,5 @@
 ---
-title: "The HybRIDS User Manual"
+title: "Programming with HybRIDS"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
 output:
