@@ -3,7 +3,6 @@ title: "HybRIDS User Manual"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
 output:
-  word_document: default
   pdf_document:
     fig_height: 7
     fig_width: 10
@@ -13,6 +12,7 @@ output:
     fig_height: 7
     fig_width: 10
     toc: yes
+  word_document: default
 ---
 
 ![HybRIDS logo.](http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png)
@@ -80,8 +80,6 @@ This first tab is the Sequence Data tab it is very simple and has just one butto
 ![The sequence data tab is simple and has one button.](http://ward9250.github.io/HybRIDS/img/Sequence.png)
 
 Once you have loaded in the DNA sequence data, the screen updates and displays some information about the sequences that have been loaded in.
-![The page updates to show information about the sequence file.](http://ward9250.github.io/HybRIDS/img/SequenceLoaded.png)
-
 Once the triplets have been loaded in, you can click on the hotbar at the top of the page and go to the next step: Specify Triplets to Analyze.
 
 ### Specify Triplets to Analyze
