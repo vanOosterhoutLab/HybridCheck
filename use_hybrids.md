@@ -32,7 +32,7 @@ We have provided a launcher for Windows and OSX. So long as you have R on your m
         <div class="col-md-4">
           <h3>Windows</h3>
           Download this installer and run to install the launcher to launch HybRIDS from the Start > All Programs menu.
-          <a class="btn btn-default" href="#" role="button">Download for Windows</a>
+          <a class="btn btn-default" href="./Windows/LaunchHybRIDS_installer.EXE" role="button" download="install_HybRIDSLauncher.EXE">Download for Windows</a>
         </div>
         <div class="col-md-4">
           <h3>OSX</h3>
