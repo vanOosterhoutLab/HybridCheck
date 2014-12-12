@@ -36,8 +36,8 @@ We have provided a launcher for Windows and OSX. So long as you have R on your m
         </div>
         <div class="col-md-4">
           <h3>OSX</h3>
-          Download this .app launcher and drag it to your Applications folder.
-          <p><a class="btn btn-default" href="#" role="button">Download for OSX</a></p>
+          Download this .app launcher and drag it to your Applications folder. This .app uses JavaScript for Automation and so is compatible with recent versions of OSX and has been tested on Yosemite. 
+          <p><a class="btn btn-default" href="./OSX/HybRIDSapp.zip" role="button" download="HybRIDS.app">Download for OSX</a></p>
        </div>
         <div class="col-md-4">
           <h3>Linux</h3>
