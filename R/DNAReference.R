@@ -18,13 +18,19 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 },
                               
                               InputDNA =
-                                function(intarget, format) {
+                                function(intarget) {
                                   "Reads in sequences from file and appropriately modifies fields of the object."
-                                  FullSequence <<- InputSequences(intarget, format)
+                                  FullSequence <<- sortInput(intarget)
+                                  FullSequence <<- checkForDuplicates(FullSequence)
                                   message("Subsetting the informative segregating sites...")
-                                  InformativeSeq <- FullSequence[, colSums(FullSequence[-1,] != FullSequence[-nrow(FullSequence),]) > 0]
-                                  InformativeSequence <<- InformativeSeq[, which(apply(InformativeSeq, 2, function(x) !any(x == "N" | x == "n")))]
-                                  #InformativeSequence <<- FullSequence[, sequenceChecker_cpp(FullSequence)] # Cpp code checks for non-informative sites.
+                                  consensusM <- consensusMatrix(FullSequence)
+                                  notUnknown <- consensusM[15, ] == 0
+                                  polymorphic <- colSums(consensusM != 0) > 1
+                                  index <- which(notUnknown & polymorphic)
+                                  InformativeSequence <<- DNAStringSet(character(length = length(FullSequence)))
+                                  for(i in 1:length(FullSequence)){
+                                    InformativeSequence[[i]] <<- FullSequence[[i]][index]
+                                  }
                                   message("Finished DNA input.")
                                 },
                               
@@ -122,61 +128,30 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
 
 # INTERNAL FUNCTIONS:
 
-InputSequences <- function(input, format) {
-  dna <- sortInput(input, format)
-  dna <- checkForDuplicates(dna)
-  dna <- as.character(dna)
-  colnames(dna) <- 1:ncol(dna)
-  message("Done...")
-  return(dna)
-}
-
-decideFileFormat <- function(input){
-  if(grepl(".fas", input) || grepl(".fasta", input)){
-    message("File to be read is expected to be FASTA format...")
-    return("fasta")
-  } else {
-    stop("Could not determine format.")
-  }
-}
-
-sortInput <- function(input, format){
+sortInput <- function(input){
   classOfInput <- class(input)
+  message("Reading in sequence file...")
   if(classOfInput == "character"){
-    if(is.null(format)){
-      format <- decideFileFormat(input)
-    }
-    message("Reading in sequence file...")
-    dna <- read.dna(file=input, format=format, as.matrix=TRUE)
+    dna <- readDNAStringSet(filepath = input, format = "fasta")
   } else {
-    if(classOfInput == "DNAbin"){
-      message("Class of input is DNAbin from ape package.")
+    if(classOfInput == "DNAStringSet"){
+      message("Class of input is DNAStringSet from Biostrings package.")
       dna <- input
     } else {
-      error("Input is not a valid path to a DNA file, nor is it a valid DNA object, for example, DNAbin from package ape.")
+      error("Input is not a valid path to a DNA file, nor is it a valid DNA object.")
     }
   }
   return(dna)
 }
 
 checkForDuplicates <- function(dna){
-  message("Looking for duplicates (sequences with p_distances of 0)...")
-  distances <- dist.dna(dna, model="N")
-  if(any(distances == 0)){
+  message("Looking for duplicates...")
+  duplicates <- duplicated(dna)
+  if(any(duplicates)){
     message("Duplicated sequences were found! - These will be deleted...")
-    indicies <- distrowcol(which(distances == 0), attr(distances, "Size"))
-    dna <- dna[-indicies[,2],]
-    message("Double Checking for duplicated sequences again to be safe...")
-    distances <- dist.dna(dna, model="N")
-    if(any(distances == 0)) stop("Duplicates were still found in the sequences - this should not happen - aborting. Inform package maintainer.")
+    dna <- dna[which(!duplicates)]
   }
   return(dna)
-}
-
-distrowcol <- function(ix,n){
-  nr <- ceiling(n-(1+sqrt(1+4*(n^2-n-2*ix)))/2)
-  nc <- n-(2*n-nr+1)*nr/2+ix+nr
-  return(cbind(nr,nc))
 }
 
 is.initialized <- function(x){
