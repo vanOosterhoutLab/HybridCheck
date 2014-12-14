@@ -1,12 +1,13 @@
 #' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
 #' @name HybRIDSseq
 #' @import methods
-#' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
-#' @field InformativeSequence A matrix (of Characters) containing the elignment, with uninformative sites removed.
+#' @field FullSequence A DNAStringSet containing the full sequence alignment.
+#' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
-                              InformativeSequence = "ANY"),
+                              InformativeSequence = "ANY",
+                              InformativeBp = "Integer"),
                               
                             methods = list( 
                               initialize =
@@ -22,16 +23,21 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   "Reads in sequences from file and appropriately modifies fields of the object."
                                   FullSequence <<- sortInput(intarget)
                                   FullSequence <<- checkForDuplicates(FullSequence)
+                                  message("Checking length of sequences...")
+                                  if(length(unique(width(FullSequence))) > 1){
+                                    stop("Sequences are not of same length, is this an MSA??")
+                                  }
                                   message("Subsetting the informative segregating sites...")
                                   consensusM <- consensusMatrix(FullSequence)
                                   notUnknown <- consensusM[15, ] == 0
                                   polymorphic <- colSums(consensusM != 0) > 1
-                                  index <- which(notUnknown & polymorphic)
+                                  InformativeBp <<- which(notUnknown & polymorphic)
                                   InformativeSequence <<- DNAStringSet(character(length = length(FullSequence)))
                                   for(i in 1:length(FullSequence)){
-                                    InformativeSequence[[i]] <<- FullSequence[[i]][index]
+                                    InformativeSequence[[i]] <<- FullSequence[[i]][InformativeBp]
                                   }
-                                  message("Finished DNA input.")
+                                  names(InformativeSequence) <- names(FullSequence)
+                                  message("Finished DNA input...")
                                 },
                               
                               hasDNA =
@@ -54,48 +60,54 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 function(){
                                   "Returns the number of sequences in the stored alignment."
                                   enforceDNA()
-                                  return(nrow(InformativeSequence))
+                                  return(length(InformativeSequence))
                                 },
                               
                               getFullBp =
                                 function(){
-                                  "Returns the "
+                                  "Returns a vector containing the numbers of the base positions in the aligned sequences."
                                   enforceDNA()
-                                  return(as.numeric(colnames(FullSequence)))
+                                  return(1:width(FullSequence))
                                 },
                               
                               getInformativeBp =
                                 function(){
+                                  "Returns a vector of the base positions of the informative sites in the aligned sequences."
                                   enforceDNA()
-                                  return(as.numeric(colnames(InformativeSequence)))
+                                  return(InformativeBp)
                                 },
                               
                               getFullLength =
                                 function(){
+                                  "Returns the length in base pairs, of the aligned sequences."
                                   enforceDNA()
-                                  return(ncol(FullSequence))
+                                  return(width(FullSequence))
                                 },
                               
                               getInformativeLength =
                                 function(){
+                                  "Returns the number in base pairs, of informative sites in the aligned sequences."
                                   enforceDNA()
-                                  return(ncol(InformativeSequence))
+                                  return(width(InformativeSequence))
                                 },
                               
                               getSequenceNames =
                                 function(){
+                                  "Returns a character vector of the sequence names."
                                   enforceDNA()
-                                  return(rownames(InformativeSequence))
+                                  return(names(InformativeSequence))
                                 },
                               
                               pullTriplet =
                                 function(selection){
+                                  "Extracts from the sequence object, a triplet of sequences."
                                   if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
-                                  return(InformativeSequence[selection, ])
+                                  return(InformativeSequence[selection])
                                 },
                               
                               textSummary =
                                 function(){
+                                  "Creates a character vector of the summary of the sequence object."
                                   start <- paste0("DNA Sequence Information:\n",
                                                   "-------------------------\nAn alignment of ", numberOfSequences(), 
                                                   " sequences.\n\nFull length of alignment: ", getFullLength(),
@@ -108,6 +120,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               
                               htmlSummary =
                                 function(){
+                                  "Creates a character vector of the summary of the sequence object, formatted as HTML."
                                   start <- paste0("<h1>DNA Sequence Information:</h1>",
                                                   "<p>An alignment of ", numberOfSequences(),
                                                   " sequences.</p><p><b>Full length of alignment:</b> ", getFullLength(),
@@ -135,7 +148,7 @@ sortInput <- function(input){
     dna <- readDNAStringSet(filepath = input, format = "fasta")
   } else {
     if(classOfInput == "DNAStringSet"){
-      message("Class of input is DNAStringSet from Biostrings package.")
+      message("Class of input is DNAStringSet from Biostrings package...")
       dna <- input
     } else {
       error("Input is not a valid path to a DNA file, nor is it a valid DNA object.")
