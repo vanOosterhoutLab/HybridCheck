@@ -7,11 +7,11 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
-                              InformativeBp = "Integer"),
+                              InformativeBp = "integer"),
                               
                             methods = list( 
                               initialize =
-                                function(sequenceInput = NULL) {
+                                function(sequenceInput = NULL){
                                   "Initializes the object, may be provided with a filepath to a sequence file, currently only FASTA is supported."
                                   if(!is.null(sequenceInput)){
                                     InputDNA(sequenceInput)
@@ -19,7 +19,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 },
                               
                               InputDNA =
-                                function(intarget) {
+                                function(intarget){
                                   "Reads in sequences from file and appropriately modifies fields of the object."
                                   FullSequence <<- sortInput(intarget)
                                   FullSequence <<- checkForDuplicates(FullSequence)
@@ -36,7 +36,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   for(i in 1:length(FullSequence)){
                                     InformativeSequence[[i]] <<- FullSequence[[i]][InformativeBp]
                                   }
-                                  names(InformativeSequence) <- names(FullSequence)
+                                  names(InformativeSequence) <<- names(FullSequence)
                                   message("Finished DNA input...")
                                 },
                               
@@ -53,7 +53,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 function(){
                                   "Enforces some rules about the content of the sequence object and throws errors should they occur."
                                   if(!hasDNA()){stop("Error: HybRIDSdna object has not got any sequences loaded in.")}
-                                  if(nrow(InformativeSequence) != nrow(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
+                                  if(length(InformativeSequence) != length(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
                                 },
                               
                               numberOfSequences =
@@ -81,14 +81,14 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 function(){
                                   "Returns the length in base pairs, of the aligned sequences."
                                   enforceDNA()
-                                  return(width(FullSequence))
+                                  return(unique(width(FullSequence)))
                                 },
                               
                               getInformativeLength =
                                 function(){
                                   "Returns the number in base pairs, of informative sites in the aligned sequences."
                                   enforceDNA()
-                                  return(width(InformativeSequence))
+                                  return(unique(width(InformativeSequence)))
                                 },
                               
                               getSequenceNames =

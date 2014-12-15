@@ -68,6 +68,7 @@ Triplet <- setRefClass("Triplet",
                        methods = list(
                          initialize = 
                            function(sequencenumbers, sequencenames, fullseqlength, hybridsDir){
+                             "Initializer function, creates an instance of triplet."
                              ContigNames <<- sequencenames
                              ContigIndexes <<- sequencenumbers
                              FullDNALength <<- fullseqlength
@@ -77,7 +78,7 @@ Triplet <- setRefClass("Triplet",
                          
                          readSettings =
                            function(dna, settings){
-                             InformativeDNALength <<- ncol(dna)
+                             InformativeDNALength <<- unique(width(dna))
                              ScanData$StepSizeUsed <<- settings$StepSize
                              ScanData$WindowSizeUsed <<- settings$WindowSize
                            },
@@ -90,11 +91,13 @@ Triplet <- setRefClass("Triplet",
                          
                          blocksNotFound =
                            function(){
+                             "Returns TRUE, if the tables for block are blank and no block findng has been done."
                              return(length(Blocks) == 0)
                            },
                          
                          blocksNotDated =
                            function(){
+                             "Returns TRUE, if the ."
                              bools <- unlist(lapply(Blocks, function(y) all(unlist(lapply(y, function(x) all(is.na(x$SNPs)) && all(is.na(x$CorrectedSNPs)) && all(is.na(x$P_Value)) && all(is.na(x$P_Threshold)) && all(is.na(x$fiveAge)) && all(is.na(x$fiftyAge)) && all(is.na(x$ninetyFiveAge))   )))))
                              return(all(bools))
                            },

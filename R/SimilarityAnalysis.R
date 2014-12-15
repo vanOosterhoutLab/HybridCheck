@@ -1,8 +1,13 @@
 seq.similarity <- function(dna, triplet, settings){
   message(paste0("Scanning sequence similarity for triplet ", paste0(triplet$ContigNames, collapse=", ")))
   dnain <- dna$pullTriplet(triplet$ContigNames)
-  #cutDNA <- dnain[, sequenceChecker_cpp(dnain)]
-  cutDNA <- dnain[, colSums(dnain[-1,] != dnain[-nrow(dnain),]) > 0]
+  precons <- which(colSums(consensusMatrix(dnain) != 0) > 1)
+  cutDNA <- DNAStringSet(character(length = 3))
+  cutDNA[[1]] <- dnain[[1]][precons]
+  cutDNA[[2]] <- dnain[[2]][precons]
+  cutDNA[[3]] <- dnain[[3]][precons]
+  names(cutDNA) <- names(dnain)
+  applicableBP <- dna$InformativeBp[precons]
   triplet$readSettings(cutDNA, settings)
   if(triplet$InformativeDNALength >= 1){
     message("Checking the sliding window parameters...")
@@ -38,19 +43,22 @@ seq.similarity <- function(dna, triplet, settings){
       Distances[, 1] <- allsteps
       Distances[, 2] <- windowp1
       Distances[, 3] <- windowp2
-      Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) colnames(cutDNA)[allsteps[i]]))) # ActualBP Center
-      Distances[, 5] <- as.numeric(colnames(cutDNA)[windowp1]) # Actual BP Start
-      Distances[, 6] <- as.numeric(colnames(cutDNA)[windowp2]) # Actual BP End
+      Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) applicableBP[allsteps[i]]))) # ActualBP Center
+      Distances[, 5] <- as.numeric(applicableBP[windowp1]) # Actual BP Start
+      Distances[, 6] <- as.numeric(applicableBP[windowp2]) # Actual BP End
       rm(windowp1, windowp2, allsteps, allstepsto, allstepsfrom)
       colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist(lapply(pairs, function(x) paste(LETTERS[x], collapse=""))))
       # Set up the loop for calculation.
       message("Scanning Now!")
+      conMatAB <- colSums(consensusMatrix(cutDNA[c(1, 2)]) != 0) > 1
+      conMatAC <- colSums(consensusMatrix(cutDNA[c(1, 3)]) != 0) > 1
+      conMatBC <- colSums(consensusMatrix(cutDNA[c(2, 3)]) != 0) > 1
       #Do the loop - Calculates all the hamming distances for all contig pairs, in all window frames.
       for(i in seq(nrow(Distances))){
-        dnaStretch <- cutDNA[, Distances[i, 2] : Distances[i, 3]]
-        Distances[i, 7] <- sum(dnaStretch[1, ] != dnaStretch[2, ])
-        Distances[i, 8] <- sum(dnaStretch[1, ] != dnaStretch[3, ])
-        Distances[i, 9] <- sum(dnaStretch[2, ] != dnaStretch[3, ])
+        stretch <- Distances[i, 2] : Distances[i, 3]
+        Distances[i, 7] <- sum(conMatAB[stretch])
+        Distances[i, 8] <- sum(conMatAC[stretch])
+        Distances[i, 9] <- sum(conMatBC[stretch])
       }      
       Distances[ , c(7, 8, 9)] <- 100 - round((as.numeric(Distances[ , c(7, 8, 9)]) / (triplet$ScanData$WindowSizeUsed + 1)) * 100)
       triplet$ScanData$Table <- as.data.frame(Distances)
