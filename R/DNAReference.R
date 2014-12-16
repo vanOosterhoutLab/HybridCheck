@@ -1,6 +1,5 @@
 #' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
 #' @name HybRIDSseq
-#' @import methods
 #' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
 #' @field InformativeSequence A matrix (of Characters) containing the elignment, with uninformative sites removed.
 HybRIDSseq <- setRefClass("HybRIDSseq",

@@ -6,7 +6,6 @@ NULL
 
 #' A Reference Class for managing a HybRIDS analysis.
 #' @name HybRIDS
-#' @import methods
 #' @export HybRIDS
 #' @exportClass HybRIDS
 #' @field DNA A HybRIDSdna reference object.

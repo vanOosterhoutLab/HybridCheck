@@ -5,4 +5,3 @@ README.html
 .gitignore
 .Rhistory
 .DS_Store
-^\.travis\.yml$
