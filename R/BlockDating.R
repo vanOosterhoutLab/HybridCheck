@@ -6,6 +6,7 @@
 #' @field DateAnyway Logical vector of length one, sotres the option of whether blocks will be dated despite failing the critical alpha.
 #' @field MutationCorrection Character vector of length 1, can be any of the model supported by the ape package. Default is "HybRIDS". 
 BlockDatingSettings <- setRefClass("BlockDatingSettings",
+                                   
                                    fields = list(
                                      MutationRate = "numeric",
                                      PValue = "numeric",
@@ -13,6 +14,7 @@ BlockDatingSettings <- setRefClass("BlockDatingSettings",
                                      DateAnyway = "logical",
                                      MutationCorrection = "character"
                                      ),
+                                   
                                    methods = list(
                                      initialize =
                                        function(){
@@ -110,7 +112,8 @@ binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
 
 date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway, model){
   if(!is.character(blocksobj) && nrow(blocksobj) > 0){ # Checking the blocksobj is not a string of characters.
-    wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair,]), model="raw")[1])
+    
+    wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair]), model="raw")[1])
     if(bonfcorrect == TRUE){
       blocksobj$P_Threshold <- pthresh <- pthresh/nrow(blocksobj)
     } else {

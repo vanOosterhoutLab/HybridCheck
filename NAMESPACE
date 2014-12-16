@@ -2,11 +2,11 @@
 
 export(HybRIDS)
 exportClasses(HybRIDS)
+import(Biostrings)
 import(ape)
 import(ggplot2)
 import(grid)
 import(gridExtra)
 import(methods)
 import(png)
-import(Biostrings)
 useDynLib(HybRIDS)

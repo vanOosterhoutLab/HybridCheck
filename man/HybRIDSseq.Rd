@@ -9,23 +9,37 @@ An internal Reference Class to represent a DNA alignment, read from a FASTA file
 \section{Fields}{
 
 \describe{
-\item{\code{FullSequence}}{A Matrix (of Characters) containing the full sequence alignment.}
+\item{\code{FullSequence}}{A DNAStringSet containing the full sequence alignment.}
 
-\item{\code{InformativeSequence}}{A matrix (of Characters) containing the elignment, with uninformative sites removed.}
+\item{\code{InformativeSequence}}{A DNAStringSet containing the elignment, with uninformative sites removed.}
 }}
 \section{Methods}{
 
 \describe{
-\item{\code{InputDNA(intarget, format)}}{Reads in sequences from file and appropriately modifies fields of the object.}
+\item{\code{InputDNA(intarget)}}{Reads in sequences from file and appropriately modifies fields of the object.}
 
 \item{\code{enforceDNA()}}{Enforces some rules about the content of the sequence object and throws errors should they occur.}
 
-\item{\code{getFullBp()}}{Returns the }
+\item{\code{getFullBp()}}{Returns a vector containing the numbers of the base positions in the aligned sequences.}
+
+\item{\code{getFullLength()}}{Returns the length in base pairs, of the aligned sequences.}
+
+\item{\code{getInformativeBp()}}{Returns a vector of the base positions of the informative sites in the aligned sequences.}
+
+\item{\code{getInformativeLength()}}{Returns the number in base pairs, of informative sites in the aligned sequences.}
+
+\item{\code{getSequenceNames()}}{Returns a character vector of the sequence names.}
 
 \item{\code{hasDNA()}}{Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false.}
+
+\item{\code{htmlSummary()}}{Creates a character vector of the summary of the sequence object, formatted as HTML.}
 
 \item{\code{initialize(sequenceInput = NULL)}}{Initializes the object, may be provided with a filepath to a sequence file, currently only FASTA is supported.}
 
 \item{\code{numberOfSequences()}}{Returns the number of sequences in the stored alignment.}
+
+\item{\code{pullTriplet(selection)}}{Extracts from the sequence object, a triplet of sequences.}
+
+\item{\code{textSummary()}}{Creates a character vector of the summary of the sequence object.}
 }}
 
