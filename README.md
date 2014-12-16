@@ -3,6 +3,8 @@ HybRIDS
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Ward9250/HybRIDS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Build Status](https://travis-ci.org/Ward9250/HybRIDS.svg?branch=master)](https://travis-ci.org/Ward9250/HybRIDS)
+
 **An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
 **Visit the website ward9250.github.io/HybRIDS**
 
