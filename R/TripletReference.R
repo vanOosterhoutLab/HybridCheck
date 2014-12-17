@@ -57,8 +57,7 @@ Triplet <- setRefClass("Triplet",
                        
                        fields = list(
                          ContigNames = "character",
-                         ContigIndexes = "integer",
-                         ContigNumbers = "list",
+                         ContigPairs = "list",
                          InformativeDNALength = "numeric",
                          FullDNALength = "numeric",
                          ScanData = "ANY",
@@ -67,12 +66,11 @@ Triplet <- setRefClass("Triplet",
                        
                        methods = list(
                          initialize = 
-                           function(sequencenumbers, sequencenames, fullseqlength, hybridsDir){
+                           function(sequencenames, fullseqlength, hybridsDir){
                              "Initializer function, creates an instance of triplet."
                              ContigNames <<- sequencenames
-                             ContigIndexes <<- sequencenumbers
                              FullDNALength <<- fullseqlength
-                             ContigNumbers <<- combn(sequencenumbers, 2, simplify=F)
+                             ContigPairs <<- combn(ContigNames, 2, simplify=F)
                              ScanData <<- SimilarityScan$new(hybridsDir)
                            },
                          
@@ -125,9 +123,9 @@ Triplet <- setRefClass("Triplet",
                            function(dnaobj, parameters){
                              "Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and ."
                              message("Now dating blocks")
-                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
-                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
-                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigNumbers[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigPairs[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigPairs[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, parameters$MutationRate, ContigPairs[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                              names(out.blocks) <- names(Blocks)
                              Blocks <<- out.blocks
@@ -316,7 +314,7 @@ Triplets <- setRefClass("Triplets",
                               message("Initializing new triplets data.")
                               seqlength <- dna$getFullLength()
                               seqnames <- dna$getSequenceNames()
-                              triplets <<- lapply(csettings$AcceptedCombinations, function(x) Triplet$new(sequencenumbers = which(seqnames %in% x), sequencenames = c(x[1], x[2], x[3]), fullseqlength = seqlength, basefile))
+                              triplets <<- lapply(csettings$AcceptedCombinations, function(x) Triplet$new(sequencenames = c(x[1], x[2], x[3]), fullseqlength = seqlength, basefile))
                             },
                           
 #                           updateTriplets =
@@ -339,7 +337,7 @@ Triplets <- setRefClass("Triplets",
                               if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
                               tripletsToScan <- getTriplets(tripletSelections)
                               for(tripletToScan in tripletsToScan){
-                                seq.similarity(dna, tripletToScan, scansettings)
+                                scan.similarity(dna, tripletToScan, scansettings)
                               }
                             },
 

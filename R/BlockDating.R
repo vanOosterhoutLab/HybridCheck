@@ -112,8 +112,7 @@ binomcalc <- function(p, p0, N, B){pbinom(B,N,p)-p0}
 
 date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, danyway, model){
   if(!is.character(blocksobj) && nrow(blocksobj) > 0){ # Checking the blocksobj is not a string of characters.
-    
-    wholeSequenceDist <- (dist.dna(as.DNAbin(dnaobj$FullSequence[pair]), model="raw")[1])
+    wholeSequenceDist <- stringDist(dnaobj$FullSequence[pair], method = "hamming")[1] / dnaobj$getFullLength()
     if(bonfcorrect == TRUE){
       blocksobj$P_Threshold <- pthresh <- pthresh/nrow(blocksobj)
     } else {
@@ -121,10 +120,10 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
     }
     for(i in 1:nrow(blocksobj)){
       #Extract the two sequences required...
-      Seq <- dnaobj$FullSequence[pair,c(which(dnaobj$getFullBp() == blocksobj[i,"FirstBP"]):which(dnaobj$getFullBp() == blocksobj[i,"LastBP"]))]
-      blocksobj[i,"SNPs"] <- dist.dna(as.DNAbin(Seq), model="N")[1]
-      distanceByModel <- dist.dna(as.DNAbin(Seq), model=model)[1]
-      blocksobj[i,"CorrectedSNPs"] <- round(distanceByModel * blocksobj[i,"ApproxBpLength"])
+      Seq <- subseq(test$DNA$FullSequence[pair], start = blocksobj[i, "FirstBP"], end = blocksobj[i, "LastBP"])
+      blocksobj[i, "SNPs"] <- stringDist(Seq, method = "hamming")[1]
+      distanceByModel <- dist.dna(as.DNAbin(Seq), model = model)[1]
+      blocksobj[i, "CorrectedSNPs"] <- round(distanceByModel * blocksobj[i, "ApproxBpLength"])
     }
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)
     if(!danyway){
@@ -134,12 +133,18 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
     blocksobj <- blocksobj[(blocksobj$ApproxBpLength != blocksobj$SNPs) & (blocksobj$P_Value < 1),]
     if(nrow(blocksobj) > 0){
       for(i in 1:nrow(blocksobj)){
-        soln5 <- uniroot(binomcalc, c(0,1), p0=0.05, B=blocksobj[i,"CorrectedSNPs"], N=blocksobj[i,"ApproxBpLength"])
-        soln50 <- uniroot(binomcalc, c(0,1), p0=0.5, B=blocksobj[i,"CorrectedSNPs"], N=blocksobj[i,"ApproxBpLength"])
-        soln95 <- uniroot(binomcalc, c(0,1), p0=0.95, B=blocksobj[i,"CorrectedSNPs"], N=blocksobj[i,"ApproxBpLength"])
-        blocksobj[i,"fiveAge"] <- round(soln5[["root"]]/(2*mut))
-        blocksobj[i,"fiftyAge"] <- round(soln50[["root"]]/(2*mut))
-        blocksobj[i,"ninetyFiveAge"] <- round(soln95[["root"]]/(2*mut))
+        soln5 <- uniroot(binomcalc, c(0,1), p0 = 0.05,
+                         B = blocksobj[i, "CorrectedSNPs"],
+                         N = blocksobj[i, "ApproxBpLength"])
+        soln50 <- uniroot(binomcalc, c(0,1), p0 = 0.5,
+                          B = blocksobj[i, "CorrectedSNPs"],
+                          N = blocksobj[i, "ApproxBpLength"])
+        soln95 <- uniroot(binomcalc, c(0,1), p0 = 0.95,
+                          B = blocksobj[i, "CorrectedSNPs"],
+                          N = blocksobj[i, "ApproxBpLength"])
+        blocksobj[i, "fiveAge"] <- round(soln5[["root"]] / (2 * mut))
+        blocksobj[i, "fiftyAge"] <- round(soln50[["root"]]/ (2 * mut))
+        blocksobj[i, "ninetyFiveAge"] <- round(soln95[["root"]] / (2 * mut))
       }
     }
   }

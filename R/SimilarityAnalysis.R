@@ -1,4 +1,4 @@
-seq.similarity <- function(dna, triplet, settings){
+scan.similarity <- function(dna, triplet, settings){
   message(paste0("Scanning sequence similarity for triplet ", paste0(triplet$ContigNames, collapse=", ")))
   dnain <- dna$pullTriplet(triplet$ContigNames)
   precons <- which(colSums(consensusMatrix(dnain) != 0) > 1)
