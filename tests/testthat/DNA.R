@@ -1,0 +1,20 @@
+context("DNA reference object")
+
+test_that("dna reference object correctly reports information about sequences", {
+  blank <- HybRIDS:::HybRIDSseq$new()
+  expect_false(blank$hasDNA())
+  expect_error(blank$enforceDNA())
+  expect_error(blank$numberOfSequences())
+  expect_error(blank$getFullBp())
+  expect_error(blank$getInformativeBp())
+  expect_error(blank$numberOfSequences())
+  expect_error(blank$getFullLength())
+  expect_error(blank$getInformativeLength())
+  expect_error(blank$getSequenceNames())
+  expect_error(blank$textSummary())
+  expect_error(blank$htmlSummary())
+  expect_error(blank$show())
+  expect_error(blank$pullTriplet(c("Seq1", "Seq2", "Seq3")))
+  
+  
+})

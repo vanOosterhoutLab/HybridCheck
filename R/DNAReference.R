@@ -83,6 +83,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               
                               pullTriplet =
                                 function(selection){
+                                  enforceDNA()
                                   if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
                                   return(InformativeSequence[selection, ])
                                 },
