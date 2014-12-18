@@ -1,7 +1,8 @@
 #' @docType package
 #' ...
 #' @useDynLib HybRIDS
-#' @import ape ggplot2 grid gridExtra png Biostrings
+#' @import methods ape ggplot2 gridExtra Biostrings
+#' @importFrom png readPNG
 NULL
 
 #' A Reference Class for managing a HybRIDS analysis.

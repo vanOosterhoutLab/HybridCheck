@@ -1,5 +1,5 @@
 .onAttach <- function(...){
-  cat("\nTACTTTGTACCTAAGTATGCATTACGTTACGTTAGTAGCTGGACCTAGTAAATCGGA     
+  packageStartupMessage("\nTACTTTGTACCTAAGTATGCATTACGTTACGTTAGTAGCTGGACCTAGTAAATCGGA     
 ,--.  ,--.         ,--.   ,------. ,--.,------.   ,---.
 |  '--'  |,--. ,--.|  |-. |  .--. '|  ||  .-.  \\ '   .-'
 |  .--.  | \\  '  / | .-. '|  '--'.'|  ||  |  \\  :`.  `-.

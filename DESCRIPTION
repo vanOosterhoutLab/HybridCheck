@@ -2,16 +2,16 @@ Package: HybRIDS
 Type: Package
 Title: Detection and dating of Recombinant Regions in DNA sequence data.
 Version: 1.0
-Date: 2013-03-13
+Date: 2014-12-18
 Author: Ben J. Ward
 Maintainer: Ben J. Ward <b.ward@uea.ac.uk>
 Description: An R package for the detection and dating of
     Recombinant Regions in DNA sequence data.
 License: GPL-2
 Depends: 
-    ggplot2,grid,gridExtra,png,ape
+    ggplot2,gridExtra,ape,Biostrings
 Imports: 
-    Rcpp (>= 0.11.0)
+    Rcpp (>= 0.11.0),png,methods
 LinkingTo: Rcpp
 Suggests: knitr,testthat
 VignetteBuilder: knitr

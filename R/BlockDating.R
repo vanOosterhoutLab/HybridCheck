@@ -120,7 +120,7 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
     }
     for(i in 1:nrow(blocksobj)){
       #Extract the two sequences required...
-      Seq <- subseq(test$DNA$FullSequence[pair], start = blocksobj[i, "FirstBP"], end = blocksobj[i, "LastBP"])
+      Seq <- subseq(dnaobj$FullSequence[pair], start = blocksobj[i, "FirstBP"], end = blocksobj[i, "LastBP"])
       blocksobj[i, "SNPs"] <- stringDist(Seq, method = "hamming")[1]
       distanceByModel <- dist.dna(as.DNAbin(Seq), model = model)[1]
       blocksobj[i, "CorrectedSNPs"] <- round(distanceByModel * blocksobj[i, "ApproxBpLength"])

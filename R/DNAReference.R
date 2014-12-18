@@ -151,7 +151,12 @@ sortInput <- function(input){
       message("Class of input is DNAStringSet from Biostrings package...")
       dna <- input
     } else {
-      error("Input is not a valid path to a DNA file, nor is it a valid DNA object.")
+      if(classOfInput == "DNAbin"){
+        message("Class of input is DNAbin from the ape package...")
+        dna <- DNAStringSet(unlist(apply(as.character(input), 1, function(x) paste0(x, collapse = ""))))
+      } else {
+        stop("Input is not a valid path to a DNA file, nor is it a valid DNA object.")
+      }
     }
   }
   return(dna)
