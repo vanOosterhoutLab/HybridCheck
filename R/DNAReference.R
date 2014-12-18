@@ -1,13 +1,7 @@
 #' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
 #' @name HybRIDSseq
-<<<<<<< HEAD
-#' @field FullSequence A Matrix (of Characters) containing the full sequence alignment.
-#' @field InformativeSequence A matrix (of Characters) containing the elignment, with uninformative sites removed.
-=======
-#' @import methods
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
->>>>>>> Larger-sequences
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
@@ -105,11 +99,8 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               
                               pullTriplet =
                                 function(selection){
-<<<<<<< HEAD
-                                  enforceDNA()
-=======
                                   "Extracts from the sequence object, a triplet of sequences."
->>>>>>> Larger-sequences
+                                  enforceDNA()
                                   if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
                                   return(InformativeSequence[selection])
                                 },
