@@ -2,6 +2,7 @@
 
 export(HybRIDS)
 exportClasses(HybRIDS)
+import(Biostrings)
 import(ape)
 import(ggplot2)
 import(grid)

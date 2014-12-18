@@ -18,6 +18,12 @@ Reference class to store and manage triplet data.
 \describe{
 \item{\code{blockDate(dnaobj, parameters)}}{Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and .}
 
+\item{\code{blocksNotDated()}}{Returns TRUE, if the .}
+
+\item{\code{blocksNotFound()}}{Returns TRUE, if the tables for block are blank and no block findng has been done.}
+
+\item{\code{initialize(sequencenumbers, sequencenames, fullseqlength, hybridsDir)}}{Initializer function, creates an instance of triplet.}
+
 \item{\code{noScanPerformed()}}{Returns TRUE, if the SS analysis table is blank and the informative sites are not known. This is indicative that a scan of the file has not been done yet.}
 
 \item{\code{plotBars(plottingSettings)}}{Method plots the heatmap based graphic of bars, from the sequence similarity scan data.}

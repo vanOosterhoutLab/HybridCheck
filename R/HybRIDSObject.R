@@ -1,7 +1,7 @@
 #' @docType package
 #' ...
 #' @useDynLib HybRIDS
-#' @import ape ggplot2 grid gridExtra png
+#' @import ape ggplot2 grid gridExtra png Biostrings
 NULL
 
 #' A Reference Class for managing a HybRIDS analysis.
@@ -57,8 +57,8 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          # Method for inputting DNA sequences...
                                         inputDNA =
-                                          function(input, format=NULL){
-                                            DNA$InputDNA(input, format)
+                                          function(input){
+                                            DNA$InputDNA(input)
                                             userBlocks$initializePairsFromDNA(DNA)
                                             comparrisonSettings <<- ComparrisonSettings$new(DNA)
                                             if(triplets$tripletsGenerated()){

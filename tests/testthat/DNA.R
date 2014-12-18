@@ -15,6 +15,5 @@ test_that("dna reference object correctly reports information about sequences", 
   expect_error(blank$htmlSummary())
   expect_error(blank$show())
   expect_error(blank$pullTriplet(c("Seq1", "Seq2", "Seq3")))
-  
-  
+  tenSeqs <- HybRIDS:::HybRIDSseq$new()
 })

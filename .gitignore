@@ -10,3 +10,4 @@ src/RcppExports.o
 inst/doc
 R/RcppExports.R
 figures/*
+*.Rd
