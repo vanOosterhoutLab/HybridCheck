@@ -121,7 +121,7 @@ PlottingSettings <- setRefClass("PlottingSettings",
                                 )
 
 applyPlottingParams <- function(plot, parameters, title = ""){
-  if(parameters$PlotTitle == TRUE){
+  if(parameters$PlotTitle){
     plot <- plot + 
       ggtitle(title) +
       theme(title = element_text(size = parameters$TitleSize, colour = parameters$TitleColour, face = parameters$TitleFace),
@@ -130,22 +130,22 @@ applyPlottingParams <- function(plot, parameters, title = ""){
     plot <- plot + theme(title = element_blank(),
                           legend.text = element_text(size = parameters$LegendFontSize))
   }
-  if(parameters$XTitle == TRUE){
+  if(parameters$XTitle){
     plot <- plot + theme(axis.title.x = element_text(size = parameters$XTitleFontSize, colour = parameters$XTitleColour))
   } else {
     plot <- plot + theme(axis.title.x = element_blank())
   }
-  if(parameters$YTitle == TRUE){
+  if(parameters$YTitle){
     plot <- plot + theme(axis.title.y = element_text(size = parameters$YTitleFontSize, colour = parameters$YTitleColour))
   } else {
     plot <- plot + theme(axis.title.y = element_blank())
   }
-  if(parameters$XLabels == TRUE){
+  if(parameters$XLabels){
     plot <- plot + theme(axis.text.x = element_text(size = parameters$XLabelSize, colour = parameters$XLabelColour))
   } else {
     plot <- plot + theme(axis.text.x = element_blank())
   }
-  if(parameters$YLabels == TRUE){
+  if(parameters$YLabels){
     plot <- plot + theme(axis.text.y = element_text(size = parameters$YLabelSize, colour = parameters$YLabelColour))
   } else {
     plot <- plot + theme(axis.text.y = element_blank())
