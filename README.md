@@ -1,4 +1,4 @@
-<div style="text-align:center"><img src ="http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png" /></div>
+<img align="center" src ="http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png" alt="HybRIDS Logo Here" />
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Ward9250/HybRIDS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
