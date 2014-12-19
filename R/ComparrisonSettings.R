@@ -33,7 +33,7 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          value <- unique(value)
                                          if(!is.integer(value)){stop("You must enter integer values between 1 and 3.")}
                                          if(any(value > 3L)){stop("3L is the maximum value allowed.")}
-                                         if(any(value < 0L)){stop("0L is the minimum value allowed.")}
+                                         if(any(value < 1L)){stop("1L is the minimum value allowed.")}
                                          if(2L %in% value && 3L %in% value){stop("Select either method 2 or 3, not both.")}
                                          Method <<- value
                                        },
