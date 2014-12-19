@@ -24,7 +24,7 @@ SSAnalysisSettings <- setRefClass("SSAnalysisSettings",
                                     
                                     setWindowSize =
                                       function(value){
-                                        if(!is.integer(value)){stop("Error: Provide one integer value as a Window Size.")}
+                                        if(length(value) != 1 || !is.integer(value)){stop("Error: Provide one integer value as a Window Size.")}
                                         WindowSize <<- value
                                       },
                                     

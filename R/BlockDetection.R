@@ -30,7 +30,7 @@ BlockDetectionSettings <- setRefClass("BlockDetectionSettings",
                                         setSDstringency =
                                           function(value){
                                             "Checks input values for changing the SD stringency parameter for block detection and sets the parameter."
-                                            if(value == 0){stop("You can't enter a zero value.")}
+                                            if(length(value) > 1 || value == 0){stop("You can't enter a zero value.")}
                                             SDstringency <<- value
                                           },
                                         

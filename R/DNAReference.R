@@ -66,7 +66,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                 function(){
                                   "Returns a vector containing the numbers of the base positions in the aligned sequences."
                                   enforceDNA()
-                                  return(1:width(FullSequence))
+                                  return(1:getFullLength())
                                 },
                               
                               getInformativeBp =
