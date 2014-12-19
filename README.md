@@ -1,4 +1,9 @@
-<img align="center" src ="http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png" alt="HybRIDS Logo Here" />
+<a name="logo"/>
+<div align="center">
+<a href="ward9250.github.io/HybRIDS" target="_blank">
+<img src="http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png" alt="HybRIDS Logo Here" width="210" height="142"></img>
+</a>
+</div>
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Ward9250/HybRIDS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
