@@ -403,32 +403,34 @@ Triplets <- setRefClass("Triplets",
                               if(!is.list(selections)){
                                 selections <- list(selections)
                               }
+                              selections <- unique(selections)
                               if(!is.null(selections) && length(selections) > 0){
-                                if(length(selections) == 1 && selections[1] == "NOT.SCANNED"){
-                                  ind <- which(unlist(lapply(triplets, function(x) x$noScanPerformed())))
+                                ind <- numeric()
+                                if("ALL" %in% selections){
+                                  ind <- 1:length(triplets)
                                 } else {
-                                  if(length(selections) == 1 && selections[1] == "NOT.SEARCHED"){
-                                    ind <- which(unlist(lapply(triplets, function(x) x$blocksNotFound())))
-                                  } else {
-                                    if(length(selections) == 1 && selections[1] == "NOT.DATED"){
-                                      ind <- which(unlist(lapply(triplets, function(x) x$blocksNotDated())))
-                                    } else {
-                                      if(length(selections) == 1 && selections[1] == "ALL"){
-                                        ind <- 1:length(triplets)
-                                      } else {
-                                        selections <- unique(selections)
-                                        if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                        if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                        if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
-                                        allNames <- do.call(rbind, getAllNames())
-                                        ind <- unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x)))
-                                      }
-                                    }
+                                  if("NOT.SCANNED" %in% selections){
+                                    ind <- c(ind, which(unlist(lapply(triplets, function(x) x$noScanPerformed()))))
+                                    selections <- selections[which(selections != "NOT.SCANNED")]
                                   }
+                                  if("NOT.SEARCHED" %in% selections){
+                                    ind <- c(ind, which(unlist(lapply(triplets, function(x) x$blocksNotFound()))))
+                                    selections <- selections[which(selections != "NOT.SEARCHED")]
+                                  }
+                                  if("NOT.DATED" %in% selections){
+                                    ind <- c(ind, which(unlist(lapply(triplets, function(x) x$blocksNotDated()))))
+                                    selections <- selections[which(selections != "NOT.DATED")]
+                                  }
+                                  if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                  if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                  if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                  allNames <- do.call(rbind, getAllNames())
+                                  ind <- c(ind, unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x))))
                                 }
+                                ind <- unique(ind)
                                 return(triplets[ind])
                               } else {
-                                return(triplets)
+                                stop("No selection of triplet was provided.")
                               }
                             },
                           
