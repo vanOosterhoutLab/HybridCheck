@@ -95,7 +95,7 @@ Triplet <- setRefClass("Triplet",
                          
                          blocksNotDated =
                            function(){
-                             "Returns TRUE, if the ."
+                             "Returns TRUE, if the blocks detected have not been tested for significance or had a divergence time estimated."
                              bools <- unlist(lapply(Blocks, function(y) all(unlist(lapply(y, function(x) all(is.na(x$SNPs)) && all(is.na(x$CorrectedSNPs)) && all(is.na(x$P_Value)) && all(is.na(x$P_Threshold)) && all(is.na(x$fiveAge)) && all(is.na(x$fiftyAge)) && all(is.na(x$ninetyFiveAge))   )))))
                              return(all(bools))
                            },

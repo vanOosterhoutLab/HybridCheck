@@ -172,7 +172,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                          # GGplot method for HybRIDS object - activates sub-methods of triplets.
                                          plotTriplets =
-                                           function(Selections = "ALL", Combine = TRUE, ReplaceParams = TRUE, ...){
+                                           function(Selections = "ALL", ReplaceParams = TRUE, ...){
                                              settings <- plottingSettings
                                              if(length(list(...)) > 0){
                                                if(ReplaceParams){
