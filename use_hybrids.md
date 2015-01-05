@@ -24,7 +24,7 @@ However, for people who want to use it without needing to know much R, we have d
 -----
 
 ### Using the App on your local machine with the help of a launcher.
-We have provided a launcher for Windows and OS X. So long as you have R on your machine, these launchers will make sure HybRIDS and it's dependencies are installed, will fetch the current version of the Shiny files for the GUI from the GitHub repository, and then start up the app. You can then use HybRIDS with the GUI as detailed in the [HybRIDS User Manual.]()
+We have provided a launcher for Windows and OS X. So long as you have R on your machine, these launchers will make sure HybRIDS and its dependencies are installed, will fetch the current version of the Shiny files for the GUI from the GitHub repository, and then start up the app. You can then use HybRIDS with the GUI as detailed in the [HybRIDS User Manual.]()
 
 <div class="container">
       <div class="row">
@@ -41,7 +41,7 @@ We have provided a launcher for Windows and OS X. So long as you have R on your 
         <div class="col-md-4">
           <h3>Linux</h3>
           Download this tarball and extract the folder. The folder includes two shell scripts that can be used to install HybRIDS and its dependencies, and also run HybRIDS with the webapp GUI. 
-          <p><a class="btn btn-default" href="./Linux/HybRIDS_Launcher.tar.gz" role="button">Download for GNU/Linux</a></p>
+          <p><a class="btn btn-default" href="./Linux/HybRIDS_Launcher.tar.gz" role="button" download="HybRIDS_Launcher.tar.gz">Download for GNU/Linux</a></p>
         </div>
       </div>
 </div>
