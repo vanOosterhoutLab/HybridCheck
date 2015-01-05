@@ -41,7 +41,7 @@ We have provided a launcher for Windows and OS X. So long as you have R on your 
         <div class="col-md-4">
           <h3>Linux</h3>
           Download this tarball and extract the folder. The folder includes two shell scripts that can be used to install HybRIDS and its dependencies, and also run HybRIDS with the webapp GUI. 
-          <p><a class="btn btn-default" href="./Linux/HybRIDS_Installer_Linux.tar.gz" role="button">Download for GNU/Linux</a></p>
+          <p><a class="btn btn-default" href="./Linux/HybRIDS_Launcher.tar.gz" role="button">Download for GNU/Linux</a></p>
         </div>
       </div>
 </div>
