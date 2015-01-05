@@ -5,7 +5,7 @@ library(plyr)
 
 analyzeWithKnown <- function(triplet){
   hyb <- HybRIDS$new(triplet)
-  if(nrow(hyb$DNA$InformativeSequence) < 3){
+  if(hyb$DNA$numberOfSequences() < 3){
     return("Not enough unique sequences to form triplets")
   } else {
     hyb$setParameters(Step="BlockDating", PValue = 0.05, BonfCorrection = TRUE,
@@ -21,7 +21,7 @@ analyzeWithKnown <- function(triplet){
 
 analyzeWithDetection <- function(triplet){
   hyb <- HybRIDS$new(triplet)
-  if(nrow(hyb$DNA$InformativeSequence) < 3){
+  if(hyb$DNA$numberOfSequences() < 3){
     return("Not enough unique sequences to form triplets")
   } else {
     hyb$setParameters(Step="BlockDating", PValue = 0.05, BonfCorrection = TRUE,

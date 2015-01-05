@@ -10,6 +10,11 @@ allResultsDetection <- lapply(seq(from = 1000, to = 10000, by = 1000),
 save(allResultsDetection, file="SimulatedWithDetection.RData")
 processedResultsDetection <- datesProcess(allResultsDetection)
 
+cnames <- colnames(processedResultsDetection)
+cnames[c(9, 10, 11)] <- c("ninetyFiveAge", "fiftyAge", "fiveAge")
+colnames(processedResultsDetection) <- cnames
+
+
 # Convert Age (in number of generations) to mu * t for publication. 
 processedResultsDetection$fiveAge <- processedResultsDetection$fiveAge * 10e-6
 processedResultsDetection$fiftyAge <- processedResultsDetection$fiftyAge * 10e-6
