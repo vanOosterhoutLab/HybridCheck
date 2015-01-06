@@ -10,6 +10,14 @@ NULL
 #' @export HybRIDS
 #' @exportClass HybRIDS
 #' @field DNA A HybRIDSdna reference object.
+#' @field comparrisonSettings A ComparrisonSettings object.
+#' @field ssAnalysisSettings A SSAnalysisSettings object.
+#' @field blockDetectionSettings A BlockDetectionSettings object.
+#' @field blockDatingSettings A BlockDatingSettings object.
+#' @field plottingSettings A PlottingSettings object.
+#' @field triplets A Triplets object.
+#' @field userBlocks A UserBlocks object.
+#' @field filesDirectory Character - the root directory where all temporary files used by this object are found.
 HybRIDS <- setRefClass("HybRIDS",
                         
                         fields = list( 
@@ -28,29 +36,13 @@ HybRIDS <- setRefClass("HybRIDS",
                                            function(dnafile=NULL){
                                              "Create HybRIDS object with default values for fields. The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
-                                             
-                                             # Initiate settings for SSAnalysis scans.
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
-                                             
-                                             # Initiate block detection parameters.
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
-                                             
-                                             # Initiate block dating parameters.
-                                             #BlockDatingParams <<- list(MutationRate = 10e-08, PValue = 0.005, BonfCorrection = TRUE, DateAnyway = FALSE)
                                              blockDatingSettings <<- BlockDatingSettings$new()
-                                             
-                                             # Initiate settings for plotting triplet
                                              plottingSettings <<- PlottingSettings$new()
-                                             
-                                             # Initialize the user blocks object.
                                              userBlocks <<- UserBlocks$new()
-                                             
-                                             # Initialize the HybRIDSseq object.
                                              DNA <<- HybRIDSseq$new()
-                                             
-                                             triplets <<- Triplets$new() 
-                                             
-                                             # Make sure the input DNA file is loaded into the HybRIDSseq object.
+                                             triplets <<- Triplets$new()
                                              if(!is.null(dnafile)){
                                                inputDNA(dnafile)
                                              }
