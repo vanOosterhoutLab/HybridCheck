@@ -73,6 +73,11 @@ UserBlocks <- setRefClass("UserBlocks",
                             
                             tabulateBlocks = 
                               function(){
-                                return(do.call(rbind, Pairs))
+                                namesList <- unlist(lapply(1:length(Pairs), function(i) rep(names(Pairs)[[i]], nrow(Pairs[[i]]))))
+                                concatTable <- do.call(rbind, Pairs)
+                                resultTable <- cbind(namesList, concatTable)
+                                colnames(resultTable)[[1]] <- "Sequence_Pair"
+                                rownames(resultTable) <- NULL
+                                return(resultTable)
                               }
                             ))

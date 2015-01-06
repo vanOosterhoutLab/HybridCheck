@@ -3,6 +3,7 @@ title: "HybRIDS User Manual"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
 output:
+  word_document: default
   pdf_document:
     fig_height: 7
     fig_width: 10
@@ -12,10 +13,11 @@ output:
     fig_height: 7
     fig_width: 10
     toc: yes
-  word_document: default
 ---
 
+<div style="text-align:center">
 ![HybRIDS logo.](http://ward9250.github.io/HybRIDS/img/HybRIDSlogo.png)
+</div>
 
 # Introduction
 This manual is written for the researcher that has an alignment of sequences, and wants to use HybRIDS to analyze them. But is not familiar with R, or coding with R. We have created a GUI for HybRIDS based on a web-app framework and a launcher for Windows and OSX which can be used to install what you need and HybRIDS, and run it with the GUI, all with one click. Using HybRIDS in this way is intended for exploratory analysis of some sequence triplets in which the parameters of the analysis are varied and the results updated and displayed to you in real time. 
