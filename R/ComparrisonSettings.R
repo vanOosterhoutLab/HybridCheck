@@ -11,7 +11,6 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                      Method = "integer",
                                      DistanceThreshold = "numeric",
                                      PartitionStrictness = "integer",
-                                     Groups = "list",
                                      TripletCombinations = "list",
                                      AcceptedCombinations = "list"),
                                    
@@ -25,7 +24,7 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          SeqNames <<- dna$getSequenceNames()
                                          TripletCombinations <<- combn(dna$getSequenceNames(), 3, simplify=FALSE)
                                          AcceptedCombinations <<- list()
-                                         decideAcceptedTriplets()
+                                         #decideAcceptedTriplets()
                                        },
                                      
                                      changeMethod =
@@ -49,23 +48,6 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          if(length(value) != 1 || !any(value == c(1L, 2L))){stop("You must enter a single integer value of 1 or 2 as a PartitionStrictness.")}
                                          PartitionStrictness <<- value
                                        },
-                                     
-                                     setGroups =
-                                       function(groups){
-                                         if(length(groups) > 0){
-                                           if(any(!unlist(lapply(groups, function(x) is.integer(x) || is.character(x))))){stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")}
-                                           groups <- lapply(groups, function(x){
-                                             if(is.numeric(x)){
-                                               return(SeqNames[x]) 
-                                             } else {
-                                               return(x)
-                                             }
-                                           })
-                                           if(any(table(unlist(groups)) > 1)){stop("Entered a sequence name or number in more than one group.")}
-                                           if(any(!unlist(lapply(groups, function(x) all(x %in% SeqNames))))){stop("Some sequences specified in the groups are not in the sequence data.")}
-                                         }
-                                         Groups <<- groups
-                                         },
                                      
                                      decideAcceptedTriplets =
                                        function(dna){
@@ -151,9 +133,6 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                            }
                                            if(parameters[i] == "Refine"){
                                              setRefine(settings[[i]])
-                                           }
-                                           if(parameters[i] == "Groups"){
-                                             setGroups(settings[[i]])
                                            }
                                          }
                                          decideAcceptedTriplets(dna)

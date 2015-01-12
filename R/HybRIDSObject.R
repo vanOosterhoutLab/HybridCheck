@@ -22,6 +22,7 @@ HybRIDS <- setRefClass("HybRIDS",
                         
                         fields = list( 
                           DNA = "ANY",
+                          FTTmodule = "ANY",
                           comparrisonSettings = "ANY",
                           ssAnalysisSettings = "ANY",
                           blockDetectionSettings = "ANY",
@@ -36,6 +37,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                            function(dnafile=NULL){
                                              "Create HybRIDS object with default values for fields. The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
+                                             FTTmodule <<- FTTester$new()
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
                                              blockDatingSettings <<- BlockDatingSettings$new()
@@ -58,7 +60,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                               warning("Loading a new sequence file into HybRIDS object. Deleting triplets and data from previous sequence file.")
                                               triplets <<- Triplets$new()
                                             }
-                                            triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
+                                            #triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                           },
                                         
                                         setPopulations =

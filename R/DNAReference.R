@@ -138,6 +138,15 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   return(length(Populations) >= 1)
                                 },
                               
+                              namesOfPopulations =
+                                function(){
+                                  if(!is.null(names(Populations))){
+                                    return(names(Populations))
+                                  } else {
+                                    return(1:length(Populations))
+                                  }
+                                },
+                              
                               textSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object."
@@ -148,7 +157,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                                   "\n\nSequence names:\n")
                                   names <- getSequenceNames()
                                   end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse = "\n")
-                                  pops <- paste0(lapply(1:length(Populations), function(i) paste0(i, ": ", paste0(Populations[[i]], collapse = ", "))), collapse = "\n")
+                                  pops <- paste0(lapply(1:length(Populations), function(i) paste0(namesOfPopulations()[i], ": ", paste0(Populations[[i]], collapse = ", "))), collapse = "\n")
                                   return(paste0(start, end, "\n\nPopulations:\n", pops, "\n"))
                                 },
                               

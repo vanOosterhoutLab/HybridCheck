@@ -8,9 +8,25 @@ FTTester <- setRefClass("FTTester",
                                        local = "logical",
                                        windowSize = "integer",
                                        stepSize = "integer",
+                                       taxaCombos = "list",
                                        results = "list"),
                          
                          methods = list(
+                           initialize =
+                             function(){
+                               global <<- FALSE
+                               jackKnife <<- FALSE
+                               jackKnifeBlockSize <<- 50000L
+                               local <<- FALSE
+                               windowSize <<- 1000L
+                               stepSize <<- 1L
+                               
+                             },
+                           
+                           setTaxas =
+                             function(){
+                               
+                             },
                            
                            runTest =
                              function(aln, pops){
@@ -35,18 +51,8 @@ FTTester <- setRefClass("FTTester",
                                p3Slice <- populationSlice(aln.var[pops[[3]]], biSites.var)
                                p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
                                statsResults <- calculateStats(numberOfAlleles.all, biAllelicSites.all,
-                                                              p1Slice, p2Slice, p3Slice, p4Slice)
-                               
-                               
-                               
-                               
-                               
-                               
+                                                              p1Slice, p2Slice, p3Slice, p4Slice) 
                              }
-                           
-                           
-                           
-                           
                            )
                          )
 
