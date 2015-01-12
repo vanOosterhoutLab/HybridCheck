@@ -23,6 +23,7 @@ FTTester <- setRefClass("FTTester",
                                local <<- FALSE
                                windowSize <<- 1000L
                                stepSize <<- 1L
+                               results <<- list()
                              },
                            
                            setTaxaCombos =
@@ -109,6 +110,12 @@ FTTester <- setRefClass("FTTester",
                                }
                              },
                            
+                           generateFTTs =
+                             function(){
+                               message("Initializing new FTtest data.")
+                               results <<- lapply(taxaCombos, function(x) )
+                             },
+                           
                            
                            
                            
@@ -142,6 +149,32 @@ FTTester <- setRefClass("FTTester",
                                p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
                                statsResults <- calculateStats(numberOfAlleles.all, biAllelicSites.all,
                                                               p1Slice, p2Slice, p3Slice, p4Slice) 
+                             }
+                           )
+                         )
+
+
+FTTrecord <- setRefClass("FTTrecord",
+                         
+                         fields = list(
+                           P1 = "character",
+                           P2 = "character",
+                           P3 = "character",
+                           A = "character",
+                           globalD = "numeric",
+                           globalFd = "numeric"
+                           ),
+                         
+                         methods = list(
+                           initialize =
+                             function(p1, p2, p3, a){
+                               P1 <<- p1
+                               P2 <<- p2
+                               P3 <<- p3
+                               A <<- a
+                               globalD <<- numeric()
+                               globalFd <<- numeric()
+                               
                              }
                            )
                          )
