@@ -9,7 +9,8 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
                               InformativeBp = "integer",
-                              Populations = "list"),
+                              Populations = "list"
+                              ),
                               
                             methods = list( 
                               initialize =

@@ -118,6 +118,9 @@ HybRIDS <- setRefClass("HybRIDS",
                                              if(Step == "Plotting"){
                                                plottingSettings$setSettings(...)
                                              }
+                                             if(Step == "FTT"){
+                                               FTTmodule$setSettings(...)
+                                             }
                                            },
                                          
                                          # Method for analyzing the sequence similarity of triplets of sequences.

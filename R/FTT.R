@@ -44,6 +44,71 @@ FTTester <- setRefClass("FTTester",
                                }
                              },
                            
+                           setGlobal =
+                             function(value){
+                               if(!is.logical(value) || length(value != 1)){stop("Provide only one, logical value.")}
+                               global <<- value
+                             },
+                           
+                           setJackKnife =
+                             function(value){
+                               if(!is.logical(value) || length(value != 1)){stop("Provide only one, logical value.")}
+                               jackKnife <<- value
+                             },
+                           
+                           setJackKnifeBlockSize =
+                             function(value){
+                               if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
+                               jackKnifeBlockSize <<- value
+                             },
+                           
+                           setLocal =
+                             function(value){
+                               if(!is.logical(value) || length(value != 1)){stop("Provide only one, logical value.")}
+                               local <<- value
+                             },
+                           
+                           setWindowSize =
+                             function(value){
+                               if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
+                               windowSize <<- value
+                             },
+                           
+                           setStepSize =
+                             function(value){
+                               if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
+                               stepSize <<- value
+                             },
+                          
+                           setSettings =
+                             function(...){
+                               settings <- list(...)
+                               parameters <- names(settings)
+                               for(i in 1:length(settings)){
+                                 if(parameters[i] == "global"){
+                                   setGlobal(settings[[i]])
+                                 }
+                                 if(parameters[i] == "jackKnife"){
+                                   setJackKnife(settings[[i]])
+                                 }
+                                 if(parameters[i] == "jackKnifeBlockSize"){
+                                   setJackKnifeBlockSize(settings[[i]])
+                                 }
+                                 if(parameters[i] == "local"){
+                                   setLocal(settings[[i]])
+                                 }
+                                 if(parameters[i] == "windowSize"){
+                                   setWindowSize(settings[[i]])
+                                 }
+                                 if(parameters[i] == "stepSize"){
+                                   setStepSize(settings[[i]])
+                                 }
+                                 if(parameters[i] == "taxaCombos"){
+                                   setTaxaCombos(settings[[i]])
+                                 }
+                               }
+                             },
+                           
                            
                            
                            
