@@ -1,5 +1,7 @@
 #' A Reference Class for performing and storing results of four taxon tests for introgression.
 #' @name FTTester
+#' @field global Logical, whether a global statistic will be calculated for the four taxon tests.
+#' @field results A list of reference objects defining the result of a given four taxon test.
 FTTester <- setRefClass("FTTester",
                          
                          fields = list(global = "logical",
@@ -13,20 +15,43 @@ FTTester <- setRefClass("FTTester",
                          
                          methods = list(
                            initialize =
-                             function(){
+                             function(dna){
+                               "Initialization method creates object with its default values."
                                global <<- FALSE
                                jackKnife <<- FALSE
                                jackKnifeBlockSize <<- 50000L
                                local <<- FALSE
                                windowSize <<- 1000L
                                stepSize <<- 1L
-                               
                              },
                            
-                           setTaxas =
-                             function(){
-                               
+                           setTaxaCombos =
+                             function(taxas, dna){
+                               if(length(taxas) > 0){
+                                 for(i in taxas){
+                                   if(length(i) != 4){stop("Each taxon combination must provide 4 populations: a P1, a P2, a P3 and an A.")}
+                                   if(!is.null(names(i))){
+                                     inputCheck1 <- all(names(i) %in% c("P1", "P2", "P3", "A"))
+                                     if(!inputCheck1){stop("The only names allowed for specifying taxa combos are 'P1', 'P2', 'P3', and 'A'")}
+                                   } else {
+                                     warning(paste0("No names were provided for the population combination: ", paste0(i, collapse=", "), ".\n",
+                                     "Assuming that P1 is ", i[1], ", that P2 is ", i[2], ", that P3 is ", i[3], " and that A is ", i[4]))
+                                     names(i) <- c("P1", "P2", "P3", "A")
+                                   }
+                                   if(!all(i %in% dna$namesOfPopulations())){stop("You have listed a population name or number in a taxa combo which does not exist.")}
+                                   taxaCombos <<- c(taxaCombos, list(i))
+                                 }
+                               }
                              },
+                           
+                           
+                           
+                           
+                           
+                           
+                           
+                           
+                           
                            
                            runTest =
                              function(aln, pops){
@@ -55,6 +80,7 @@ FTTester <- setRefClass("FTTester",
                              }
                            )
                          )
+
 
 #' @name Subset a DNAStringSet.
 #' @description For extracting only certain cites of an MSA represented as a DNA

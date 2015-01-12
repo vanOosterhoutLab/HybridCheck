@@ -37,13 +37,16 @@ HybRIDS <- setRefClass("HybRIDS",
                                            function(dnafile=NULL){
                                              "Create HybRIDS object with default values for fields. The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
+                                             DNA <<- HybRIDSseq$new()
                                              FTTmodule <<- FTTester$new()
+                                             
+                                             
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
                                              blockDatingSettings <<- BlockDatingSettings$new()
                                              plottingSettings <<- PlottingSettings$new()
                                              userBlocks <<- UserBlocks$new()
-                                             DNA <<- HybRIDSseq$new()
+                                             
                                              triplets <<- Triplets$new()
                                              if(!is.null(dnafile)){
                                                inputDNA(dnafile)
@@ -55,6 +58,8 @@ HybRIDS <- setRefClass("HybRIDS",
                                           function(input){
                                             DNA$InputDNA(input)
                                             userBlocks$initializePairsFromDNA(DNA)
+                                            #FTTmodule$setTaxa()
+                                            
                                             comparrisonSettings <<- ComparrisonSettings$new(DNA)
                                             if(triplets$tripletsGenerated()){
                                               warning("Loading a new sequence file into HybRIDS object. Deleting triplets and data from previous sequence file.")
