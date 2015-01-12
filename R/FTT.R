@@ -5,13 +5,9 @@ FTTester <- setRefClass("FTTester",
                          fields = list(global = "logical",
                                        jackKnife = "logical",
                                        jackKnifeBlockSize = "integer",
-                                       
-                                       
                                        local = "logical",
                                        windowSize = "integer",
                                        stepSize = "integer",
-                                       
-                                       
                                        results = "list"),
                          
                          methods = list(
@@ -38,26 +34,21 @@ FTTester <- setRefClass("FTTester",
                                p2Slice <- populationSlice(aln.var[pops[[2]]], biSites.var)
                                p3Slice <- populationSlice(aln.var[pops[[3]]], biSites.var)
                                p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
-                               
-                               calculateStats(numberOfAlleles.all, biAllelicSites.all,
-                                              p1Slice, p2Slice, p3Slice, p4Slice)
-                               
+                               statsResults <- calculateStats(numberOfAlleles.all, biAllelicSites.all,
+                                                              p1Slice, p2Slice, p3Slice, p4Slice)
                                
                                
                                
                                
                                
-                             },
+                               
+                             }
                            
                            
                            
                            
                            )
                          )
-
-getNumberOfAlleles <- function(dna){
-  return()
-}
 
 #' @name Subset a DNAStringSet.
 #' @description For extracting only certain cites of an MSA represented as a DNA
@@ -77,16 +68,12 @@ populationSlice <- function(popSeqs, biSites){
   counts <- consensusMatrix(popSeqs)
   alleles <- colSums(counts != 0)
   S <- sum(alleles > 1)
-  return(list(counts = counts, countsBi = counts[,biSites], alleles = alleles, S = S))
+  return(list(counts = counts, countsBi = counts[, biSites], alleles = alleles, S = S))
 }
 
 calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
   ABBA <- 0
   BABA <- 0
-  maxABBAg <- 0
-  maxBABA_G <- 0
-  maxABBA_hom <- 0
-  maxBABA_hom <- 0
   maxABBA_D <- 0
   maxBABA_D <- 0
   for(i in 1:length(biSites.all)){
@@ -115,8 +102,7 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
                     D = (ABBA - BABA) / (ABBA + BABA),
                     maxABBA_D = maxABBA_D, maxBABA_D = maxBABA_D,
                     Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
-  
-  
+  return(out)
 }
 
 

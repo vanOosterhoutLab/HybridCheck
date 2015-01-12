@@ -2,11 +2,14 @@
 #' @name HybRIDSseq
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
+#' @field InformativeBp An integer vector containing the base positions that are informative.
+#' @field A list of population definitions - a list of vectors containing sequence names.
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
-                              InformativeBp = "integer"),
+                              InformativeBp = "integer",
+                              Populations = "list"),
                               
                             methods = list( 
                               initialize =
@@ -105,6 +108,36 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   return(InformativeSequence[selection])
                                 },
                               
+                              setPopulations =
+                                function(pops){
+                                  "Define which sequences form a population. Provide a list of vectors containing either integers or sequence names."
+                                  enforceDNA()
+                                  if(length(pops) > 0){
+                                    if(any(!unlist(lapply(pops, function(x) is.integer(x) || is.character(x))))){stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")}
+                                    pops <- lapply(pops, function(x){
+                                      if(is.numeric(x)){
+                                        return(getSequenceNames()[x]) 
+                                      } else {
+                                        return(x)
+                                      }
+                                    })
+                                    if(any(table(unlist(pops)) > 1)){stop("Entered a sequence name or number in more than one group.")}
+                                    if(any(!unlist(lapply(pops, function(x) all(x %in% getSequenceNames()))))){stop("Some sequences specified in the populations are not in the sequence data.")}
+                                  }
+                                  Populations <<- pops
+                                },
+                              
+                              numberOfPopulations =
+                                function(){
+                                  return(length(Populations))
+                                },
+                              
+                              hasPopulations =
+                                function(){
+                                  "Returns TRUE when a set of populations has been defined. Otherwise returns FALSE."
+                                  return(length(Populations) >= 1)
+                                },
+                              
                               textSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object."
@@ -114,8 +147,9 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                                   "\nExcluding non-informative sites: ", getInformativeLength(),
                                                   "\n\nSequence names:\n")
                                   names <- getSequenceNames()
-                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="\n")
-                                  return(paste0(start, end))
+                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse = "\n")
+                                  pops <- paste0(lapply(1:length(Populations), function(i) paste0(i, ": ", paste0(Populations[[i]], collapse = ", "))), collapse = "\n")
+                                  return(paste0(start, end, "\n\nPopulations:\n", pops, "\n"))
                                 },
                               
                               htmlSummary =
@@ -128,7 +162,8 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                                   " bp</p><p><b>Sequence names:</b><br>")
                                   names <- getSequenceNames()
                                   end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="<br>")
-                                  return(paste0(start, end))
+                                  pops <- paste0(lapply(1:length(Populations), function(i) paste0(i, ": ", paste0(Populations[[i]], collapse = ", "))), collapse = "<br>")
+                                  return(paste0(start, end, "<br><br>Populations:<br>", pops, "<br>"))
                                 },
                               
                               show =

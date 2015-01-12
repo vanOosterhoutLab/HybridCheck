@@ -60,6 +60,11 @@ HybRIDS <- setRefClass("HybRIDS",
                                             }
                                             triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                           },
+                                        
+                                        setPopulations =
+                                          function(pops){
+                                            DNA$setPopulations(pops)
+                                          },
                                          
                                         showParameters =
                                           function(Step = NULL){
