@@ -17,41 +17,38 @@ FTTester <- setRefClass("FTTester",
                          methods = list(
                            
                            runTest =
-                             function(dna, pops){
+                             function(aln, pops){
+                               # State counts at each site.
+                               counts.all <- consensusMatrix(aln)
+                               # Calculate the number of alleles at each site in the alignment.
+                               numAlleles.all <- colSums(counts.all != 0)
+                               # Find which sites are bi-allelic.
+                               biSites.all <- which(numAlleles.all == 2)
+                               # Find which ones are variable.
+                               varSites.all <- which(numAlleles.all > 1)
+                               # Make a version of the sequence alignment which only includes variable sites.
+                               aln.var <- subsetSequence(aln, varSites.all)
+                               # Get the number of alleles at those variable sites.
+                               numAlleles.var <- numAlleles.all[varSites.all]
+                               S.all <- length(numAlleles.var)
+                               # Find which of the variable sites are bi-allelic.
+                               biSites.var <- which(numAlleles.var == 2)
+                               # Population slices - refer to function's description.
+                               p1Slice <- populationSlice(aln.var[pops[[1]]], biSites.var)
+                               p2Slice <- populationSlice(aln.var[pops[[2]]], biSites.var)
+                               p3Slice <- populationSlice(aln.var[pops[[3]]], biSites.var)
+                               p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
                                
-                               # Calculate the number of alleles at each site in the alignment and
-                               # find which ones are bi-allelic, and which ones are variable.
-                               numberOfAlleles.all <- getNumberOfAlleles(dna)
-                               biAllelicSites.all <- getBiAllelicSites(numberOfAlleles.all)
-                               variableSites <- getVariableSites(numberOfAlleles.all)
-                               # Make a version of the sequence alignment which only includes variable sites,
-                               # and get the number of alleles at those variable sites,
-                               # find which of those variable sites are bi-allelic.
-                               variableAlignment <- subsetSequence(dna, variableSites)
-                               numberOfAlleles.var <- numberOfAlleles.all[variableSites]
-                               S.all <- length(numberOfAlleles.var)
-                               biAllelicSites.var <- which(numberOfAlleles.var == 2)
-                               
-                               # Population slice calculates for a subset of the alignment of variable sites:
-                               # The counts, the number of alleles, and the counts of the (global)bi-allelic sites. 
-                               p1Slice <- populationSlice(variableAlignment[pops[[1]]], biAllelicSites.var)
-                               p2Slice <- populationSlice(variableAlignment[pops[[2]]], biAllelicSites.var)
-                               p3Slice <- populationSlice(variableAlignment[pops[[3]]], biAllelicSites.var)
-                               p4Slice <- populationSlice(variableAlignment[pops[[4]]], biAllelicSites.var)
-                               
-                               
-                               
-                               
-                               observedAbbaBabaSites <- getAbbaBabaSites(dna)
-                               observedNumberOfAbba <- length(observedAbbaBabaSites[[1]])
-                               observedNumberOfBaba <- length(observedAbbaBabaSites[[2]])
-                               observedD <- calculateD(observedNumberOfAbba, observedNumberOfBaba)
+                               calculateStats(numberOfAlleles.all, biAllelicSites.all,
+                                              p1Slice, p2Slice, p3Slice, p4Slice)
                                
                                
                                
-                               results <<- append(results, ABBABABArecord$new(      ))
+                               
+                               
+                               
                              },
-                           ## https://github.com/johnomics/Martin_Davey_Jiggins_evaluating_introgression_statistics/blob/master/compare_f_estimators.r
+                           
                            
                            
                            
@@ -59,17 +56,11 @@ FTTester <- setRefClass("FTTester",
                          )
 
 getNumberOfAlleles <- function(dna){
-  return(colSums(consensusMatrix(dna) != 0))
+  return()
 }
 
-getBiAllelicSites <- function(alleleNum){
-  return(which(alleleNum == 2))
-}
-
-getVariableSites <- function(alleleNum){
-  return(which(alleleNum > 1))
-}
-
+#' @name Subset a DNAStringSet.
+#' @description For extracting only certain cites of an MSA represented as a DNA
 subsetSequence <- function(dna, indexes){
   subSeqs <- DNAStringSet(character(length = length(dna)))
   for(i in 1:length(dna)){
@@ -78,12 +69,57 @@ subsetSequence <- function(dna, indexes){
   return(subSeqs)
 }
 
-populationSlice <- function(popSeqs, biAllelicSites){
+#' @name populationSlice
+#' @description Calculate for a subset of an alignment of variable sites:
+#' The counts, the number of alleles, and the counts of the (global) bi-allelic,
+#' sites in the population. 
+populationSlice <- function(popSeqs, biSites){
   counts <- consensusMatrix(popSeqs)
   alleles <- colSums(counts != 0)
   S <- sum(alleles > 1)
-  return(list(counts = counts, countsBi = counts[,biAllelicSites], alleles = alleles, S = S))
+  return(list(counts = counts, countsBi = counts[,biSites], alleles = alleles, S = S))
 }
+
+calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
+  ABBA <- 0
+  BABA <- 0
+  maxABBAg <- 0
+  maxBABA_G <- 0
+  maxABBA_hom <- 0
+  maxBABA_hom <- 0
+  maxABBA_D <- 0
+  maxBABA_D <- 0
+  for(i in 1:length(biSites.all)){
+    i.bi.counts <- counts.all[, biSites.all[i]]
+    alleles <- names(which(i.bi.counts > 0))
+    anc <- names(which(slice4$countsBi[, i] != 0))
+    if(length(anc) != 1){
+      anc <- names(which(i.bi.counts == max(i.bi.counts)))[1]
+    }
+    derived <- alleles[which(alleles != anc)]
+    P1df <- slice1$countsBi[derived, i] / sum(slice1$countsBi[, i])
+    P2df <- slice2$countsBi[derived, i] / sum(slice2$countsBi[, i])
+    P3df <- slice3$countsBi[derived, i] / sum(slice3$countsBi[, i])
+    P4df <- slice4$countsBi[derived, i] / sum(slice4$countsBi[, i])
+    ABBA <- sum(ABBA, (1 - P1df) * P2df * P3df * (1 - P4df), na.rm = TRUE)
+    BABA <- sum(BABA, P1df * (1 - P2df) * P3df * (1 - P4df), na.rm = TRUE)
+    if (is.na(P3df) == FALSE & is.na(P2df) == FALSE & P3df >= P2df){
+      maxABBA_D <- sum(maxABBA_D, (1 - P1df) * P3df * P3df * (1 - P4df), na.rm = TRUE)
+      maxBABA_D <- sum(maxBABA_D, P1df * (1 - P3df) * P3df * (1 - P4df), na.rm = TRUE)
+    } else {
+      maxABBA_D <- sum(maxABBA_D, (1 - P1df) * P2df * P2df * (1 - P4df), na.rm = TRUE)
+      maxBABA_D <- sum(maxBABA_D, P1df * (1 - P2df) * P2df * (1 - P4df), na.rm = TRUE)
+    }
+  }
+  out <- data.frame(ABBA=ABBA, BABA=BABA,
+                    D = (ABBA - BABA) / (ABBA + BABA),
+                    maxABBA_D = maxABBA_D, maxBABA_D = maxBABA_D,
+                    Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
+  
+  
+}
+
+
 
 
 
