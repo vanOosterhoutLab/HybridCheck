@@ -4,12 +4,7 @@
 #' @field results A list of reference objects defining the result of a given four taxon test.
 FTTester <- setRefClass("FTTester",
                          
-                         fields = list(global = "logical",
-                                       jackKnife = "logical",
-                                       jackKnifeBlockSize = "integer",
-                                       local = "logical",
-                                       windowSize = "integer",
-                                       stepSize = "integer",
+                         fields = list(blockSize = "integer",
                                        taxaCombos = "list",
                                        results = "list"),
                          
@@ -17,12 +12,7 @@ FTTester <- setRefClass("FTTester",
                            initialize =
                              function(dna){
                                "Initialization method creates object with its default values."
-                               global <<- FALSE
-                               jackKnife <<- FALSE
-                               jackKnifeBlockSize <<- 50000L
-                               local <<- FALSE
-                               windowSize <<- 1000L
-                               stepSize <<- 1L
+                               blockSize <<- 50000L
                                results <<- list()
                              },
                            
@@ -30,7 +20,7 @@ FTTester <- setRefClass("FTTester",
                              function(taxas, dna){
                                if(length(taxas) > 0){
                                  for(i in taxas){
-                                   if(length(i) != 4){stop("Each taxon combination must provide 4 populations: a P1, a P2, a P3 and an A.")}
+                                   if(length(unique(i)) != 4){stop("Each taxon combination must provide 4 unique populations: a P1, a P2, a P3 and an A.")}
                                    if(!is.null(names(i))){
                                      inputCheck1 <- all(names(i) %in% c("P1", "P2", "P3", "A"))
                                      if(!inputCheck1){stop("The only names allowed for specifying taxa combos are 'P1', 'P2', 'P3', and 'A'")}
@@ -45,40 +35,15 @@ FTTester <- setRefClass("FTTester",
                                }
                              },
                            
-                           setGlobal =
-                             function(value){
-                               if(!is.logical(value) || length(value != 1)){stop("Provide only one, logical value.")}
-                               global <<- value
+                           hasTaxaCombos =
+                             function(){
+                               return(length(taxaCombos) > 0)
                              },
                            
-                           setJackKnife =
-                             function(value){
-                               if(!is.logical(value) || length(value != 1)){stop("Provide only one, logical value.")}
-                               jackKnife <<- value
-                             },
-                           
-                           setJackKnifeBlockSize =
+                           setBlockSize =
                              function(value){
                                if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
-                               jackKnifeBlockSize <<- value
-                             },
-                           
-                           setLocal =
-                             function(value){
-                               if(!is.logical(value) || length(value != 1)){stop("Provide only one, logical value.")}
-                               local <<- value
-                             },
-                           
-                           setWindowSize =
-                             function(value){
-                               if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
-                               windowSize <<- value
-                             },
-                           
-                           setStepSize =
-                             function(value){
-                               if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
-                               stepSize <<- value
+                               blockSize <<- value
                              },
                           
                            setSettings =
@@ -86,23 +51,8 @@ FTTester <- setRefClass("FTTester",
                                settings <- list(...)
                                parameters <- names(settings)
                                for(i in 1:length(settings)){
-                                 if(parameters[i] == "global"){
-                                   setGlobal(settings[[i]])
-                                 }
-                                 if(parameters[i] == "jackKnife"){
-                                   setJackKnife(settings[[i]])
-                                 }
-                                 if(parameters[i] == "jackKnifeBlockSize"){
-                                   setJackKnifeBlockSize(settings[[i]])
-                                 }
-                                 if(parameters[i] == "local"){
-                                   setLocal(settings[[i]])
-                                 }
-                                 if(parameters[i] == "windowSize"){
-                                   setWindowSize(settings[[i]])
-                                 }
-                                 if(parameters[i] == "stepSize"){
-                                   setStepSize(settings[[i]])
+                                 if(parameters[i] == "blockSize"){
+                                   setBlockSize(settings[[i]])
                                  }
                                  if(parameters[i] == "taxaCombos"){
                                    setTaxaCombos(settings[[i]])
@@ -113,19 +63,15 @@ FTTester <- setRefClass("FTTester",
                            generateFTTs =
                              function(){
                                message("Initializing new FTtest data.")
-                               results <<- lapply(taxaCombos, function(x) )
+                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x$P1, x$P2, x$P3, x$A))
                              },
                            
+                           runFTTs =
+                             function(){
+                               
+                             },
                            
-                           
-                           
-                           
-                           
-                           
-                           
-                           
-                           
-                           runTest =
+                           calculateDandFd =
                              function(aln, pops){
                                # State counts at each site.
                                counts.all <- consensusMatrix(aln)
@@ -161,19 +107,19 @@ FTTrecord <- setRefClass("FTTrecord",
                            P2 = "character",
                            P3 = "character",
                            A = "character",
-                           globalD = "numeric",
-                           globalFd = "numeric"
+                           blockSize = "integer",
+                           recordFile = "character",
+                           table = "data.frame"
                            ),
                          
                          methods = list(
                            initialize =
-                             function(p1, p2, p3, a){
+                             function(p1, p2, p3, a, bs){
                                P1 <<- p1
                                P2 <<- p2
                                P3 <<- p3
                                A <<- a
-                               globalD <<- numeric()
-                               globalFd <<- numeric()
+                               blockSize <<- bs
                                
                              }
                            )
@@ -228,10 +174,10 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
       maxBABA_D <- sum(maxBABA_D, P1df * (1 - P2df) * P2df * (1 - P4df), na.rm = TRUE)
     }
   }
-  out <- data.frame(ABBA=ABBA, BABA=BABA,
-                    D = (ABBA - BABA) / (ABBA + BABA),
-                    maxABBA_D = maxABBA_D, maxBABA_D = maxBABA_D,
-                    Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
+  out <- c(ABBA=ABBA, BABA=BABA,
+           D = (ABBA - BABA) / (ABBA + BABA),
+           maxABBA_D = maxABBA_D, maxBABA_D = maxBABA_D,
+           Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
   return(out)
 }
 
