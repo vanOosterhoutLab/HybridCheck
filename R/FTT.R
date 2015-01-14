@@ -16,7 +16,7 @@ FTTester <- setRefClass("FTTester",
                                results <<- list()
                              },
                            
-                           setTaxaCombos =
+                           manualTaxaCombos =
                              function(taxas, dna){
                                if(length(taxas) > 0){
                                  for(i in taxas){
@@ -29,10 +29,57 @@ FTTester <- setRefClass("FTTester",
                                      "Assuming that P1 is ", i[1], ", that P2 is ", i[2], ", that P3 is ", i[3], " and that A is ", i[4]))
                                      names(i) <- c("P1", "P2", "P3", "A")
                                    }
-                                   if(!all(i %in% dna$namesOfPopulations())){stop("You have listed a population name or number in a taxa combo which does not exist.")}
+                                   if(!all(i %in% dna$namesOfPopulations())){stop("You have listed a population name in a taxa combo which does not exist.")}
                                    taxaCombos <<- c(taxaCombos, list(i))
                                  }
                                }
+                             },
+                           
+                           autoTaxaCombos =
+                             function(dna){
+                               allCombs <- combn(dna$namesOfPopulations(), 4, simplify = FALSE)
+                               allDists <- as.matrix(stringDist(dna$FullSequence, method = "hamming")) / dna$getFullLength()
+                               generatedCombs <- lapply(allCombs, function(x){
+                                 out <- list(P1 = NULL, P2 = NULL, P3 = NULL, A = NULL)
+                                 otus <- x
+                                 seqsInOtus <- dna$Populations[otus]
+                                 otuPairs <- combn(otus, 2, simplify = FALSE)
+                                 distances <- compDist(otuPairs, seqsInOtus, allDists)
+                                 minOTUs <- distances[which(distances$dist == min(distances$dist)), c("OTU1", "OTU2")]
+                                 out$P1 <- minOTUs$OTU1
+                                 out$P2 <- minOTUs$OTU2
+                                 remainingOtus <- otus[which(otus != out$P1 & otus != out$P2)]
+                                 seqsInOtus2 <- dna$Populations[remainingOtus]
+                                 P1P2otu <- paste0("(", out$P1, ", ", out$P2, ")")
+                                 remainingOtus <- c(remainingOtus, P1P2otu)
+                                 seqsInOtus2[[P1P2otu]] <- unlist(seqsInOtus[c(out$P1, out$P2)])
+                                 remainingOtuPairs <- combn(remainingOtus, 2, simplify = FALSE)
+                                 remainingOtuPairs <- remainingOtuPairs[unlist(lapply(remainingOtuPairs, function(x) P1P2otu %in% x))]
+                                 distances_2 <- compDist(remainingOtuPairs, seqsInOtus2, allDists)
+                                 minOTUs_2 <- distances_2[which(distances_2$dist == min(distances_2$dist)), c("OTU1", "OTU2")]
+                                 out$P3 <- minOTUs_2[1, which(minOTUs_2 != P1P2otu)]
+                                 out$A <- otus[which(!(otus %in% unlist(out)))]
+                                 checks <- c(
+                                   # Check P1 & P2 are closer than P1 and P3.
+                                   "d(P1,P2) < d(P1,P3)" = distances[which(apply(distances, 1, function(x){(out$P1 %in% x) & (out$P2 %in% x)})), 3] < 
+                                     distances[which(apply(distances, 1, function(x) (out$P1 %in% x) & (out$P3 %in% x))), 3],
+                                   # Check P1 & P2 are closer than P1 and A.
+                                   "d(P1,P2) < d(P1,PA)" = distances[which(apply(distances, 1, function(x) (out$P1 %in% x) & (out$P2 %in% x))), 3] < 
+                                     distances[which(apply(distances, 1, function(x) (out$P1 %in% x) & (out$A %in% x))), 3],
+                                   # Check P1 & P2 are closer than P2 and P3.
+                                   "d(P1,P2) < d(P2,P3)" = distances[which(apply(distances, 1, function(x){(out$P1 %in% x) & (out$P2 %in% x)})), 3] < 
+                                     distances[which(apply(distances, 1, function(x) (out$P2 %in% x) & (out$P3 %in% x))), 3],
+                                   # Check P1 & P2 are closer than P2 and A.
+                                   "d(P1,P2) < d(P2,A)" = distances[which(apply(distances, 1, function(x) (out$P1 %in% x) & (out$P2 %in% x))), 3] < 
+                                     distances[which(apply(distances, 1, function(x) (out$P2 %in% x) & (out$A %in% x))), 3]
+                                 )
+                                 if(any(!checks)){
+                                   warning(paste0(paste0("Automatically allocating P1, P2, P3 and A designations for population quartet ", paste0(otus, collapse=", "),":\n"),
+                                                  paste0("Sanity check: ", names(checks)[which(!checks)], " failed.", collapse = "\n")))
+                                 }
+                                 return(out)
+                               })
+                               manualTaxaCombos(generatedCombs, dna)
                              },
                            
                            hasTaxaCombos =
@@ -61,9 +108,9 @@ FTTester <- setRefClass("FTTester",
                              },
                            
                            generateFTTs =
-                             function(){
+                             function(hybridsDir){
                                message("Initializing new FTtest data.")
-                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x$P1, x$P2, x$P3, x$A))
+                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x$P1, x$P2, x$P3, x$A, blockSize, hybridsDir))
                              },
                            
                            runFTTs =
@@ -99,6 +146,23 @@ FTTester <- setRefClass("FTTester",
                            )
                          )
 
+compDist <- function(popPairs, seqInPop, distMat){
+  distances <- lapply(popPairs, function(y){
+    grid <- expand.grid(seqInPop[y])
+    ds <- apply(grid, 1, function(z){distMat[z[1], z[2]]})
+    return(sum(ds) / nrow(grid))
+  })
+  out <- data.frame(do.call(rbind, popPairs))
+  colnames(out) <- c("OTU1", "OTU2")
+  out$OTU1 <- as.character(out$OTU1)
+  out$OTU2 <- as.character(out$OTU2)
+  out$dist <- unlist(distances)
+  return(out)
+}
+
+
+
+
 
 FTTrecord <- setRefClass("FTTrecord",
                          
@@ -108,22 +172,27 @@ FTTrecord <- setRefClass("FTTrecord",
                            P3 = "character",
                            A = "character",
                            blockSize = "integer",
-                           recordFile = "character",
+                           tableFile = "character",
                            table = "data.frame"
                            ),
                          
                          methods = list(
                            initialize =
-                             function(p1, p2, p3, a, bs){
+                             function(p1, p2, p3, a, bs, hybridsDir){
                                P1 <<- p1
                                P2 <<- p2
                                P3 <<- p3
                                A <<- a
                                blockSize <<- bs
-                               
+                               tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
                              }
                            )
                          )
+
+
+
+
+
 
 
 #' @name Subset a DNAStringSet.

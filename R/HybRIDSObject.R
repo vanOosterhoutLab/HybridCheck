@@ -120,6 +120,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              }
                                              if(Step == "FTT"){
                                                FTTmodule$setSettings(...)
+                                               FTTmodule$generateFTTs(filesDirectory)
                                              }
                                            },
                                          

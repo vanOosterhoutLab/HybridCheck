@@ -3,7 +3,7 @@
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
 #' @field InformativeBp An integer vector containing the base positions that are informative.
-#' @field A list of population definitions - a list of vectors containing sequence names.
+#' @field Populations A list of population definitions - a list of vectors containing sequence names.
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
@@ -116,7 +116,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   if(length(pops) > 0){
                                     if(any(!unlist(lapply(pops, function(x) is.integer(x) || is.character(x))))){stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")}
                                     pops <- lapply(pops, function(x){
-                                      if(is.numeric(x)){
+                                      if(is.integer(x)){
                                         return(getSequenceNames()[x]) 
                                       } else {
                                         return(x)
@@ -126,10 +126,28 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                     if(any(!unlist(lapply(pops, function(x) all(x %in% getSequenceNames()))))){stop("Some sequences specified in the populations are not in the sequence data.")}
                                   }
                                   Populations <<- pops
+                                  if(is.null(names(Populations))){
+                                    names(Populations) <<- paste("unnamed", 1:length(Populations), sep = "_")
+                                  } else {
+                                    for(i in 1:length(Populations)){
+                                      ind <- 1
+                                      if(names(Populations)[[i]] == ""){
+                                        names(Populations)[[i]] <<- paste("unnamed", ind, sep = "_")
+                                        ind <- ind + 1
+                                      }
+                                    }
+                                  }
                                 },
+                              
+                              oneSeqOnePop = function(){
+                                "Function assigns one population per sequence."
+                                enforceDNA()
+                                setPopulations(as.list(getSequenceNames()))
+                              },
                               
                               numberOfPopulations =
                                 function(){
+                                  "Returns the number of populations assigned."
                                   return(length(Populations))
                                 },
                               
@@ -141,11 +159,8 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               
                               namesOfPopulations =
                                 function(){
-                                  if(!is.null(names(Populations))){
-                                    return(names(Populations))
-                                  } else {
-                                    return(1:length(Populations))
-                                  }
+                                  "Returns the names of the populations."
+                                  return(names(Populations))
                                 },
                               
                               textSummary =
