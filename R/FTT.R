@@ -4,7 +4,7 @@
 #' @field results A list of reference objects defining the result of a given four taxon test.
 FTTester <- setRefClass("FTTester",
                          
-                         fields = list(blockSize = "integer",
+                         fields = list(numBlocks = "integer",
                                        taxaCombos = "list",
                                        results = "list"),
                          
@@ -12,7 +12,7 @@ FTTester <- setRefClass("FTTester",
                            initialize =
                              function(dna){
                                "Initialization method creates object with its default values."
-                               blockSize <<- 50000L
+                               numBlocks <<- 50000L
                                results <<- list()
                              },
                            
@@ -37,6 +37,9 @@ FTTester <- setRefClass("FTTester",
                            
                            autoTaxaCombos =
                              function(dna){
+                               if(dna$numberOfPopulations() < 4){
+                                 stop("Less than 4 populations have been defined - can't form a quartet for an ABBA-BABA test.")
+                               }
                                allCombs <- combn(dna$namesOfPopulations(), 4, simplify = FALSE)
                                allDists <- as.matrix(stringDist(dna$FullSequence, method = "hamming")) / dna$getFullLength()
                                generatedCombs <- lapply(allCombs, function(x){
@@ -87,10 +90,10 @@ FTTester <- setRefClass("FTTester",
                                return(length(taxaCombos) > 0)
                              },
                            
-                           setBlockSize =
+                           setnumBlocks =
                              function(value){
                                if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
-                               blockSize <<- value
+                               numBlocks <<- value
                              },
                           
                            setSettings =
@@ -98,8 +101,8 @@ FTTester <- setRefClass("FTTester",
                                settings <- list(...)
                                parameters <- names(settings)
                                for(i in 1:length(settings)){
-                                 if(parameters[i] == "blockSize"){
-                                   setBlockSize(settings[[i]])
+                                 if(parameters[i] == "numBlocks"){
+                                   setnumBlocks(settings[[i]])
                                  }
                                  if(parameters[i] == "taxaCombos"){
                                    setTaxaCombos(settings[[i]])
@@ -110,42 +113,58 @@ FTTester <- setRefClass("FTTester",
                            generateFTTs =
                              function(hybridsDir){
                                message("Initializing new FTtest data.")
-                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x$P1, x$P2, x$P3, x$A, blockSize, hybridsDir))
+                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x$P1, x$P2, x$P3, x$A, hybridsDir))
                              },
                            
-                           runFTTs =
+                           getAllNames = 
                              function(){
-                               
+                               return(lapply(results, function(x) x$getPops()))
                              },
                            
-                           calculateDandFd =
-                             function(aln, pops){
-                               # State counts at each site.
-                               counts.all <- consensusMatrix(aln)
-                               # Calculate the number of alleles at each site in the alignment.
-                               numAlleles.all <- colSums(counts.all != 0)
-                               # Find which sites are bi-allelic.
-                               biSites.all <- which(numAlleles.all == 2)
-                               # Find which ones are variable.
-                               varSites.all <- which(numAlleles.all > 1)
-                               # Make a version of the sequence alignment which only includes variable sites.
-                               aln.var <- subsetSequence(aln, varSites.all)
-                               # Get the number of alleles at those variable sites.
-                               numAlleles.var <- numAlleles.all[varSites.all]
-                               S.all <- length(numAlleles.var)
-                               # Find which of the variable sites are bi-allelic.
-                               biSites.var <- which(numAlleles.var == 2)
-                               # Population slices - refer to function's description.
-                               p1Slice <- populationSlice(aln.var[pops[[1]]], biSites.var)
-                               p2Slice <- populationSlice(aln.var[pops[[2]]], biSites.var)
-                               p3Slice <- populationSlice(aln.var[pops[[3]]], biSites.var)
-                               p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
-                               statsResults <- calculateStats(numberOfAlleles.all, biAllelicSites.all,
-                                                              p1Slice, p2Slice, p3Slice, p4Slice) 
+                           getFTTs =
+                             function(selections){
+                               "Returns a list of references to FTTrecords objects according to user selection."
+                               if(!is.list(selections)){
+                                 selections <- list(selections)
+                               }
+                               selections <- unique(selections)
+                               if(!is.null(selections) && length(selections) > 0){
+                                 ind <- numeric()
+                                 if("ALL" %in% selections){
+                                   ind <- 1:length(results)
+                                 } else {
+                                   if("NOT.TESTED" %in% selections){
+                                     ind <- c(ind, which(unlist(lapply(results, function(x) x$noTestPerformed()))))
+                                     selections <- selections[which(selections != "NOT.TESTED")]
+                                   }
+                                   if(any(unlist(lapply(selections, length)) != 4)){stop("Selections must provide a vector of 4 sequence names.")}
+                                   if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                   allNames <- do.call(rbind, getAllNames())
+                                   ind <- c(ind, unlist(lapply(selections, function(x){
+                                     which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x & allNames[,4] %in% x)
+                                   })))
+                                 }
+                                 ind <- unique(ind)
+                                 return(results[ind])
+                               } else {
+                                 stop("No selection of FTT was provided.")
+                               }
+                             },
+                           
+                           runFTTests =
+                             function(selections, dna){
+                               fttsToTest <- getFTTs(selections)
+                               for(ftt in fttsToTest){
+                                 fourTaxonTest(dna, ftt, numBlocks)
+                               }
                              }
+                           
+                           
                            )
                          )
 
+#' @name compDist
+#' @description Compute hamming distances between a set of composite OTUs. 
 compDist <- function(popPairs, seqInPop, distMat){
   distances <- lapply(popPairs, function(y){
     grid <- expand.grid(seqInPop[y])
@@ -160,41 +179,6 @@ compDist <- function(popPairs, seqInPop, distMat){
   return(out)
 }
 
-
-
-
-
-FTTrecord <- setRefClass("FTTrecord",
-                         
-                         fields = list(
-                           P1 = "character",
-                           P2 = "character",
-                           P3 = "character",
-                           A = "character",
-                           blockSize = "integer",
-                           tableFile = "character",
-                           table = "data.frame"
-                           ),
-                         
-                         methods = list(
-                           initialize =
-                             function(p1, p2, p3, a, bs, hybridsDir){
-                               P1 <<- p1
-                               P2 <<- p2
-                               P3 <<- p3
-                               A <<- a
-                               blockSize <<- bs
-                               tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
-                             }
-                           )
-                         )
-
-
-
-
-
-
-
 #' @name Subset a DNAStringSet.
 #' @description For extracting only certain cites of an MSA represented as a DNA
 subsetSequence <- function(dna, indexes){
@@ -202,18 +186,8 @@ subsetSequence <- function(dna, indexes){
   for(i in 1:length(dna)){
     subSeqs[[i]] <- dna[[i]][indexes]
   }
+  names(subSeqs) <- names(dna) 
   return(subSeqs)
-}
-
-#' @name populationSlice
-#' @description Calculate for a subset of an alignment of variable sites:
-#' The counts, the number of alleles, and the counts of the (global) bi-allelic,
-#' sites in the population. 
-populationSlice <- function(popSeqs, biSites){
-  counts <- consensusMatrix(popSeqs)
-  alleles <- colSums(counts != 0)
-  S <- sum(alleles > 1)
-  return(list(counts = counts, countsBi = counts[, biSites], alleles = alleles, S = S))
 }
 
 calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
@@ -249,6 +223,144 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
            Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
   return(out)
 }
+
+#' @name populationSlice
+#' @description Calculate for a subset of an alignment of variable sites:
+#' The counts, the number of alleles, and the counts of the (global) bi-allelic,
+#' sites in the population. 
+populationSlice <- function(popSeqs, biSites){
+  counts <- consensusMatrix(popSeqs)
+  alleles <- colSums(counts != 0)
+  S <- sum(alleles > 1)
+  return(list(counts = counts, countsBi = counts[, biSites], alleles = alleles, S = S))
+}
+
+calculateDandFd <- function(aln, pops){
+  # State counts at each site.
+  counts.all <- consensusMatrix(aln)
+  # Calculate the number of alleles at each site in the alignment.
+  numAlleles.all <- colSums(counts.all != 0)
+  # Find which sites are bi-allelic.
+  biSites.all <- which(numAlleles.all == 2)
+  # Find which ones are variable.
+  varSites.all <- which(numAlleles.all > 1)
+  # Make a version of the sequence alignment which only includes variable sites.
+  aln.var <- subsetSequence(aln, varSites.all)
+  # Get the number of alleles at those variable sites.
+  numAlleles.var <- numAlleles.all[varSites.all]
+  S.all <- length(numAlleles.var)
+  # Find which of the variable sites are bi-allelic.
+  biSites.var <- which(numAlleles.var == 2)
+  # Population slices - refer to function's description.
+  p1Slice <- populationSlice(aln.var[pops[[1]]], biSites.var)
+  p2Slice <- populationSlice(aln.var[pops[[2]]], biSites.var)
+  p3Slice <- populationSlice(aln.var[pops[[3]]], biSites.var)
+  p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
+  return(calculateStats(counts.all, biSites.all,
+                        p1Slice, p2Slice, p3Slice, p4Slice))
+}
+
+#' @name fourTaxonTest
+fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
+  if(is.null(numBlocks) && is.null(lengthOfBlocks)){
+    stop("Invalid input - no number of blocks or size of blocks provided.")
+  }
+  if(!is.null(numBlocks) && !is.null(lengthOfBlocks)){
+    stop("Provide the number of blocks to divide sequence alignment into, OR the proposed size of the blocks, not both.")
+  }
+  dnaLen <- dna$getFullLength()
+  if(!is.null(lengthOfBlocks) && is.null(numBlocks)){
+    fttRecord$numBlocks <- as.integer(floor(dnaLen / lengthOfBlocks))
+  }
+  fttRecord$blockLength <- as.integer(floor(dnaLen / fttRecord$numBlocks))
+  results <- data.frame(BlockStart = seq(from = 1, to = dnaLen, by = fttRecord$blockLength),
+                        BlockEnd = seq(from = fttRecord$blockLength, to = dnaLen, by = fttRecord$blockLength))
+  blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
+  blocksStats <- lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])})
+  
+  return(blocks)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FTTrecord <- setRefClass("FTTrecord",
+                         
+                         fields = list(
+                           P1 = "character",
+                           P2 = "character",
+                           P3 = "character",
+                           A = "character",
+                           numBlocks = "integer",
+                           blockLength = "integer",
+                           tableFile = "character",
+                           table = function(value){
+                             if(missing(value)){
+                               read.table(tableFile)
+                             } else {
+                               write.table(value, file = tableFile)
+                             }
+                           }
+                           ),
+                         
+                         methods = list(
+                           initialize =
+                             function(p1, p2, p3, a, hybridsDir){
+                               P1 <<- p1
+                               P2 <<- p2
+                               P3 <<- p3
+                               A <<- a
+                               blockLength <<- 0L
+                               numBlocks <<- 0L
+                               tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
+                               blankTable()
+                             },
+                           
+                           noTestPerformed =
+                             function(){
+                               return(all(is.na(table)))
+                             },
+                           
+                           blankTable =
+                             function(){
+                               "Method clears the table."
+                               table <<- data.frame(BlockStart = NA, BlockEnd = NA,
+                                                    ABBA = NA, BABA = NA, maxABBA_D = NA,
+                                                    maxBABA_D = NA, D = NA, Fd = NA)
+                             },
+                           
+                           getPops =
+                             function(){
+                               return(c(P1 = P1, P2 = P2, P3 = P3, A = A))
+                             }
+                           )
+                         )
+
+
+
+
+
+
+
+
 
 
 

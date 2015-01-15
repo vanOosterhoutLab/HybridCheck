@@ -58,7 +58,6 @@ HybRIDS <- setRefClass("HybRIDS",
                                           function(input){
                                             DNA$InputDNA(input)
                                             userBlocks$initializePairsFromDNA(DNA)
-                                            #FTTmodule$setTaxa()
                                             
                                             comparrisonSettings <<- ComparrisonSettings$new(DNA)
                                             if(triplets$tripletsGenerated()){
@@ -69,8 +68,22 @@ HybRIDS <- setRefClass("HybRIDS",
                                           },
                                         
                                         setPopulations =
-                                          function(pops){
-                                            DNA$setPopulations(pops)
+                                          function(pops = NULL){
+                                            if(is.null(pops)){
+                                              DNA$oneSeqOnePop()
+                                            } else {
+                                              DNA$setPopulations(pops)
+                                            }
+                                          },
+                                        
+                                        prepareFourTaxonTests =
+                                          function(taxa = NULL){
+                                            if(is.null(taxa)){
+                                              FTTmodule$autoTaxaCombos(DNA)
+                                            } else {
+                                              FTTmodule$manualTaxaCombos(taxa, DNA)
+                                            }
+                                            FTTmodule$generateFTTs(filesDirectory)
                                           },
                                          
                                         showParameters =
