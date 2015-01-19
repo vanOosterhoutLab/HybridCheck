@@ -64,6 +64,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                               warning("Loading a new sequence file into HybRIDS object. Deleting triplets and data from previous sequence file.")
                                               triplets <<- Triplets$new()
                                             }
+                                            setPopulations()
                                             #triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                           },
                                         

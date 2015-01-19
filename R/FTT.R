@@ -90,7 +90,7 @@ FTTester <- setRefClass("FTTester",
                                return(length(taxaCombos) > 0)
                              },
                            
-                           setnumBlocks =
+                           setNumBlocks =
                              function(value){
                                if(!is.integer(value) || length(value != 1)){stop("Provide only one, integer value.")}
                                numBlocks <<- value
@@ -102,7 +102,7 @@ FTTester <- setRefClass("FTTester",
                                parameters <- names(settings)
                                for(i in 1:length(settings)){
                                  if(parameters[i] == "numBlocks"){
-                                   setnumBlocks(settings[[i]])
+                                   setNumBlocks(settings[[i]])
                                  }
                                  if(parameters[i] == "taxaCombos"){
                                    setTaxaCombos(settings[[i]])
@@ -113,12 +113,19 @@ FTTester <- setRefClass("FTTester",
                            generateFTTs =
                              function(hybridsDir){
                                message("Initializing new FTtest data.")
-                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x$P1, x$P2, x$P3, x$A, hybridsDir))
+                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x[["P1"]], x[["P2"]], x[["P3"]], x[["A"]], hybridsDir))
                              },
                            
                            getAllNames = 
                              function(){
                                return(lapply(results, function(x) x$getPops()))
+                             },
+                           
+                           printAllNames =
+                             function(){
+                               quadNames <- lapply(getAllNames(), function(x) paste(x, collapse = ", "))
+                               collectedNames <- lapply(1:length(quadNames), function(i) paste(i, quadNames[[i]], sep=": "))
+                               return(collectedNames)
                              },
                            
                            getFTTs =
@@ -158,8 +165,6 @@ FTTester <- setRefClass("FTTester",
                                  fourTaxonTest(dna, ftt, numBlocks)
                                }
                              }
-                           
-                           
                            )
                          )
 
@@ -278,7 +283,6 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
   blocksStats <- lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])})
   
-  return(blocks)
 }
 
 
@@ -353,54 +357,3 @@ FTTrecord <- setRefClass("FTTrecord",
                              }
                            )
                          )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-getTwoStates <- function(dna){
-  twoStates <- which(colSums(consensusMatrix(dna) != 0) == 2)
-  twoStatesSeq <- DNAStringSet(character(length = 4))
-  for(i in 1:4){
-    twoStatesSeq[[i]] <- dna[[i]][twoStates]
-  }
-  return(list(Sites = twoStates, Seq = twoStatesSeq))
-}
-
-getAbbaBabaStates <- function(dna){
-  twoStates <- getTwoStates(dna)
-  oneNotTwo <- colSums(consensusMatrix(twoStates[["Seq"]][c(1, 2)]) != 0) > 1
-  threeNotFour <- colSums(consensusMatrix(twoStates[["Seq"]][c(3, 4)]) != 0) > 1
-  abbaBabbaSites <- which(oneNotTwo & threeNotFour)
-  abbaBabbaSeq <- DNAStringSet(character(length = 4))
-  for(i in 1:4){
-    abbaBabbaSeq[[i]] <- twoStatesSeq[[i]][abbaBabbaSites]
-  }
-  abbaSites <- which(colSums(consensusMatrix(abbaBabbaSeq[c(2,3)]) != 0) == 1)
-  babaSites <- which(colSums(consensusMatrix(abbaBabbaSeq[c(1,3)]) != 0) == 1)
-  whichSitesAbba <- twoStates[abbaBabbaSites[abbaSites]]
-  whichSitesBaba <- twoStates[abbaBabbaSites[babaSites]]
-  return(list(AbbaSites = whichSitesAbba, BabaSites = whichSitesBaba))
-}
-
-
-
-
-
-calculateGreenS <- function(abba, babba){
-  return(abba - babba)
-}
-
-calculateGreenD <- function(abba, baba){
-  return(calculateGreenS(abba, baba) / (abba + baba))
-}

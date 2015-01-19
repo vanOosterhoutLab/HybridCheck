@@ -173,22 +173,38 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                                   "\n\nSequence names:\n")
                                   names <- getSequenceNames()
                                   end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse = "\n")
-                                  pops <- paste0(lapply(1:length(Populations), function(i) paste0(namesOfPopulations()[i], ": ", paste0(Populations[[i]], collapse = ", "))), collapse = "\n")
+                                  if(length(Populations) == 0){
+                                    pops <- "No populations have been specified."
+                                  } else {
+                                    pops <- paste0(lapply(1:length(Populations), 
+                                                          function(i){paste0(namesOfPopulations()[i],
+                                                                             ": ",
+                                                                             paste0(Populations[[i]], collapse = ", ")
+                                                                             )}), collapse = "\n")
+                                  }
                                   return(paste0(start, end, "\n\nPopulations:\n", pops, "\n"))
                                 },
                               
                               htmlSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object, formatted as HTML."
-                                  start <- paste0("<h1>DNA Sequence Information:</h1>",
+                                  start <- paste0("<h2>DNA Sequence Information:</h2>",
                                                   "<p>An alignment of ", numberOfSequences(),
                                                   " sequences.</p><p><b>Full length of alignment:</b> ", getFullLength(),
                                                   " bp</p><p><b>Excluding non-informative sites:</b> ", getInformativeLength(),
                                                   " bp</p><p><b>Sequence names:</b><br>")
                                   names <- getSequenceNames()
                                   end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="<br>")
-                                  pops <- paste0(lapply(1:length(Populations), function(i) paste0(i, ": ", paste0(Populations[[i]], collapse = ", "))), collapse = "<br>")
-                                  return(paste0(start, end, "<br><br>Populations:<br>", pops, "<br>"))
+                                  if(length(Populations) == 0){
+                                    pops <- "No populations have been specified."
+                                  } else {
+                                    pops <- paste0(lapply(1:length(Populations),
+                                                          function(i){paste0(namesOfPopulations()[i], ": ",
+                                                                             paste0(Populations[[i]], 
+                                                                                    collapse = ", "))}),
+                                                   collapse = "<br>")
+                                  }
+                                  return(paste0(start, end, "<br><br><b>Populations:</b><br>", pops, "<br>"))
                                 },
                               
                               show =
