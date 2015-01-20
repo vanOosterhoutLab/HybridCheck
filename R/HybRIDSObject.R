@@ -86,6 +86,11 @@ HybRIDS <- setRefClass("HybRIDS",
                                             }
                                             FTTmodule$generateFTTs(filesDirectory)
                                           },
+                                        
+                                        runFourTaxonTests =
+                                          function(selection = "ALL", numberOfBlocks = NULL, blockLength = NULL){
+                                            FTTmodule$runFTTests(selection, DNA, numberOfBlocks, blockLength)
+                                          },
                                          
                                         showParameters =
                                           function(Step = NULL){

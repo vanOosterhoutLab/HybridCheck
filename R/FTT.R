@@ -159,10 +159,10 @@ FTTester <- setRefClass("FTTester",
                              },
                            
                            runFTTests =
-                             function(selections, dna){
+                             function(selections, dna, numBlocks, blocksLen){
                                fttsToTest <- getFTTs(selections)
                                for(ftt in fttsToTest){
-                                 fourTaxonTest(dna, ftt, numBlocks)
+                                 fourTaxonTest(dna, ftt, numBlocks, blocksLen)
                                }
                              }
                            )
@@ -222,7 +222,7 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
       maxBABA_D <- sum(maxBABA_D, P1df * (1 - P2df) * P2df * (1 - P4df), na.rm = TRUE)
     }
   }
-  out <- c(ABBA=ABBA, BABA=BABA,
+  out <- data.frame(ABBA=ABBA, BABA=BABA,
            D = (ABBA - BABA) / (ABBA + BABA),
            maxABBA_D = maxABBA_D, maxBABA_D = maxBABA_D,
            Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
@@ -244,25 +244,27 @@ calculateDandFd <- function(aln, pops){
   # State counts at each site.
   counts.all <- consensusMatrix(aln)
   # Calculate the number of alleles at each site in the alignment.
-  numAlleles.all <- colSums(counts.all != 0)
+  num.alleles.all <- colSums(counts.all != 0)
   # Find which sites are bi-allelic.
-  biSites.all <- which(numAlleles.all == 2)
+  bi.all <- which(num.alleles.all == 2)
   # Find which ones are variable.
-  varSites.all <- which(numAlleles.all > 1)
+  var.sites.all <- which(num.alleles.all > 1)
   # Make a version of the sequence alignment which only includes variable sites.
-  aln.var <- subsetSequence(aln, varSites.all)
+  aln.var <- subsetSequence(aln, var.sites.all)
   # Get the number of alleles at those variable sites.
-  numAlleles.var <- numAlleles.all[varSites.all]
-  S.all <- length(numAlleles.var)
+  alleles.var <- num.alleles.all[var.sites.all]
+  s.all <- length(alleles.var)
   # Find which of the variable sites are bi-allelic.
-  biSites.var <- which(numAlleles.var == 2)
+  bi.var <- which(alleles.var == 2)
   # Population slices - refer to function's description.
-  p1Slice <- populationSlice(aln.var[pops[[1]]], biSites.var)
-  p2Slice <- populationSlice(aln.var[pops[[2]]], biSites.var)
-  p3Slice <- populationSlice(aln.var[pops[[3]]], biSites.var)
-  p4Slice <- populationSlice(aln.var[pops[[4]]], biSites.var)
-  return(calculateStats(counts.all, biSites.all,
-                        p1Slice, p2Slice, p3Slice, p4Slice))
+  p1Slice <- populationSlice(aln.var[pops[[1]]], bi.var)
+  p2Slice <- populationSlice(aln.var[pops[[2]]], bi.var)
+  p3Slice <- populationSlice(aln.var[pops[[3]]], bi.var)
+  p4Slice <- populationSlice(aln.var[pops[[4]]], bi.var)
+  return(data.frame(S=s.all, P1_S=p1Slice$S, P2_S=p2Slice$S,
+             P3_S=p3Slice$S, P4_S=p4Slice$S, 
+             calculateStats(counts.all, bi.all,
+                            p1Slice, p2Slice, p3Slice, p4Slice)))
 }
 
 #' @name fourTaxonTest
@@ -276,13 +278,34 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   dnaLen <- dna$getFullLength()
   if(!is.null(lengthOfBlocks) && is.null(numBlocks)){
     fttRecord$numBlocks <- as.integer(floor(dnaLen / lengthOfBlocks))
+  } else {
+    fttRecord$numBlocks <- numBlocks
   }
   fttRecord$blockLength <- as.integer(floor(dnaLen / fttRecord$numBlocks))
   results <- data.frame(BlockStart = seq(from = 1, to = dnaLen, by = fttRecord$blockLength),
                         BlockEnd = seq(from = fttRecord$blockLength, to = dnaLen, by = fttRecord$blockLength))
   blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
-  blocksStats <- lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])})
-  
+  blocksStats <- do.call(rbind, lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
+  blocksStats$fdD0 <- apply(blocksStats, 1, function(x){
+    if(is.na(x["D"]) || (as.numeric(x["D"]) < 0)){
+      return(NA)
+    } else {
+      return(as.numeric(x["Fd"]))
+    }
+  })
+  blocksStats$p_value_D <- apply(blocksStats, 1, function(x){
+    if(x["ABBA"] < x["BABA"]){
+      success <- "ABBA"  
+    } else {
+      success <- "BABA"
+    }
+    return(pbinom(x[success], (x["ABBA"] + x["BABA"]), .5, lower.tail = TRUE))
+  })
+  fttRecord$table <- cbind(results, blocksStats)
+  fttRecord$globalX2 <- -2 * sum(log(fttRecord$table$p_value_D))
+  fttRecord$globalP <- pchisq(fttRecord$globalX2,
+                              df = 2*length(fttRecord$table$p_value_D), 
+                              lower.tail = FALSE)
 }
 
 
@@ -315,6 +338,8 @@ FTTrecord <- setRefClass("FTTrecord",
                            A = "character",
                            numBlocks = "integer",
                            blockLength = "integer",
+                           globalX2 = "numeric",
+                           globalP = "numeric",
                            tableFile = "character",
                            table = function(value){
                              if(missing(value)){
@@ -334,6 +359,8 @@ FTTrecord <- setRefClass("FTTrecord",
                                A <<- a
                                blockLength <<- 0L
                                numBlocks <<- 0L
+                               globalX2 <<- 0
+                               globalP <<- 0
                                tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
                                blankTable()
                              },
