@@ -88,8 +88,13 @@ HybRIDS <- setRefClass("HybRIDS",
                                           },
                                         
                                         runFourTaxonTests =
-                                          function(selection = "ALL", numberOfBlocks = NULL, blockLength = NULL){
-                                            FTTmodule$runFTTests(selection, DNA, numberOfBlocks, blockLength)
+                                          function(selections = "ALL", numberOfBlocks = NULL, blockLength = NULL){
+                                            FTTmodule$runFTTests(selections, DNA, numberOfBlocks, blockLength)
+                                          },
+                                        
+                                        tabulateFourTaxonTests =
+                                          function(selections = "ALL"){
+                                            FTTmodule$getResults(selections)
                                           },
                                          
                                         showParameters =

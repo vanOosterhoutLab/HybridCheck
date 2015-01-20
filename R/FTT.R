@@ -164,6 +164,13 @@ FTTester <- setRefClass("FTTester",
                                for(ftt in fttsToTest){
                                  fourTaxonTest(dna, ftt, numBlocks, blocksLen)
                                }
+                             },
+                           
+                           getResults =
+                             function(selections){
+                               fttsToCollect <- getFTTs(selections)
+                               collectedTables <- lapply(fttsToCollect, function(ftt) ftt$getTable())
+                               return(do.call(rbind, collectedTables))
                              }
                            )
                          )
@@ -282,8 +289,12 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
     fttRecord$numBlocks <- numBlocks
   }
   fttRecord$blockLength <- as.integer(floor(dnaLen / fttRecord$numBlocks))
-  results <- data.frame(BlockStart = seq(from = 1, to = dnaLen, by = fttRecord$blockLength),
-                        BlockEnd = seq(from = fttRecord$blockLength, to = dnaLen, by = fttRecord$blockLength))
+  blockStart <- seq(from = 1, to = dnaLen, by = fttRecord$blockLength)
+  blockEnd <- seq(from = fttRecord$blockLength, to = dnaLen, by = fttRecord$blockLength)
+  if(length(blockStart) > length(blockEnd)){
+    blockStart <- blockStart[1:length(blockStart) - abs(length(blockStart) - length(blockEnd))]
+  }
+  results <- data.frame(BlockStart = blockStart, BlockEnd = blockEnd)
   blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
   blocksStats <- do.call(rbind, lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
   blocksStats$fdD0 <- apply(blocksStats, 1, function(x){
@@ -307,26 +318,6 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
                               df = 2*length(fttRecord$table$p_value_D), 
                               lower.tail = FALSE)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 FTTrecord <- setRefClass("FTTrecord",
@@ -381,6 +372,11 @@ FTTrecord <- setRefClass("FTTrecord",
                            getPops =
                              function(){
                                return(c(P1 = P1, P2 = P2, P3 = P3, A = A))
+                             },
+                           
+                           getTable =
+                             function(){
+                               return(cbind(P1, P2, P3, A, table, globalX2, globalP))
                              }
                            )
                          )
