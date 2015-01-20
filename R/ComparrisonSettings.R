@@ -11,29 +11,31 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                      Method = "integer",
                                      DistanceThreshold = "numeric",
                                      PartitionStrictness = "integer",
+                                     partiallySignificant = "logical",
                                      TripletCombinations = "list",
                                      AcceptedCombinations = "list"),
                                    
                                    methods = list(
                                      initialize = 
-                                       function(dna){
+                                       function(dna, ftt){
                                          "Creates the object and sets all parameters to their default."
                                          Method <<- 1L
                                          DistanceThreshold <<- 0.01
                                          PartitionStrictness <<- 2L
+                                         partiallySignificant <<- FALSE
                                          SeqNames <<- dna$getSequenceNames()
                                          TripletCombinations <<- combn(dna$getSequenceNames(), 3, simplify=FALSE)
                                          AcceptedCombinations <<- list()
-                                         #decideAcceptedTriplets()
+                                         decideAcceptedTriplets(dna, ftt)
                                        },
                                      
                                      changeMethod =
                                        function(value){
                                          value <- unique(value)
-                                         if(!is.integer(value)){stop("You must enter integer values between 1 and 3.")}
-                                         if(any(value > 3L)){stop("3L is the maximum value allowed.")}
+                                         if(!is.integer(value)){stop("You must enter integer values between 1 and 4.")}
+                                         if(any(value > 4L)){stop("4L is the maximum value allowed.")}
                                          if(any(value < 1L)){stop("1L is the minimum value allowed.")}
-                                         if(2L %in% value && 3L %in% value){stop("Select either method 2 or 3, not both.")}
+                                         if(3L %in% value && 4L %in% value){stop("Choose either method 3L or 4L, not both.")}
                                          Method <<- value
                                        },
                                      
@@ -49,15 +51,28 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          PartitionStrictness <<- value
                                        },
                                      
+                                     setPartiallySignificant =
+                                       function(value){
+                                         if(length(value) > 1){stop("Only provide one logical value.")}
+                                         partiallySignificant <<- value
+                                       },
+                                     
                                      decideAcceptedTriplets =
-                                       function(dna){
+                                       function(dna, ftt){
                                          AcceptedCombinations <<- TripletCombinations
                                          rejects <- c()
                                          if(hasMultipleCombinations()){
-                                           if(1 %in% Method){
-                                             rejects <- c(rejects, groupDescision(Groups, TripletCombinations, PartitionStrictness)) 
+                                           if(1L %in% Method){
+                                             if(partiallySignificant){
+                                               rejects <- c(rejects, fttDescision(ftt, "PART.SIGNIFICANT", TripletCombinations, dna))
+                                             } else {
+                                               rejects <- c(rejects, fttDescision(ftt, "SIGNIFICANT", TripletCombinations, dna))
+                                             }
                                            }
-                                           if(2 %in% Method || 3 %in% Method){                                                    
+                                           if(2L %in% Method && dna$hasPopulations()){
+                                             rejects <- c(rejects, groupDescision(dna$Populations, TripletCombinations, PartitionStrictness)) 
+                                           }
+                                           if(3L %in% Method || 4L %in% Method){                                                    
                                              rejects <- c(rejects, distanceDescision(dna, Method, DistanceThreshold, TripletCombinations))
                                            }
                                          } else {
@@ -118,7 +133,7 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                      },
                                      
                                      setSettings =
-                                       function(dna, ...){
+                                       function(dna, ftt, ...){
                                          settings <- list(...)
                                          parameters <- names(settings)
                                          for(i in 1:length(settings)){
@@ -131,18 +146,34 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                            if(parameters[i] == "PartitionStrictness"){
                                              setPartitionStrictness(settings[[i]])
                                            }
-                                           if(parameters[i] == "Refine"){
-                                             setRefine(settings[[i]])
+                                           if(parameters[i] == "partiallySignificant"){
+                                             setPartiallySignificant(settings[[i]])
                                            }
                                          }
-                                         decideAcceptedTriplets(dna)
+                                         decideAcceptedTriplets(dna, ftt)
                                        }
                                      )
                                    )
 
-groupDescision <- function(groups, combos, thresh){
+fttDescision <- function(ftt, significanceStatement, combos, dna){
+  message("Generating triplets to find recombinant regions between sequences from significant Four Taxon Tests.")
+  significantCombos <- ftt$getFTTs(significanceStatement)
+  if(length(significantCombos) > 0){
+    popnames <- lapply(significantCombos, function(x) x$getPops())
+    matches <- sort(unique(unlist(lapply(popnames, function(x){
+      seqnames <- dna$Populations[x]
+      return(which(unlist(lapply(combos, function(y) all(y %in% seqnames)))))
+    }))))
+    rejects <- which(!1:length(combos) %in% matches)
+  } else {
+    rejects <- numeric()
+  }
+  return(rejects)
+}
+
+groupDescision <- function(populations, combos, thresh){
   message("Generating triplets to find recombination in sequences, between partitions.")
-  matches <- unlist(lapply(groups, function(x){
+  matches <- unlist(lapply(populations, function(x){
     which(unlist(lapply(combos, function(y){
       length(which(x %in% y)) > thresh
     })))
@@ -154,10 +185,10 @@ distanceDescision <- function(dna, method, thresh, combos){
   rejects <- c()
   distances <- dist.dna(as.DNAbin(dna$FullSequence), model = "raw")
   seqpairs <- combn(dna$getSequenceNames(), 2, simplify=FALSE)
-  if(2L %in% method){
+  if(3L %in% method){
     rejectiondistances <- seqpairs[which(distances < thresh)]
   }
-  if(3L %in% method){
+  if(4L %in% method){
     distances_density <- density(distances)
     Lows <- cbind(distances_density$x[which(diff(sign(diff(distances_density$y))) == 2)], distances_density$y[which(diff(sign(diff(distances_density$y))) == 2)])
     Lowest <- Lows[which(Lows[,1] == min(Lows[,1])),]

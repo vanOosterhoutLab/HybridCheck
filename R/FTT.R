@@ -137,19 +137,33 @@ FTTester <- setRefClass("FTTester",
                                selections <- unique(selections)
                                if(!is.null(selections) && length(selections) > 0){
                                  ind <- numeric()
-                                 if("ALL" %in% selections){
-                                   ind <- 1:length(results)
-                                 } else {
-                                   if("NOT.TESTED" %in% selections){
-                                     ind <- c(ind, which(unlist(lapply(results, function(x) x$noTestPerformed()))))
-                                     selections <- selections[which(selections != "NOT.TESTED")]
+                                 if(length(results) != 0){
+                                   if("ALL" %in% selections){
+                                     ind <- 1:length(results)
+                                   } else {
+                                     if("NOT.TESTED" %in% selections){
+                                       ind <- c(ind, which(unlist(lapply(results, function(x) x$noTestPerformed()))))
+                                       selections <- selections[which(selections != "NOT.TESTED")]
+                                     }
+                                     if("TESTED" %in% selections){
+                                       ind <- c(ind, which(unlist(lapply(results, function(x) !x$noTestPerformed()))))
+                                       selections <- selections[which(selections != "TESTED")]
+                                     }
+                                     if("SIGNIFICANT" %in% selections){
+                                       ind <- c(ind, which(unlist(lapply(results, function(x) x$globallySignificant()))))
+                                       selections <- selections[which(selections != "SIGNIFICANT")]
+                                     }
+                                     if("PART.SIGNIFICANT" %in% selections){
+                                       ind <- c(ind, which(unlist(lapply(results, function(x) x$globallySignificant()))))
+                                       selections <- selections[which(selections != "PART.SIGNIFICANT")]
+                                     }
+                                     if(any(unlist(lapply(selections, length)) != 4)){stop("Selections must provide a vector of 4 sequence names.")}
+                                     if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
+                                     allNames <- do.call(rbind, getAllNames())
+                                     ind <- c(ind, unlist(lapply(selections, function(x){
+                                       which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x & allNames[,4] %in% x)
+                                     })))
                                    }
-                                   if(any(unlist(lapply(selections, length)) != 4)){stop("Selections must provide a vector of 4 sequence names.")}
-                                   if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
-                                   allNames <- do.call(rbind, getAllNames())
-                                   ind <- c(ind, unlist(lapply(selections, function(x){
-                                     which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x & allNames[,4] %in% x)
-                                   })))
                                  }
                                  ind <- unique(ind)
                                  return(results[ind])
@@ -219,6 +233,7 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
     P2df <- slice2$countsBi[derived, i] / sum(slice2$countsBi[, i])
     P3df <- slice3$countsBi[derived, i] / sum(slice3$countsBi[, i])
     P4df <- slice4$countsBi[derived, i] / sum(slice4$countsBi[, i])
+    cat(P1df, "\n", P2df, "\n", P3df, "\n", P4df, "\n")
     ABBA <- sum(ABBA, (1 - P1df) * P2df * P3df * (1 - P4df), na.rm = TRUE)
     BABA <- sum(BABA, P1df * (1 - P2df) * P3df * (1 - P4df), na.rm = TRUE)
     if (is.na(P3df) == FALSE & is.na(P2df) == FALSE & P3df >= P2df){
@@ -268,8 +283,8 @@ calculateDandFd <- function(aln, pops){
   p2Slice <- populationSlice(aln.var[pops[[2]]], bi.var)
   p3Slice <- populationSlice(aln.var[pops[[3]]], bi.var)
   p4Slice <- populationSlice(aln.var[pops[[4]]], bi.var)
-  return(data.frame(S=s.all, P1_S=p1Slice$S, P2_S=p2Slice$S,
-             P3_S=p3Slice$S, P4_S=p4Slice$S, 
+  return(data.frame(S = s.all, P1_S = p1Slice$S, P2_S = p2Slice$S,
+             P3_S = p3Slice$S, P4_S = p4Slice$S, 
              calculateStats(counts.all, bi.all,
                             p1Slice, p2Slice, p3Slice, p4Slice)))
 }
@@ -315,7 +330,7 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   fttRecord$table <- cbind(results, blocksStats)
   fttRecord$globalX2 <- -2 * sum(log(fttRecord$table$p_value_D))
   fttRecord$globalP <- pchisq(fttRecord$globalX2,
-                              df = 2*length(fttRecord$table$p_value_D), 
+                              df = 2 * length(fttRecord$table$p_value_D), 
                               lower.tail = FALSE)
 }
 
@@ -359,6 +374,11 @@ FTTrecord <- setRefClass("FTTrecord",
                            noTestPerformed =
                              function(){
                                return(all(is.na(table)))
+                             },
+                           
+                           globallySignificant =
+                             function(){
+                               return((!noTestPerformed()) && (globalP < 0.05))
                              },
                            
                            blankTable =

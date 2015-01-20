@@ -39,18 +39,16 @@ HybRIDS <- setRefClass("HybRIDS",
                                              filesDirectory <<- tempdir()
                                              DNA <<- HybRIDSseq$new()
                                              FTTmodule <<- FTTester$new()
-                                             
-                                             
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
                                              blockDatingSettings <<- BlockDatingSettings$new()
                                              plottingSettings <<- PlottingSettings$new()
                                              userBlocks <<- UserBlocks$new()
-                                             
                                              triplets <<- Triplets$new()
                                              if(!is.null(dnafile)){
                                                inputDNA(dnafile)
                                              }
+                                             
                                            },
                                          
                                          # Method for inputting DNA sequences...
@@ -58,14 +56,13 @@ HybRIDS <- setRefClass("HybRIDS",
                                           function(input){
                                             DNA$InputDNA(input)
                                             userBlocks$initializePairsFromDNA(DNA)
-                                            
-                                            comparrisonSettings <<- ComparrisonSettings$new(DNA)
+                                            comparrisonSettings <<- ComparrisonSettings$new(DNA, FTTmodule)
                                             if(triplets$tripletsGenerated()){
                                               warning("Loading a new sequence file into HybRIDS object. Deleting triplets and data from previous sequence file.")
                                               triplets <<- Triplets$new()
                                             }
                                             setPopulations()
-                                            #triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
+                                            triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                           },
                                         
                                         setPopulations =
@@ -90,6 +87,10 @@ HybRIDS <- setRefClass("HybRIDS",
                                         runFourTaxonTests =
                                           function(selections = "ALL", numberOfBlocks = NULL, blockLength = NULL){
                                             FTTmodule$runFTTests(selections, DNA, numberOfBlocks, blockLength)
+                                            if(1L %in% comparrisonSettings$Method){
+                                              comparrisonSettings$decideAcceptedTriplets(DNA, FTTmodule)
+                                              triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
+                                            }
                                           },
                                         
                                         tabulateFourTaxonTests =
@@ -127,7 +128,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              }
                                              Parameters <- list(...)
                                              if(Step == "TripletGeneration"){
-                                               comparrisonSettings$setSettings(DNA, ...)
+                                               comparrisonSettings$setSettings(DNA, FTTmodule, ...)
                                                triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                              }
                                              if(Step == "SSAnalysis"){
