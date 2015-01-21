@@ -217,10 +217,10 @@ subsetSequence <- function(dna, indexes){
 }
 
 calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
-  ABBA <- 0
-  BABA <- 0
-  maxABBA_D <- 0
-  maxBABA_D <- 0
+  ABBA <- vector(mode = "numeric", length = length(biSites.all))
+  BABA <- vector(mode = "numeric", length = length(biSites.all))
+  maxABBA_D <- vector(mode = "numeric", length = length(biSites.all))
+  maxBABA_D <- vector(mode = "numeric", length = length(biSites.all))
   for(i in 1:length(biSites.all)){
     i.bi.counts <- counts.all[, biSites.all[i]]
     alleles <- names(which(i.bi.counts > 0))
@@ -233,21 +233,28 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
     P2df <- slice2$countsBi[derived, i] / sum(slice2$countsBi[, i])
     P3df <- slice3$countsBi[derived, i] / sum(slice3$countsBi[, i])
     P4df <- slice4$countsBi[derived, i] / sum(slice4$countsBi[, i])
-    cat(P1df, "\n", P2df, "\n", P3df, "\n", P4df, "\n")
-    ABBA <- sum(ABBA, (1 - P1df) * P2df * P3df * (1 - P4df), na.rm = TRUE)
-    BABA <- sum(BABA, P1df * (1 - P2df) * P3df * (1 - P4df), na.rm = TRUE)
-    if (is.na(P3df) == FALSE & is.na(P2df) == FALSE & P3df >= P2df){
-      maxABBA_D <- sum(maxABBA_D, (1 - P1df) * P3df * P3df * (1 - P4df), na.rm = TRUE)
-      maxBABA_D <- sum(maxBABA_D, P1df * (1 - P3df) * P3df * (1 - P4df), na.rm = TRUE)
+    ABBA[i] <- (1 - P1df) * P2df * P3df * (1 - P4df)
+    BABA[i] <- P1df * (1 - P2df) * P3df * (1 - P4df)
+    if(!is.na(P3df) & !is.na(P2df) & P3df >= P2df){
+      maxABBA_D[i] <- (1 - P1df) * P3df * P3df * (1 - P4df)
+      maxBABA_D[i] <- P1df * (1 - P3df) * P3df * (1 - P4df)
     } else {
-      maxABBA_D <- sum(maxABBA_D, (1 - P1df) * P2df * P2df * (1 - P4df), na.rm = TRUE)
-      maxBABA_D <- sum(maxBABA_D, P1df * (1 - P2df) * P2df * (1 - P4df), na.rm = TRUE)
+      maxABBA_D[i] <- (1 - P1df) * P2df * P2df * (1 - P4df)
+      maxBABA_D[i] <- P1df * (1 - P2df) * P2df * (1 - P4df)
     }
   }
-  out <- data.frame(ABBA=ABBA, BABA=BABA,
-           D = (ABBA - BABA) / (ABBA + BABA),
-           maxABBA_D = maxABBA_D, maxBABA_D = maxBABA_D,
-           Fd = (ABBA - BABA) / (maxABBA_D - maxBABA_D))
+  numABBA <- length(which(ABBA > BABA))
+  numBABA <- length(which(ABBA < BABA))
+  D <- sum(ABBA - BABA) / sum(ABBA + BABA)
+  FD <- sum(ABBA - BABA) / sum(maxABBA_D - maxBABA_D)
+  FD0 <- 
+  if(numABBA < numBABA){
+    binomialP <- pbinom(numABBA, (numABBA + numBABA), .5, lower.tail = TRUE)
+  } else {
+    binomialP <- pbinom(numBABA, (numABBA + numBABA), .5, lower.tail = TRUE)
+  }
+  out <- data.frame(numABBA = numABBA, numBABA = numBABA, ABBA = sum(ABBA), BABA = sum(BABA), D = D, P_binom = binomialP,
+           maxABBA_D = sum(maxABBA_D), maxBABA_D = sum(maxBABA_D), Fd = FD)
   return(out)
 }
 
@@ -312,25 +319,12 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   results <- data.frame(BlockStart = blockStart, BlockEnd = blockEnd)
   blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
   blocksStats <- do.call(rbind, lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
-  blocksStats$fdD0 <- apply(blocksStats, 1, function(x){
-    if(is.na(x["D"]) || (as.numeric(x["D"]) < 0)){
-      return(NA)
-    } else {
-      return(as.numeric(x["Fd"]))
-    }
-  })
-  blocksStats$p_value_D <- apply(blocksStats, 1, function(x){
-    if(x["ABBA"] < x["BABA"]){
-      success <- "ABBA"  
-    } else {
-      success <- "BABA"
-    }
-    return(pbinom(x[success], (x["ABBA"] + x["BABA"]), .5, lower.tail = TRUE))
-  })
+  blocksStats$fdD0 <- as.numeric(blocksStats$Fd)
+  blocksStats$fdD0[c(which(is.na(blocksStats$D)), which(blocksStats$D < 0))] <- NA
   fttRecord$table <- cbind(results, blocksStats)
-  fttRecord$globalX2 <- -2 * sum(log(fttRecord$table$p_value_D))
+  fttRecord$globalX2 <- -2 * sum(log(fttRecord$table$P_binom))
   fttRecord$globalP <- pchisq(fttRecord$globalX2,
-                              df = 2 * length(fttRecord$table$p_value_D), 
+                              df = 2 * length(fttRecord$table$P_binom), 
                               lower.tail = FALSE)
 }
 
