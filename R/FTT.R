@@ -250,7 +250,6 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
       maxBABA_D[i] <- P1df * (1 - P2df) * P2df * (1 - P4df)
     }
   }
-  
   numABBA <- length(which(ABBA > BABA))
   numBABA <- length(which(ABBA < BABA))
   if(numABBA < numBABA){
@@ -367,9 +366,9 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   
   
   fttRecord$table <- cbind(results, blocksStats)
-  fttRecord$D_globalX2 <- -2 * sum(log(fttRecord$table$P_binom))
-  fttRecord$D_globalP <- pchisq(fttRecord$D_globalX2,
-                              df = 2 * length(fttRecord$table$P_binom), 
+  fttRecord$D_globalX2 <- -2 * sum(log(fttRecord$table$D_P_binom))
+  fttRecord$fisherBinomialSum <- pchisq(fttRecord$D_globalX2,
+                              df = 2 * length(fttRecord$table$D_P_binom), 
                               lower.tail = FALSE)
 }
 
@@ -383,7 +382,10 @@ FTTrecord <- setRefClass("FTTrecord",
                            numBlocks = "integer",
                            blockLength = "integer",
                            D_globalX2 = "numeric",
-                           D_globalP = "numeric",
+                           globalABBAcount = "numeric",
+                           globalBABAcount = "numeric",
+                           globalBinomialP = "numeric",
+                           fisherBinomialSum = "numeric",
                            D_jEstimate = "numeric",
                            D_jVariance = "numeric",
                            D_jSD = "numeric",
@@ -409,7 +411,7 @@ FTTrecord <- setRefClass("FTTrecord",
                                blockLength <<- 0L
                                numBlocks <<- 0L
                                D_globalX2 <<- 0
-                               D_globalP <<- 0
+                               globalBinomialP <<- 0
                                tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
                                blankTable()
                              },
@@ -421,7 +423,7 @@ FTTrecord <- setRefClass("FTTrecord",
                            
                            globallySignificant =
                              function(){
-                               return((!noTestPerformed()) && (globalP < 0.05))
+                               return((!noTestPerformed()) && (globalBinomialP < 0.05))
                              },
                            
                            blankTable =
