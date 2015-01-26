@@ -217,17 +217,14 @@ subsetSequence <- function(dna, indexes){
 }
 
 calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
-  # Allocate space for the proportion of derived allele in each population.
-#   P1df <- vector(mode = "numeric", length = length(biSites.all))
-#   P2df <- vector(mode = "numeric", length = length(biSites.all))
-#   P3df <- vector(mode = "numeric", length = length(biSites.all))
-#   P4df <- vector(mode = "numeric", length = length(biSites.all))
   # Allocate space for Cabba and Cbaba.
   ABBA <- vector(mode = "numeric", length = length(biSites.all))
   BABA <- vector(mode = "numeric", length = length(biSites.all))
-  # Allocate space for 
-  maxABBA_D <- vector(mode = "numeric", length = length(biSites.all))
-  maxBABA_D <- vector(mode = "numeric", length = length(biSites.all))
+  # Allocate space for maxABBA_D.
+  maxABBA_23 <- vector(mode = "numeric", length = length(biSites.all))
+  maxBABA_23 <- vector(mode = "numeric", length = length(biSites.all))
+  maxABBA_13 <- vector(mode = "numeric", length = length(biSites.all))
+  maxBABA_13 <- vector(mode = "numeric", length = length(biSites.all))
   for(i in 1:length(biSites.all)){
     i.bi.counts <- counts.all[, biSites.all[i]]
     alleles <- names(which(i.bi.counts > 0))
@@ -243,11 +240,18 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
     ABBA[i] <- (1 - P1df) * P2df * P3df * (1 - P4df)
     BABA[i] <- P1df * (1 - P2df) * P3df * (1 - P4df)
     if(!is.na(P3df) & !is.na(P2df) & P3df >= P2df){
-      maxABBA_D[i] <- (1 - P1df) * P3df * P3df * (1 - P4df)
-      maxBABA_D[i] <- P1df * (1 - P3df) * P3df * (1 - P4df)
+      maxABBA_23[i] <- (1 - P1df) * P3df * P3df * (1 - P4df)
+      maxBABA_23[i] <- P1df * (1 - P3df) * P3df * (1 - P4df)
     } else {
-      maxABBA_D[i] <- (1 - P1df) * P2df * P2df * (1 - P4df)
-      maxBABA_D[i] <- P1df * (1 - P2df) * P2df * (1 - P4df)
+      maxABBA_23[i] <- (1 - P1df) * P2df * P2df * (1 - P4df)
+      maxBABA_23[i] <- P1df * (1 - P2df) * P2df * (1 - P4df)
+    }
+    if(!is.na(P3df) & !is.na(P1df) & P3df >= P1df){
+      maxABBA_13[i] <- (1 - P3df) * P2df * P3df * (1 - P4df)
+      maxBABA_13[i] <- P3df * (1 - P2df) * P3df * (1 - P4df)
+    } else {
+      maxABBA_13[i] <- (1 - P1df) * P2df * P1df * (1 - P4df)
+      maxBABA_13[i] <- P1df * (1 - P2df) * P1df * (1 - P4df)
     }
   }
   numABBA <- length(which(ABBA > BABA))
@@ -257,8 +261,10 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
   } else {
     binomialP <- pbinom(numBABA, (numABBA + numBABA), .5, lower.tail = TRUE)
   }
-  out <- data.frame(numABBA = numABBA, numBABA = numBABA, ABBA = sum(ABBA), BABA = sum(BABA), D_P_binom = binomialP,
-           maxABBA_D = sum(maxABBA_D), maxBABA_D = sum(maxBABA_D))
+  out <- data.frame(numABBA = numABBA, numBABA = numBABA, numBinomialP = binomialP,
+                    ABBA = sum(ABBA), BABA = sum(BABA), maxABBA_23 = sum(maxABBA_23),
+                    maxBABA_23 = sum(maxBABA_23), maxABBA_13 = sum(maxABBA_13),
+                    maxBABA_13 = sum(maxBABA_13))
   return(out)
 }
 
@@ -327,51 +333,156 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   }
   results <- data.frame(BlockStart = blockStart, BlockEnd = blockEnd)
   blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
-  blocksStats <- do.call(rbind, lapply(blocks, function(x){calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
-  blocksStats$S1234 <- blocksStats$ABBA - blocksStats$BABA
+  blocksStats <- do.call(rbind, lapply(blocks, function(x){
+    calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
+  blocksStats$S_1234 <- blocksStats$ABBA - blocksStats$BABA
+  blocksStats$S_1DD4 <- blocksStats$maxABBA_23 - blocksStats$maxBABA_23
+  blocksStats$S_D2D4 <- blocksStats$maxABBA_13 - blocksStats$maxBABA_13
   blocksStats$abbaBabaSum <- blocksStats$ABBA + blocksStats$BABA
-  blocksStats$D <- blocksStats$S1234 / blocksStats$abbaBabaSum
-  
-  blocksStats$S1DD4 <- blocksStats$maxABBA_D - blocksStats$maxBABA_D
-  blocksStats$Fd <- blocksStats$S1234 / blocksStats$S1DD4
-  blocksStats$fdD0 <- as.numeric(blocksStats$Fd)
-  blocksStats$fdD0[c(which(is.na(blocksStats$D)), which(blocksStats$D < 0))] <- NA
-  
+  blocksStats$D <- blocksStats$S_1234 / blocksStats$abbaBabaSum
+  blocksStats$Fd_1DD4 <- blocksStats$S_1234 / blocksStats$S_1DD4
+  blocksStats$Fd_D2D4 <- blocksStats$S_1234 / blocksStats$S_D2D4
+  blocksStats$Fd_1DD4_D0 <- as.numeric(blocksStats$Fd_1DD4)
+  blocksStats$Fd_1DD4_D0[c(which(is.na(blocksStats$D)), which(blocksStats$D < 0))] <- NA
+  blocksStats$Fd_D2D4_D0 <- as.numeric(blocksStats$Fd_D2D4)
+  blocksStats$Fd_D2D4_D0[c(which(is.na(blocksStats$D)), which(blocksStats$D > 0))] <- NA
   # Jack-knifing based on ANGSD implementation.
   # Number of blocks.
   nBlocks <- nrow(blocksStats)
   # Calculates D. 
-  dCalc <- function(x){sum(x$S)/sum(x$abbaBabaSum)}
-  # Global Estimate.
-  globalEstimate <- dCalc(blocksStats[, c("S", "abbaBabaSum")])
+  statCalc <- function(x){sum(x[, 1])/sum(x[, 2])}
+  # Global Estimates.
+  globalEstimate_D <- statCalc(blocksStats[, c("S_1234", "abbaBabaSum")])
+  globalEstimate_Fd_1DD4 <- statCalc(blocksStats[, c("S_1234", "S_1DD4")])
+  globalEstimate_Fd_D2D4 <- statCalc(blocksStats[, c("S_1234", "S_D2D4")])
   # Pseudoestimates.
-  blocksStats$pseudoEstimates <- rep(0, nBlocks)
+  blocksStats$pseudoD <- blocksStats$pseudoFd_1DD4 <- blocksStats$pseudoFd_D2D4 <- rep(0, nBlocks)
   blocksStats$blockFraction <- blocksStats$abbaBabaSum / sum(blocksStats$abbaBabaSum)
   for(i in 1:nBlocks){
-    blocksStats$pseudoEstimates[i] <- dCalc(blocksStats[-i, c("S1234", "abbaBabaSum")])
+    blocksStats$pseudoD[i] <- statCalc(blocksStats[-i, c("S_1234", "abbaBabaSum")])
+    blocksStats$pseudoFd_1DD4[i] <- statCalc(blocksStats[-i, c("S_1234", "S_1DD4")])
+    blocksStats$pseudoFd_D2D4[i] <- statCalc(blocksStats[-i, c("S_1234", "S_D2D4")])
   }
   blocksStats$invBlockFraction <- 1 - blocksStats$blockFraction
-  blocksStats$scaledPseudoEstimate <- blocksStats$invBlockFraction * blocksStats$pseudoEstimates
-  blocksStats$scaledGlobalEstimate <- blocksStats$blockFraction * globalEstimate
-  prodGlobN <- nBlocks * globalEstimate
-  scaledPseudoEstimateSum <- sum(blocksStats$scaledPseudoEstimate)
+  blocksStats$scaledPseudoD <- blocksStats$invBlockFraction * blocksStats$pseudoD
+  blocksStats$scaledPseudoFd_1DD4 <- blocksStats$invBlockFraction * blocksStats$pseudoFd_1DD4
+  blocksStats$scaledPseudoFd_D2D4 <- blocksStats$invBlockFraction * blocksStats$pseudoFd_D2D4
+  blocksStats$scaledPseudoFd_1DD4_D0 <- as.numeric(blocksStats$scaledPseudoFd_1DD4)
+  blocksStats$scaledPseudoFd_D2D4_D0 <- as.numeric(blocksStats$scaledPseudoFd_D2D4)
+  blocksStats$scaledPseudoFd_1DD4_D0[c(which(is.na(blocksStats$scaledPseudoD)), 
+                                       which(blocksStats$scaledPseudoD < 0))] <- NA
+  blocksStats$scaledPseudoFd_D2D4_D0[c(which(is.na(blocksStats$scaledPseudoD)), 
+                                       which(blocksStats$scaledPseudoD > 0))] <- NA
+  blocksStats$scaledGlobalD <- blocksStats$blockFraction * globalEstimate_D
+  blocksStats$scaledGlobalFd_1DD4 <- blocksStats$blockFraction * globalEstimate_Fd_1DD4
+  blocksStats$scaledGlobalFd_D2D4 <- blocksStats$blockFraction * globalEstimate_Fd_D2D4
+  
+  prodGlobN_D <- nBlocks * globalEstimate_D
+  prodGlobN_Fd_1DD4 <- nBlocks * globalEstimate_Fd_1DD4
+  prodGlobN_Fd_D2D4 <- nBlocks * globalEstimate_Fd_D2D4
+  scaledPseudo_D_Sum <- sum(blocksStats$scaledPseudoD)
+  scaledPseudo_Fd_1DD4_Sum <- sum(blocksStats$scaledPseudoFd_1DD4)
+  scaledPseudo_Fd_D2D4_Sum <- sum(blocksStats$scaledPseudoFd_D2D4)
   fracReciprocal <- 1 / blocksStats$blockFraction - 1
-  fttRecord$D_jEstimate <- prodGlobN - scaledPseudoEstimateSum
+  
+  fttRecord$D_jEstimate <- prodGlobN_D - scaledPseudo_D_Sum
+  fttRecord$Fd_1DD4_jEstimate <- prodGlobN_Fd_1DD4 - scaledPseudo_Fd_1DD4_Sum
+  fttRecord$Fd_D2D4_jEstimate <- prodGlobN_Fd_D2D4 - scaledPseudo_Fd_D2D4_Sum
+  
   fttRecord$D_jVariance <- 1/nBlocks * 
-    sum(1 / fracReciprocal * ( ((1 / blocksStats$blockFraction) * globalEstimate) - 
-                                 (fracReciprocal * blocksStats$pseudoEstimates) - (nBlocks * globalEstimate) + scaledPseudoEstimateSum)^2)
+    sum(1 / fracReciprocal * (((1 / blocksStats$blockFraction) * globalEstimate_D) - 
+                                 (fracReciprocal * blocksStats$pseudoD) - (nBlocks * globalEstimate_D) + scaledPseudo_D_Sum)^2)
+  fttRecord$Fd_1DD4_jVariance <- 1/nBlocks * 
+    sum(1 / fracReciprocal * (((1 / blocksStats$blockFraction) * globalEstimate_Fd_1DD4) - 
+                                (fracReciprocal * blocksStats$pseudoFd_1DD4) - (nBlocks * globalEstimate_Fd_1DD4) + scaledPseudo_Fd_1DD4_Sum)^2)
+  fttRecord$Fd_D2D4_jVariance <- 1/nBlocks * 
+    sum(1 / fracReciprocal * (((1 / blocksStats$blockFraction) * globalEstimate_Fd_D2D4) - 
+                                (fracReciprocal * blocksStats$pseudoFd_D2D4) - (nBlocks * globalEstimate_Fd_D2D4) + scaledPseudo_Fd_D2D4_Sum)^2)
   fttRecord$D_jSD <- sqrt(fttRecord$D_jVariance)
+  fttRecord$Fd_1DD4_jSD <- sqrt(fttRecord$D_jVariance)
+  fttRecord$Fd_D2D4_jSD <- sqrt(fttRecord$D_jVariance)
   fttRecord$D_jZ <- fttRecord$D_jEstimate / fttRecord$D_jSD
-  
-  
-  
+  fttRecord$Fd_1DD4_jZ <- fttRecord$Fd_1DD4_jEstimate / fttRecord$Fd_1DD4_jSD
+  fttRecord$Fd_D2D4_jZ <- fttRecord$Fd_D2D4_jEstimate / fttRecord$Fd_D2D4_jSD
   fttRecord$table <- cbind(results, blocksStats)
-  fttRecord$D_globalX2 <- -2 * sum(log(fttRecord$table$D_P_binom))
-  fttRecord$fisherBinomialSum <- pchisq(fttRecord$D_globalX2,
-                              df = 2 * length(fttRecord$table$D_P_binom), 
+  fttRecord$globalX2 <- -2 * sum(log(fttRecord$table$numBinomialP))
+  fttRecord$X2_P <- pchisq(fttRecord$globalX2,
+                              df = 2 * length(fttRecord$table$numBinomialP), 
                               lower.tail = FALSE)
+  fttRecord$ABBA <- sum(blocksStats$ABBA)
+  fttRecord$BABA <- sum(blocksStats$BABA)
+  fttRecord$ABBAcount <- sum(blocksStats$numABBA)
+  fttRecord$BABAcount <- sum(blocksStats$numBABA)
 }
 
+#' A Reference Class for storing and manipulating the results and data from a four taxon test.
+#' @name FTTrecord
+#' 
+#' @field P1 Character The population which forms the P1 taxon in the four taxon test.
+#' 
+#' @field P2 Character The population which forms the P2 taxon in the four taxon test.
+#' 
+#' @field P3 Character The population which forms the P3 taxon in the four taxon test.
+#' 
+#' @field A Character The population which forms the ancestral/outgroup taxon in the 
+#' four taxon test.
+#' 
+#' @field numBlocks integer The number of blocks the DNA sequence alignment was split 
+#' into in order to perform the test.
+#' 
+#' @field blockLength integer The number of base pairs to each block the DNA sequence 
+#' alignment was split into to perform the test.
+#' 
+#' @field ABBA numeric The global sum of ABBA sites. 
+#' Given by \eqn{(1 - Pr_1) * Pr_2 * Pr_3 * (1 - Pr_4)}. 
+#' Where \eqn{Pr_i} is the frequency of the derived allele in the i'th population.
+#' 
+#' @field ABBA numeric The global sum of BABA sites. 
+#' Given by \eqn{Pr_1 * (1 - Pr_2) * Pr_3 * (1 - Pr_4)}.
+#' Where \eqn{Pr_i} is the frequency of the derived allele in the i'th population.
+#' 
+#' @field ABBAcount integer The number of sites for which ABBA was greater than BABA.
+#' 
+#' @field BABAcount integer The number of sites for which BABA was greater than ABBA.
+#' 
+#' @field globalX2 numeric A chi squared value computed during the four taxon test. 
+#' Used to assess whether ABBAcount and BABAcount are significantly different,
+#' based on the binomial distribution.
+#' 
+#' @field X2_P numeric A p-value computer by the Fisher combined probability
+#' test based on globalX2. Indicates whether ABBAcount and BABAcount differ significantly.
+#' 
+#' @field D_jEstimate numeric Patterson's D estimate based on jackknifeing the blocks of data.
+#' 
+#' @field Fd_1DD4_jEstimate numeric A jackknifed estimate of Fd for complete introgression 
+#' between populations 2 and 3.
+#' 
+#' @field Fd_D2D4_jEstimate numeric A jackknifed estimate of Fd for complete introgression 
+#' between populations 1 and 3.
+#' 
+#' @field D_jVariance numeric Variance of Pattersons D estimates from jackknife.
+#' 
+#' @field Fd_1DD4_jVariance numeric Variance of Fd estimates from jackknife.
+#' Where Fd is for total introgression between Populations 2 and 3.
+#' 
+#' @field Fd_D2D4_jVariance numeric Variance of Fd estimates from jackknife.
+#' Where Fd is for total introgression between Populations 1 and 3.
+#' 
+#' @field D_jSD numeric Standard deviation of Patterson's D estimates from jackknife.
+#' 
+#' @field Fd_1DD4_jSD numeric Standard deviation of Fd estimates from jackknife.
+#' Where Fd is for total introgression between Populations 2 and 3.
+#' 
+#' @field Fd_D2D4_jSD numeric Standard deviation of Fd estimates from jackknife.
+#' Where Fd is for total introgression between Populations 1 and 3.
+#' 
+#' @field D_jZ 
+#' 
+#' @field D_jZ
+#' 
+#' @field D_jZ
+#' 
+#' @field results A list of reference objects defining the result of a given four taxon test.
 FTTrecord <- setRefClass("FTTrecord",
                          
                          fields = list(
@@ -381,16 +492,24 @@ FTTrecord <- setRefClass("FTTrecord",
                            A = "character",
                            numBlocks = "integer",
                            blockLength = "integer",
-                           D_globalX2 = "numeric",
-                           globalABBAcount = "numeric",
-                           globalBABAcount = "numeric",
-                           globalBinomialP = "numeric",
-                           fisherBinomialSum = "numeric",
+                           ABBA = "numeric",
+                           BABA = "numeric",
+                           ABBAcount = "numeric",
+                           BABAcount = "numeric",
+                           globalX2 = "numeric",
+                           X2_P = "numeric",
                            D_jEstimate = "numeric",
+                           Fd_1DD4_jEstimate = "numeric",
+                           Fd_D2D4_jEstimate = "numeric",
                            D_jVariance = "numeric",
+                           Fd_1DD4_jVariance = "numeric",
+                           Fd_D2D4_jVariance = "numeric",
                            D_jSD = "numeric",
+                           Fd_1DD4_jSD = "numeric",
+                           Fd_D2D4_jSD = "numeric",
                            D_jZ = "numeric",
-                           
+                           Fd_1DD4_jZ = "numeric",
+                           Fd_D2D4_jZ = "numeric",
                            tableFile = "character",
                            table = function(value){
                              if(missing(value)){
@@ -410,8 +529,8 @@ FTTrecord <- setRefClass("FTTrecord",
                                A <<- a
                                blockLength <<- 0L
                                numBlocks <<- 0L
-                               D_globalX2 <<- 0
-                               globalBinomialP <<- 0
+                               globalX2 <<- 0
+                               X2_P <<- 0
                                tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
                                blankTable()
                              },
