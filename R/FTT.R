@@ -310,6 +310,8 @@ calculateDandFd <- function(aln, pops){
 #' @name fourTaxonTest
 #' @description Computes the Four Taxon Test for a given set of P1, P2, P3, and P4.
 #' Patterson's D is calculated, as is Fd from the paper Martin et al. (2014).
+#' Fd is calculated for the scenario of complete introgression between P1 and P3,
+#' and also for the scenario of complete introgression between P2 and P3.
 fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   # The jack-knife implementation and computation of Z score has been based on that
   # used in the software ANGSD.
@@ -417,13 +419,9 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 
 #' A Reference Class for storing and manipulating the results and data from a four taxon test.
 #' @name FTTrecord
-#' 
 #' @field P1 Character The population which forms the P1 taxon in the four taxon test.
-#' 
 #' @field P2 Character The population which forms the P2 taxon in the four taxon test.
-#' 
 #' @field P3 Character The population which forms the P3 taxon in the four taxon test.
-#' 
 #' @field A Character The population which forms the ancestral/outgroup taxon in the 
 #' four taxon test.
 #' 
@@ -442,7 +440,6 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 #' Where \eqn{Pr_i} is the frequency of the derived allele in the i'th population.
 #' 
 #' @field ABBAcount integer The number of sites for which ABBA was greater than BABA.
-#' 
 #' @field BABAcount integer The number of sites for which BABA was greater than ABBA.
 #' 
 #' @field globalX2 numeric A chi squared value computed during the four taxon test. 
@@ -453,13 +450,12 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 #' test based on globalX2. Indicates whether ABBAcount and BABAcount differ significantly.
 #' 
 #' @field D_jEstimate numeric Patterson's D estimate based on jackknifeing the blocks of data.
-#' 
 #' @field Fd_1DD4_jEstimate numeric A jackknifed estimate of Fd for complete introgression 
 #' between populations 2 and 3.
 #' 
 #' @field Fd_D2D4_jEstimate numeric A jackknifed estimate of Fd for complete introgression 
 #' between populations 1 and 3.
-#' 
+#'
 #' @field D_jVariance numeric Variance of Pattersons D estimates from jackknife.
 #' 
 #' @field Fd_1DD4_jVariance numeric Variance of Fd estimates from jackknife.
@@ -476,13 +472,20 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 #' @field Fd_D2D4_jSD numeric Standard deviation of Fd estimates from jackknife.
 #' Where Fd is for total introgression between Populations 1 and 3.
 #' 
-#' @field D_jZ 
+#' @field D_jZ numeric The Z score of Patterson's D, computed from the jackknife data.
+#'  
+#' @field Fd_1DD4_jZ numeric The Z score of Fd, computed from the jackknife data.
+#' Where Fd is calculated for complete introgression between populations 2 and 3.
 #' 
-#' @field D_jZ
+#' @field Fd_D2D4_jZ numeric The Z score of Fd, computed from the jackknife data.
+#' Where Fd is calculated for complete introgression between populations 1 and 3.
 #' 
-#' @field D_jZ
+#' @field tableFile character A character string indicating the temporary file
+#' used to store the dataframe accessed with the table field.
 #' 
-#' @field results A list of reference objects defining the result of a given four taxon test.
+#' @field table function An accessor function used to access a table of results stored
+#' in a temporary file on disk. The location of this file is indicated by the tableFile
+#' field.
 FTTrecord <- setRefClass("FTTrecord",
                          
                          fields = list(
@@ -523,26 +526,25 @@ FTTrecord <- setRefClass("FTTrecord",
                          methods = list(
                            initialize =
                              function(p1, p2, p3, a, hybridsDir){
+                               "Initialize the result object."
                                P1 <<- p1
                                P2 <<- p2
                                P3 <<- p3
                                A <<- a
-                               blockLength <<- 0L
-                               numBlocks <<- 0L
-                               globalX2 <<- 0
-                               X2_P <<- 0
                                tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
                                blankTable()
                              },
                            
                            noTestPerformed =
                              function(){
+                               "Returns true if a test has not been performed yet."
                                return(all(is.na(table)))
                              },
                            
                            globallySignificant =
                              function(){
-                               return((!noTestPerformed()) && (globalBinomialP < 0.05))
+                               "Returns true if the test is significant according to the binomial."
+                               return((!noTestPerformed()) && (X2_P < 0.05))
                              },
                            
                            blankTable =
@@ -555,12 +557,33 @@ FTTrecord <- setRefClass("FTTrecord",
                            
                            getPops =
                              function(){
+                               "Gets the population names from the result."
                                return(c(P1 = P1, P2 = P2, P3 = P3, A = A))
                              },
                            
                            getTable =
-                             function(){
-                               return(cbind(P1, P2, P3, A, table, globalX2, globalP))
+                             function(includeGlobal, neat){
+                               "Gets the results table for the blocks used to analyze the data."
+                               if(neat && includeGlobal){
+                                 out <- cbind(P1, P2, P3, A, table, numBlocks, blockLength,
+                                       ABBA, BABA, X2_P, D_jEstimate, Fd_1DD4_jEstimate,
+                                       Fd_D2D4_jEstimate, D_jSD, Fd_1DD4_jSD, Fd_D2D4_jSD,
+                                       D_jZ, Fd_1DD4_jZ, Fd_D2D4_jZ)
+                               } else {
+                                 if(includeGlobal){
+                                   out <- cbind(P1, P2, P3, A, table, numBlocks, blockLength,
+                                                ABBA, BABA, ABBAcount, BABAcount, 
+                                                globalX2, X2_P, 
+                                                D_jEstimate, Fd_1DD4_jEstimate,
+                                                Fd_D2D4_jEstimate, D_jVariance,
+                                                Fd_1DD4_jVariance, Fd_D2D4_jVariance,
+                                                D_jSD, Fd_1DD4_jSD, Fd_D2D4_jSD,
+                                                D_jZ, Fd_1DD4_jZ, Fd_D2D4_jZ)
+                                 } else {
+                                   out <- cbind(P1, P2, P3, A, table)
+                                 }
+                               }
+                               return(out)
                              }
                            )
                          )
