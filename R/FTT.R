@@ -123,9 +123,10 @@ FTTester <- setRefClass("FTTester",
                            
                            printAllNames =
                              function(){
-                               quadNames <- lapply(getAllNames(), function(x) paste(x, collapse = ", "))
-                               collectedNames <- lapply(1:length(quadNames), function(i) paste(i, quadNames[[i]], sep=": "))
-                               return(collectedNames)
+                               quadNames <- lapply(getAllNames(), function(x){
+                                 paste0("P1: ", x["P1"], ", P2: ", x["P2"], ", P3: ", x["P3"], ", P4: ", x["A"])
+                               })
+                               return(quadNames)
                              },
                            
                            getFTTs =
