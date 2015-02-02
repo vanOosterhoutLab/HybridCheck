@@ -316,14 +316,14 @@ calculateDandFd <- function(aln, pops){
 fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   # The jack-knife implementation and computation of Z score has been based on that
   # used in the software ANGSD.
-  if(is.null(numBlocks) && is.null(lengthOfBlocks)){
+  if(!is.numeric(numBlocks) && !is.numeric(lengthOfBlocks)){
     stop("Invalid input - no number of blocks or size of blocks provided.")
   }
-  if(!is.null(numBlocks) && !is.null(lengthOfBlocks)){
+  if(is.numeric(numBlocks) && is.numeric(lengthOfBlocks)){
     stop("Provide the number of blocks to divide sequence alignment into, OR the proposed size of the blocks, not both.")
   }
   dnaLen <- dna$getFullLength()
-  if(!is.null(lengthOfBlocks) && is.null(numBlocks)){
+  if(is.numeric(lengthOfBlocks) && !is.numeric(numBlocks)){
     fttRecord$numBlocks <- as.integer(floor(dnaLen / lengthOfBlocks))
   } else {
     fttRecord$numBlocks <- numBlocks
