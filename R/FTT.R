@@ -182,9 +182,9 @@ FTTester <- setRefClass("FTTester",
                              },
                            
                            getResults =
-                             function(selections){
+                             function(selections, neat, global){
                                fttsToCollect <- getFTTs(selections)
-                               collectedTables <- lapply(fttsToCollect, function(ftt) ftt$getTable())
+                               collectedTables <- lapply(fttsToCollect, function(ftt) ftt$getTable(global, neat))
                                return(do.call(rbind, collectedTables))
                              }
                            )

@@ -118,11 +118,11 @@ HybRIDS <- setRefClass("HybRIDS",
                                           },
                                         
                                         tabulateFourTaxonTests =
-                                          function(selections = "ALL"){
+                                          function(selections = "ALL", neat = TRUE, global = TRUE){
                                             "Fetches the results of the four taxon tests, returns a dataframe.
                                             selections can be 'ALL', 'TESTED', or a list of character vectors of length 4, each 
                                             denoting a four taxon test by the names of the populations involved."
-                                            FTTmodule$getResults(selections)
+                                            FTTmodule$getResults(selections, neat = neat)
                                           },
                                          
                                         showParameters =
