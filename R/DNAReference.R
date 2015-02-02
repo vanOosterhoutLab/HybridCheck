@@ -2,11 +2,15 @@
 #' @name HybRIDSseq
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
+#' @field InformativeBp An integer vector containing the base positions that are informative.
+#' @field Populations A list of population definitions - a list of vectors containing sequence names.
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
-                              InformativeBp = "integer"),
+                              InformativeBp = "integer",
+                              Populations = "list"
+                              ),
                               
                             methods = list( 
                               initialize =
@@ -105,6 +109,60 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   return(InformativeSequence[selection])
                                 },
                               
+                              setPopulations =
+                                function(pops){
+                                  "Define which sequences form a population. Provide a list of vectors containing either integers or sequence names."
+                                  enforceDNA()
+                                  if(length(pops) > 0){
+                                    if(any(!unlist(lapply(pops, function(x) is.integer(x) || is.character(x))))){stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")}
+                                    pops <- lapply(pops, function(x){
+                                      if(is.integer(x)){
+                                        return(getSequenceNames()[x]) 
+                                      } else {
+                                        return(x)
+                                      }
+                                    })
+                                    if(any(table(unlist(pops)) > 1)){stop("Entered a sequence name or number in more than one group.")}
+                                    if(any(!unlist(lapply(pops, function(x) all(x %in% getSequenceNames()))))){stop("Some sequences specified in the populations are not in the sequence data.")}
+                                  }
+                                  Populations <<- pops
+                                  if(is.null(names(Populations))){
+                                    names(Populations) <<- paste("unnamed", 1:length(Populations), sep = "_")
+                                  } else {
+                                    for(i in 1:length(Populations)){
+                                      ind <- 1
+                                      if(names(Populations)[[i]] == ""){
+                                        names(Populations)[[i]] <<- paste("unnamed", ind, sep = "_")
+                                        ind <- ind + 1
+                                      }
+                                    }
+                                  }
+                                },
+                              
+                              oneSeqOnePop = function(){
+                                "Function assigns one population per sequence."
+                                enforceDNA()
+                                setPopulations(as.list(getSequenceNames()))
+                              },
+                              
+                              numberOfPopulations =
+                                function(){
+                                  "Returns the number of populations assigned."
+                                  return(length(Populations))
+                                },
+                              
+                              hasPopulations =
+                                function(){
+                                  "Returns TRUE when a set of populations has been defined. Otherwise returns FALSE."
+                                  return(length(Populations) >= 1)
+                                },
+                              
+                              namesOfPopulations =
+                                function(){
+                                  "Returns the names of the populations."
+                                  return(names(Populations))
+                                },
+                              
                               textSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object."
@@ -114,21 +172,39 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                                   "\nExcluding non-informative sites: ", getInformativeLength(),
                                                   "\n\nSequence names:\n")
                                   names <- getSequenceNames()
-                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="\n")
-                                  return(paste0(start, end))
+                                  end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse = "\n")
+                                  if(length(Populations) == 0){
+                                    pops <- "No populations have been specified."
+                                  } else {
+                                    pops <- paste0(lapply(1:length(Populations), 
+                                                          function(i){paste0(namesOfPopulations()[i],
+                                                                             ": ",
+                                                                             paste0(Populations[[i]], collapse = ", ")
+                                                                             )}), collapse = "\n")
+                                  }
+                                  return(paste0(start, end, "\n\nPopulations:\n", pops, "\n"))
                                 },
                               
                               htmlSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object, formatted as HTML."
-                                  start <- paste0("<h1>DNA Sequence Information:</h1>",
+                                  start <- paste0("<h2>DNA Sequence Information:</h2>",
                                                   "<p>An alignment of ", numberOfSequences(),
                                                   " sequences.</p><p><b>Full length of alignment:</b> ", getFullLength(),
                                                   " bp</p><p><b>Excluding non-informative sites:</b> ", getInformativeLength(),
                                                   " bp</p><p><b>Sequence names:</b><br>")
                                   names <- getSequenceNames()
                                   end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="<br>")
-                                  return(paste0(start, end))
+                                  if(length(Populations) == 0){
+                                    pops <- "No populations have been specified."
+                                  } else {
+                                    pops <- paste0(lapply(1:length(Populations),
+                                                          function(i){paste0(namesOfPopulations()[i], ": ",
+                                                                             paste0(Populations[[i]], 
+                                                                                    collapse = ", "))}),
+                                                   collapse = "<br>")
+                                  }
+                                  return(paste0(start, end, "<br><br><b>Populations:</b><br>", pops, "<br>"))
                                 },
                               
                               show =

@@ -421,8 +421,7 @@ Triplets <- setRefClass("Triplets",
                                     ind <- c(ind, which(unlist(lapply(triplets, function(x) x$blocksNotDated()))))
                                     selections <- selections[which(selections != "NOT.DATED")]
                                   }
-                                  if(any(unlist(lapply(selections, length)) < 3)){stop("Selections must provide a vector of 3 sequence names.")}
-                                  if(any(unlist(lapply(selections, length)) > 3)){stop("Selections must provide a vector of 3 sequence names.")}
+                                  if(any(unlist(lapply(selections, length)) != 3)){stop("Selections must provide a vector of 3 sequence names.")}
                                   if(any(unlist(lapply(selections, function(x) !is.character(x))))){stop("Selections must be of class character.")}
                                   allNames <- do.call(rbind, getAllNames())
                                   ind <- c(ind, unlist(lapply(selections, function(x) which(allNames[,1] %in% x & allNames[,2] %in% x & allNames[,3] %in% x))))
