@@ -313,6 +313,8 @@ calculateDandFd <- function(aln, pops){
 #' Patterson's D is calculated, as is Fd from the paper Martin et al. (2014).
 #' Fd is calculated for the scenario of complete introgression between P1 and P3,
 #' and also for the scenario of complete introgression between P2 and P3.
+#' The jack-knife implementation and computation of Z scores is based on that used in the software package
+#' ANGSD.
 fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   # The jack-knife implementation and computation of Z score has been based on that
   # used in the software ANGSD.
