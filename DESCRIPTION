@@ -8,9 +8,9 @@ Maintainer: Ben J. Ward <b.ward@uea.ac.uk>
 Description: An R package for the detection and dating of
     Recombinant Regions in DNA sequence data.
 License: GPL-2
-Depends: ggplot2,gridExtra
+Depends:
 Imports: 
-    Rcpp (>= 0.11.0),png,methods,ape,Biostrings
+    Rcpp (>= 0.11.0),ggplot2,grid,gridExtra,png,methods,ape,Biostrings
 LinkingTo: Rcpp
 Suggests: knitr,testthat
 VignetteBuilder: knitr
