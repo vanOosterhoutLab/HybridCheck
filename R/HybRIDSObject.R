@@ -1,7 +1,7 @@
 #' @docType package
 #' ...
 #' @useDynLib HybRIDS
-#' @import methods ape ggplot2 gridExtra Biostrings
+#' @import ape Biostrings
 #' @importFrom png readPNG
 NULL
 

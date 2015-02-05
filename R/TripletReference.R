@@ -209,7 +209,7 @@ Triplet <- setRefClass("Triplet",
                              frame$BC <- BC
                              frame$X <- 1:nrow(frame)
                              rm(AB, AC, BC)
-                             if(any(is.nan( as.numeric(frame$AB))) || any(is.nan( as.numeric(frame$AC))) || any(is.nan( as.numeric(frame$BC))) ){
+                             if(any(is.nan( as.numeric(frame$AB))) || any(is.nan( as.numeric(frame$AC))) || any(is.nan( as.numeric(frame$BC)))){
                                warning("\nNot a numbers (NaNs)! have been detected in the plotting frame.\n
 The common cause of this is a small alignment or few informative sites in the data, 
 with a too high MosaicScale parameter.\nThis usually happens at either end of the 
@@ -240,15 +240,14 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                                  legend <- as.raster(legend[,,1:3])
                                  legend[transparent] <- NA
                                }
-                               legendgrob <- rasterGrob(image=legend)
-                               bars <- arrangeGrob(bars, legendgrob, widths = c(1, 0.13), ncol=2)
+                               legendgrob <- grid::rasterGrob(image=legend)
+                               bars <- arrangeGrob(bars, legendgrob, widths = c(1, 0.13), ncol = 2)
                              }
                              return(bars)
                            }
                          )
                        )
 
-#' Internal function to create the vertical bars for mosaic plot.
 vertbar_create <- function(sequenceSimilarityTable, plottingFrameRow, whichComparrison){
   bool1 <- sequenceSimilarityTable$ActualStart <= plottingFrameRow[2]
   bool2 <- plottingFrameRow[1] <= sequenceSimilarityTable$ActualEnd
@@ -256,7 +255,6 @@ vertbar_create <- function(sequenceSimilarityTable, plottingFrameRow, whichCompa
   return(mean(sequenceSimilarityTable[index, whichComparrison]))
 }
 
-#' Internal function to determine colours for the bars.
 col_deter <- function(invalues, reference){
   if(any(is.nan(as.numeric(invalues)))){
     cols <- "#000000"
@@ -271,8 +269,7 @@ col_deter <- function(invalues, reference){
 
 #' Reference class storing all triplets in a HybRIDS analysis.
 #' @name Triplets
-#' @description The Triplets reference class stores and manages operations over many Triplet objects. 
-#' 
+#' @description The Triplets reference class stores and manages operations over many Triplet objects.
 Triplets <- setRefClass("Triplets",
                         
                         fields = list(
