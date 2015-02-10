@@ -65,7 +65,6 @@ HybRIDS <- setRefClass("HybRIDS",
                                               triplets <<- Triplets$new()
                                             }
                                             setPopulations()
-                                            triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                           },
                                         
                                         sequencesLoaded =
@@ -113,7 +112,6 @@ HybRIDS <- setRefClass("HybRIDS",
                                             FTTmodule$runFTTests(selections, DNA, numberOfBlocks, blockLength)
                                             if(1L %in% comparrisonSettings$Method){
                                               comparrisonSettings$decideAcceptedTriplets(DNA, FTTmodule)
-                                              triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                             }
                                           },
                                         
@@ -161,7 +159,6 @@ HybRIDS <- setRefClass("HybRIDS",
                                              Parameters <- list(...)
                                              if(Step == "TripletGeneration"){
                                                comparrisonSettings$setSettings(DNA, FTTmodule, ...)
-                                               triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                              }
                                              if(Step == "SSAnalysis"){
                                                ssAnalysisSettings$setSettings(...) 
@@ -190,7 +187,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              optional settings passed for this analysis will apply to subsequent calls
                                              of this function."
                                              DNA$enforceDNA()
-                                             #triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
+                                             triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                              if(length(list(...)) > 0){
                                                if(replaceSettings){
                                                  ssAnalysisSettings$setSettings(...)
