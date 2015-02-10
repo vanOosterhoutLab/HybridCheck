@@ -190,6 +190,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              optional settings passed for this analysis will apply to subsequent calls
                                              of this function."
                                              DNA$enforceDNA()
+                                             #triplets$generateTriplets(DNA, comparrisonSettings, filesDirectory)
                                              if(length(list(...)) > 0){
                                                if(replaceSettings){
                                                  ssAnalysisSettings$setSettings(...)

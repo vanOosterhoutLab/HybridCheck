@@ -3,12 +3,14 @@
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
 #' @field InformativeBp An integer vector containing the base positions that are informative.
+#' @field ReferenceSeq A character vector of length one with the sequence name that is the reference.
 #' @field Populations A list of population definitions - a list of vectors containing sequence names.
 HybRIDSseq <- setRefClass("HybRIDSseq",
                             fields = list( 
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
                               InformativeBp = "integer",
+                              ReferenceSeq = "character",
                               Populations = "list"
                               ),
                               
@@ -35,12 +37,16 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                                   notUnknown <- consensusM[15, ] == 0
                                   polymorphic <- colSums(consensusM != 0) > 1
                                   InformativeBp <<- which(notUnknown & polymorphic)
-                                  InformativeSequence <<- DNAStringSet(character(length = length(FullSequence)))
-                                  for(i in 1:length(FullSequence)){
-                                    InformativeSequence[[i]] <<- FullSequence[[i]][InformativeBp]
-                                  }
+                                  index <- rep.int(list(InformativeBp), length(FullSequence))
+                                  InformativeSequence <<- FullSequence[index]
                                   names(InformativeSequence) <<- names(FullSequence)
+                                  ReferenceSeq <<- names(FullSequence)[1]
                                   message("Finished DNA input...")
+                                },
+                              
+                              addBAMSAMs = 
+                                function(files){
+                                  
                                 },
                               
                               hasDNA =
@@ -251,3 +257,4 @@ checkForDuplicates <- function(dna){
 is.initialized <- function(x){
   return(class(x) != "uninitializedField")
 }
+
