@@ -13,7 +13,8 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                      PartitionStrictness = "integer",
                                      partiallySignificant = "logical",
                                      TripletCombinations = "list",
-                                     AcceptedCombinations = "list"),
+                                     AcceptedCombinations = "list",
+                                     Modified = "logical"),
                                    
                                    methods = list(
                                      initialize = 
@@ -83,6 +84,7 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          if(!is.null(rejects) && length(rejects) > 0){
                                            AcceptedCombinations <<- AcceptedCombinations[-rejects]
                                          }
+                                         Modified <<- TRUE
                                        },
                                      
                                      hasTripletCombinations =

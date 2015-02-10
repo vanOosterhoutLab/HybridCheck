@@ -305,13 +305,16 @@ Triplets <- setRefClass("Triplets",
                           generateTriplets =
                             function(dna, csettings, basefile){
                               "Initializes all triplet objects based on the combination settings"
-                              if(tripletsGenerated()){
-                                deleteAllTriplets()
+                              if(csettings$Modified){
+                                if(tripletsGenerated()){
+                                  deleteAllTriplets()
+                                }
+                                message("Initializing new triplets data.")
+                                seqlength <- dna$getFullLength()
+                                seqnames <- dna$getSequenceNames()
+                                triplets <<- lapply(csettings$AcceptedCombinations, function(x) Triplet$new(sequencenames = c(x[1], x[2], x[3]), fullseqlength = seqlength, basefile))
+                                csettings$Modified <- FALSE
                               }
-                              message("Initializing new triplets data.")
-                              seqlength <- dna$getFullLength()
-                              seqnames <- dna$getSequenceNames()
-                              triplets <<- lapply(csettings$AcceptedCombinations, function(x) Triplet$new(sequencenames = c(x[1], x[2], x[3]), fullseqlength = seqlength, basefile))
                             },
                           
 #                           updateTriplets =
