@@ -119,9 +119,9 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                                       sep=""))
                                        },
                                      
-                                     printCombinations =
+                                     printAcceptedCombinations =
                                        function(){
-                                         return(paste0(lapply(AcceptedCombinations, function(x) paste0(x, collapse=", ")), collapse="\n"))
+                                         return(lapply(AcceptedCombinations, function(x) paste0(x, collapse=", ")))
                                        },
                                      
                                      htmlCombinations =

@@ -43,14 +43,15 @@ FTTester <- setRefClass("FTTester",
                                allCombs <- combn(dna$namesOfPopulations(), 4, simplify = FALSE)
                                allDists <- as.matrix(stringDist(dna$FullSequence, method = "hamming")) / dna$getFullLength()
                                generatedCombs <- lapply(allCombs, function(x){
+                                 message(paste(x))
                                  out <- list(P1 = NULL, P2 = NULL, P3 = NULL, A = NULL)
                                  otus <- x
                                  seqsInOtus <- dna$Populations[otus]
                                  otuPairs <- combn(otus, 2, simplify = FALSE)
                                  distances <- compDist(otuPairs, seqsInOtus, allDists)
                                  minOTUs <- distances[which(distances$dist == min(distances$dist)), c("OTU1", "OTU2")]
-                                 out$P1 <- minOTUs$OTU1
-                                 out$P2 <- minOTUs$OTU2
+                                 out$P1 <- minOTUs[1,]$OTU1
+                                 out$P2 <- minOTUs[1,]$OTU2
                                  remainingOtus <- otus[which(otus != out$P1 & otus != out$P2)]
                                  seqsInOtus2 <- dna$Populations[remainingOtus]
                                  P1P2otu <- paste0("(", out$P1, ", ", out$P2, ")")
@@ -60,7 +61,7 @@ FTTester <- setRefClass("FTTester",
                                  remainingOtuPairs <- remainingOtuPairs[unlist(lapply(remainingOtuPairs, function(x) P1P2otu %in% x))]
                                  distances_2 <- compDist(remainingOtuPairs, seqsInOtus2, allDists)
                                  minOTUs_2 <- distances_2[which(distances_2$dist == min(distances_2$dist)), c("OTU1", "OTU2")]
-                                 out$P3 <- minOTUs_2[1, which(minOTUs_2 != P1P2otu)]
+                                 out$P3 <- minOTUs_2[1, which(minOTUs_2[1,] != P1P2otu)]
                                  out$A <- otus[which(!(otus %in% unlist(out)))]
                                  checks <- c(
                                    # Check P1 & P2 are closer than P1 and P3.
@@ -318,6 +319,7 @@ calculateDandFd <- function(aln, pops){
 fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   # The jack-knife implementation and computation of Z score has been based on that
   # used in the software ANGSD.
+  message(paste(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A, collapse = ", "))
   if(!is.numeric(numBlocks) && !is.numeric(lengthOfBlocks)){
     stop("Invalid input - no number of blocks or size of blocks provided.")
   }
@@ -336,60 +338,83 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   if(length(blockStart) > length(blockEnd)){
     blockStart <- blockStart[1:length(blockStart) - abs(length(blockStart) - length(blockEnd))]
   }
+  # Calculation of ABBA and BABA from segments of the alignment:
   results <- data.frame(BlockStart = blockStart, BlockEnd = blockEnd)
   blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
   blocksStats <- do.call(rbind, lapply(blocks, function(x){
     calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
+  
+  # Calculation of stats for each jackknife segment:
+  # Calculation of Observed S and S for complete introgression scenarios between P1:P3, and P2:P3.
   blocksStats$S_1234 <- blocksStats$ABBA - blocksStats$BABA
   blocksStats$S_1DD4 <- blocksStats$maxABBA_23 - blocksStats$maxBABA_23
   blocksStats$S_D2D4 <- blocksStats$maxABBA_13 - blocksStats$maxBABA_13
+  # Calculation of the observed pattersons D value per segment.
   blocksStats$abbaBabaSum <- blocksStats$ABBA + blocksStats$BABA
   blocksStats$D <- blocksStats$S_1234 / blocksStats$abbaBabaSum
+  # Calculation of the Fd values for the two complete introgression scenarios per segment.
   blocksStats$Fd_1DD4 <- blocksStats$S_1234 / blocksStats$S_1DD4
   blocksStats$Fd_D2D4 <- blocksStats$S_1234 / blocksStats$S_D2D4
   blocksStats$Fd_1DD4_D0 <- as.numeric(blocksStats$Fd_1DD4)
   blocksStats$Fd_1DD4_D0[c(which(is.na(blocksStats$D)), which(blocksStats$D < 0))] <- NA
   blocksStats$Fd_D2D4_D0 <- as.numeric(blocksStats$Fd_D2D4)
   blocksStats$Fd_D2D4_D0[c(which(is.na(blocksStats$D)), which(blocksStats$D > 0))] <- NA
+  
   # Jack-knifing based on ANGSD implementation.
   # Number of blocks.
   nBlocks <- nrow(blocksStats)
+  
   # Calculates D. 
   statCalc <- function(x){sum(x[, 1])/sum(x[, 2])}
+  
   # Global Estimates.
   globalEstimate_D <- statCalc(blocksStats[, c("S_1234", "abbaBabaSum")])
   globalEstimate_Fd_1DD4 <- statCalc(blocksStats[, c("S_1234", "S_1DD4")])
   globalEstimate_Fd_D2D4 <- statCalc(blocksStats[, c("S_1234", "S_D2D4")])
-  # Pseudoestimates.
+  
+  # Pseudoestimates:
+  
+  # Allocate space for the results.
   blocksStats$pseudoD <- blocksStats$pseudoFd_1DD4 <- blocksStats$pseudoFd_D2D4 <- rep(0, nBlocks)
+  
+  # blockFraction shows the proportion of all ABBA and BABA sites which are located in a given jack-knife block.
+  # It quantifies the influence the block has over the global result.
   blocksStats$blockFraction <- blocksStats$abbaBabaSum / sum(blocksStats$abbaBabaSum)
+  
+  # Loop over and count up the pseudoestimates of D and Fd:
   for(i in 1:nBlocks){
     blocksStats$pseudoD[i] <- statCalc(blocksStats[-i, c("S_1234", "abbaBabaSum")])
     blocksStats$pseudoFd_1DD4[i] <- statCalc(blocksStats[-i, c("S_1234", "S_1DD4")])
     blocksStats$pseudoFd_D2D4[i] <- statCalc(blocksStats[-i, c("S_1234", "S_D2D4")])
   }
+  
+  # Calculate the inverse of the block fraction - this is how much the pseudo values should be multiplied by
+  # to correct for their influence given the amount of two-state sites the jack-knife block accounts for.
   blocksStats$invBlockFraction <- 1 - blocksStats$blockFraction
+  
+  # Calculate scaled pseudo values.
   blocksStats$scaledPseudoD <- blocksStats$invBlockFraction * blocksStats$pseudoD
   blocksStats$scaledPseudoFd_1DD4 <- blocksStats$invBlockFraction * blocksStats$pseudoFd_1DD4
   blocksStats$scaledPseudoFd_D2D4 <- blocksStats$invBlockFraction * blocksStats$pseudoFd_D2D4
-  blocksStats$scaledPseudoFd_1DD4_D0 <- as.numeric(blocksStats$scaledPseudoFd_1DD4)
-  blocksStats$scaledPseudoFd_D2D4_D0 <- as.numeric(blocksStats$scaledPseudoFd_D2D4)
-  blocksStats$scaledPseudoFd_1DD4_D0[c(which(is.na(blocksStats$scaledPseudoD)), 
-                                       which(blocksStats$scaledPseudoD < 0))] <- NA
-  blocksStats$scaledPseudoFd_D2D4_D0[c(which(is.na(blocksStats$scaledPseudoD)), 
-                                       which(blocksStats$scaledPseudoD > 0))] <- NA
-  blocksStats$scaledGlobalD <- blocksStats$blockFraction * globalEstimate_D
-  blocksStats$scaledGlobalFd_1DD4 <- blocksStats$blockFraction * globalEstimate_Fd_1DD4
-  blocksStats$scaledGlobalFd_D2D4 <- blocksStats$blockFraction * globalEstimate_Fd_D2D4
   
-  prodGlobN_D <- nBlocks * globalEstimate_D
-  prodGlobN_Fd_1DD4 <- nBlocks * globalEstimate_Fd_1DD4
-  prodGlobN_Fd_D2D4 <- nBlocks * globalEstimate_Fd_D2D4
+  # Sum up the scaled Pseudo values.
   scaledPseudo_D_Sum <- sum(blocksStats$scaledPseudoD)
   scaledPseudo_Fd_1DD4_Sum <- sum(blocksStats$scaledPseudoFd_1DD4)
   scaledPseudo_Fd_D2D4_Sum <- sum(blocksStats$scaledPseudoFd_D2D4)
+  
+  # Calculate the product of the global estimates and the number of blocks.
+  prodGlobN_D <- nBlocks * globalEstimate_D
+  prodGlobN_Fd_1DD4 <- nBlocks * globalEstimate_Fd_1DD4
+  prodGlobN_Fd_D2D4 <- nBlocks * globalEstimate_Fd_D2D4
+  
   fracReciprocal <- 1 / blocksStats$blockFraction - 1
   
+  # Set the observed global estimate s of D, and Fd in the results object. 
+  fttRecord$Observed_D <- globalEstimate_D
+  fttRecord$Observed_Fd_1DD4 <- globalEstimate_Fd_1DD4
+  fttRecord$Observed_Fd_D2D4 <- globalEstimate_Fd_D2D4
+  
+  # Work out the jackknife corrected estimates of D and Fds.
   fttRecord$D_jEstimate <- prodGlobN_D - scaledPseudo_D_Sum
   fttRecord$Fd_1DD4_jEstimate <- prodGlobN_Fd_1DD4 - scaledPseudo_Fd_1DD4_Sum
   fttRecord$Fd_D2D4_jEstimate <- prodGlobN_Fd_D2D4 - scaledPseudo_Fd_D2D4_Sum
@@ -418,6 +443,10 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   fttRecord$BABA <- sum(blocksStats$BABA)
   fttRecord$ABBAcount <- sum(blocksStats$numABBA)
   fttRecord$BABAcount <- sum(blocksStats$numBABA)
+  if(fttRecord$Observed_Fd_1DD4 < 0){fttRecord$Observed_Fd_1DD4 <- 0}
+  if(fttRecord$Observed_Fd_D2D4 < 0){fttRecord$Observed_Fd_D2D4 <- 0}
+  if(fttRecord$Fd_1DD4_jEstimate < 0){fttRecord$Fd_1DD4_jEstimate <- 0}
+  if(fttRecord$Fd_D2D4_jEstimate < 0){fttRecord$Fd_D2D4_jEstimate <- 0}
 }
 
 #' A Reference Class for storing and manipulating the results and data from a four taxon test.
@@ -504,6 +533,9 @@ FTTrecord <- setRefClass("FTTrecord",
                            BABAcount = "numeric",
                            globalX2 = "numeric",
                            X2_P = "numeric",
+                           Observed_D = "numeric",
+                           Observed_Fd_1DD4 = "numeric",
+                           Observed_Fd_D2D4 = "numeric",
                            D_jEstimate = "numeric",
                            Fd_1DD4_jEstimate = "numeric",
                            Fd_D2D4_jEstimate = "numeric",
