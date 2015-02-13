@@ -442,10 +442,10 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   fttRecord$BABA <- sum(blocksStats$BABA)
   fttRecord$ABBAcount <- sum(blocksStats$numABBA)
   fttRecord$BABAcount <- sum(blocksStats$numBABA)
-  if(fttRecord$Observed_Fd_1DD4 < 0){fttRecord$Observed_Fd_1DD4 <- 0}
-  if(fttRecord$Observed_Fd_D2D4 < 0){fttRecord$Observed_Fd_D2D4 <- 0}
-  if(fttRecord$Fd_1DD4_jEstimate < 0){fttRecord$Fd_1DD4_jEstimate <- 0}
-  if(fttRecord$Fd_D2D4_jEstimate < 0){fttRecord$Fd_D2D4_jEstimate <- 0}
+  if(fttRecord$Observed_Fd_1DD4 < 0 || is.na(fttRecord$Observed_Fd_1DD4)){fttRecord$Observed_Fd_1DD4 <- 0}
+  if(fttRecord$Observed_Fd_D2D4 < 0 || is.na(fttRecord$Observed_Fd_D2D4)){fttRecord$Observed_Fd_D2D4 <- 0}
+  if(fttRecord$Fd_1DD4_jEstimate < 0 || is.na(fttRecord$Fd_1DD4_jEstimate)){fttRecord$Fd_1DD4_jEstimate <- 0}
+  if(fttRecord$Fd_D2D4_jEstimate < 0 || is.na(fttRecord$Fd_D2D4_jEstimate)){fttRecord$Fd_D2D4_jEstimate <- 0}
 }
 
 #' A Reference Class for storing and manipulating the results and data from a four taxon test.
