@@ -43,7 +43,6 @@ FTTester <- setRefClass("FTTester",
                                allCombs <- combn(dna$namesOfPopulations(), 4, simplify = FALSE)
                                allDists <- as.matrix(stringDist(dna$FullSequence, method = "hamming")) / dna$getFullLength()
                                generatedCombs <- lapply(allCombs, function(x){
-                                 message(paste(x))
                                  out <- list(P1 = NULL, P2 = NULL, P3 = NULL, A = NULL)
                                  otus <- x
                                  seqsInOtus <- dna$Populations[otus]
