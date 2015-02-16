@@ -18,13 +18,14 @@ library(HybRIDS)
 
 ## Using HybRIDS with a Graphical User Interface
 
+For users who want to use HybRIDS without needing to know much R, we have developed a Shiny web-app based GUI.
+
+In addition we have provided a launcher for Windows, OS X, and Linux. So long as you have R on your machine, these launchers will make sure HybRIDS and its dependencies are installed, will fetch the current version of the Shiny files for the app from the GitHub repository, and then start up the app. You can then use HybRIDS with the GUI as detailed in the [HybRIDS User Manual.](./manual.html)
+
 ### Deploying the Shiny app on a (web)server
-However, for people who want to use it without needing to know much R, we have developed a Shiny web-app based GUI, this could be deployed on a server and logged into by many people in a lab for instance, or it can be used locally on a machine using ShinyApps. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
+In addition to being run on a local machine, the HybRIDS app could be deployed on a server and logged into by many people in a lab for instance. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
 
 -----
-
-### Using the App on your local machine with the help of a launcher.
-We have provided a launcher for Windows and OS X. So long as you have R on your machine, these launchers will make sure HybRIDS and its dependencies are installed, will fetch the current version of the Shiny files for the GUI from the GitHub repository, and then start up the app. You can then use HybRIDS with the GUI as detailed in the [HybRIDS User Manual.]()
 
 <div class="container">
       <div class="row">
