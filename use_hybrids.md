@@ -4,17 +4,6 @@ title: Get and deploy HybRIDS
 subtitle: Install and use HybRIDS in one of several ways.
 permalink: use_hybrids.html
 ---
-## Use HybRIDS in R scripts
-HybRIDS is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming ans scripting R code with it right away. For example you could install the latest version with devtools:
-
-```R
-install.packages("devtools")
-library(devtools)
-install_github("Ward9250/HybRIDS", build_vignettes=TRUE)
-library(HybRIDS)
-```
-
------
 
 ## Using HybRIDS with a Graphical User Interface
 
@@ -24,6 +13,16 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
 
 ### Deploying the Shiny app on a (web)server
 In addition to being run on a local machine, the HybRIDS app could be deployed on a server and logged into by many people in a lab for instance. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
+
+## Use HybRIDS in R scripts
+HybRIDS is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming ans scripting R code with it right away. For example you could install the latest version with devtools:
+
+```R
+install.packages("devtools")
+library(devtools)
+install_github("Ward9250/HybRIDS", build_vignettes=TRUE)
+library(HybRIDS)
+```
 
 -----
 
