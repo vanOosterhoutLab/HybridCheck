@@ -32,13 +32,6 @@ HybRIDSanalysis <- function(triplet){
   }
 }
 
-# detectionsAsPercentage <- function(x){
-#   seqs <- unlist(strsplit(unique(as.character(x$Triplet)), ":"))
-#   correctpicks <- as.character(x$Sequence_Pair) == paste(list(seqs[1], seqs[2]), collapse = ":") | as.character(x$Sequence_Pair) == paste(list(seqs[1], seqs[3]), collapse = ":")
-#   x2 <- x[correctpicks,]
-#   (sum(x2$Approximate_Length_BP)/50000)*100
-# }
-
 detectionsAsPercentage <- function(x){
   (sum(x$Approximate_Length_BP)/50000)*100
 }
