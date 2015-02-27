@@ -16,7 +16,7 @@
 
 The HybRIDS project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets. 
 
-# Installation from Github Repository
+# Installation from Github
 
 Note for this you must have the "devtools" installed.
 
