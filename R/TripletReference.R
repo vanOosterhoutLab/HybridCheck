@@ -1,5 +1,5 @@
 #' Reference class to store the results from sequence similarity analyses, and block detection runs for a given triplet.
-#' @name SimilarityScan.
+#' @name SimilarityScan
 #' @field TableFile A length 1 character vector storing the temporary filepath of the datatable of sequence similarity table.
 #' @field Table Accessor function for the datatable of sequence similarity that is stored on temporary files.
 #' @field WindowSizeUsed Single integer value, stores the size of the sliding window used for the scan.
@@ -20,9 +20,9 @@ SimilarityScan <- setRefClass("SimilarityScan",
                               
                               methods = list(
                                 initialize =
-                                  function(hybridsDir){
+                                  function(HCDir){
                                     "Method initializes the object, generates temporary filenames for the sequence similarity table."
-                                    TableFile <<- tempfile(pattern = "SSTable", tmpdir = hybridsDir)
+                                    TableFile <<- tempfile(pattern = "SSTable", tmpdir = HCDir)
                                     blankTable()
                                   },
                                 
@@ -66,12 +66,12 @@ Triplet <- setRefClass("Triplet",
                        
                        methods = list(
                          initialize = 
-                           function(sequencenames, fullseqlength, hybridsDir){
+                           function(sequencenames, fullseqlength, HCDir){
                              "Initializer function, creates an instance of triplet."
                              ContigNames <<- sequencenames
                              FullDNALength <<- fullseqlength
                              ContigPairs <<- combn(ContigNames, 2, simplify=F)
-                             ScanData <<- SimilarityScan$new(hybridsDir)
+                             ScanData <<- SimilarityScan$new(HCDir)
                            },
                          
                          readSettings =
@@ -232,7 +232,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                              bars <- applyPlottingParams(bars, plottingSettings, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
                              
                              if(plottingSettings$Legends == T){
-                               legend <- readPNG(system.file("extdata/rgblegend.png", package="HybRIDS"), TRUE)
+                               legend <- readPNG(system.file("extdata/rgblegend.png", package="Hybrids-Check"), TRUE)
                                if (names(dev.cur()) == "windows"){
                                  # windows device doesn’t support semi-transparency so we’ll need
                                  # to flatten the image
@@ -267,7 +267,7 @@ col_deter <- function(invalues, reference){
 
 
 
-#' Reference class storing all triplets in a HybRIDS analysis.
+#' Reference class storing all triplets in a HC analysis.
 #' @name Triplets
 #' @description The Triplets reference class stores and manages operations over many Triplet objects.
 Triplets <- setRefClass("Triplets",
@@ -441,7 +441,7 @@ Triplets <- setRefClass("Triplets",
                           
                           getAllIndexes =
                             function(){
-                              "Returns the indexes of the sequences (according to their rows in the HybRIDS sequence object) in each triplet as a list."
+                              "Returns the indexes of the sequences (according to their rows in the HC sequence object) in each triplet as a list."
                               return(lapply(triplets, function(x) x$ContigIndexes))
                             }
                           )

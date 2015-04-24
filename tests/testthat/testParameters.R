@@ -1,7 +1,7 @@
 context("Parameter storing objects")
 
 test_that("sequence similarity scan parameters set and return settings correctly.", {
-  settingsObj <- HybRIDS:::SSAnalysisSettings$new()
+  settingsObj <- HybridCheck:::SSAnalysisSettings$new()
   expect_equal(settingsObj$getWindowSize(), 100L)
   expect_is(settingsObj$getWindowSize(), "integer")
   expect_equal(settingsObj$getStepSize(), 1L)
@@ -28,7 +28,7 @@ test_that("sequence similarity scan parameters set and return settings correctly
 })
 
 test_that("block detection parameters object sets and returns values correctly.", {
-  settingsObj <- HybRIDS:::BlockDetectionSettings$new()
+  settingsObj <- HybridCheck:::BlockDetectionSettings$new()
   expect_equal(settingsObj$ManualThresholds, 90)
   expect_is(settingsObj$ManualThresholds, "numeric")
   expect_true(settingsObj$AutoThresholds)
@@ -49,7 +49,7 @@ test_that("block detection parameters object sets and returns values correctly."
 })
 
 test_that("block significance test and dating settings object sets and returns settings correctly.", {
-  settingsObj <- HybRIDS:::BlockDatingSettings$new()
+  settingsObj <- HybridCheck:::BlockDatingSettings$new()
   expect_is(settingsObj$MutationRate, "numeric")
   expect_is(settingsObj$PValue, "numeric")
   expect_is(settingsObj$BonfCorrection, "logical")
@@ -88,9 +88,9 @@ test_that("block significance test and dating settings object sets and returns s
 
 test_that("comparrison settings reference object sets and returns settings correctly.", {
   data(MySequences)
-  dna <- HybRIDS:::HybRIDSseq$new(MySequences)
-  ftt <- HybRIDS:::FTTester$new(dna)
-  expect_warning(compSettings <- HybRIDS:::ComparrisonSettings$new(dna, ftt))
+  dna <- HybridCheck:::HCseq$new(MySequences)
+  ftt <- HybridCheck:::FTTester$new(dna)
+  expect_warning(compSettings <- HybridCheck:::ComparrisonSettings$new(dna, ftt))
   expect_equal(compSettings$TripletCombinations, combn(dna$getSequenceNames(), 3, simplify = FALSE))
   expect_equal(compSettings$AcceptedCombinations, combn(dna$getSequenceNames(), 3, simplify = FALSE))
   expect_equal(compSettings$SeqNames, dna$getSequenceNames())

@@ -4,7 +4,7 @@
 #' @field PValue Numeric vector of length one. Stores the critical alpha value for testing the signifcance of recombination regions.
 #' @field BonfCorrection Logical vector of length one, stores the option of whether the critical value stored in PValue will be corrected.
 #' @field DateAnyway Logical vector of length one, sotres the option of whether blocks will be dated despite failing the critical alpha.
-#' @field MutationCorrection Character vector of length 1, can be any of the model supported by the ape package. Default is "HybRIDS". 
+#' @field MutationCorrection Character vector of length 1, can be any of the model supported by the ape package. Default is "JC69". 
 BlockDatingSettings <- setRefClass("BlockDatingSettings",
                                    
                                    fields = list(

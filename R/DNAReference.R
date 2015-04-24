@@ -1,11 +1,11 @@
 #' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
-#' @name HybRIDSseq
+#' @name HCseq
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
 #' @field InformativeBp An integer vector containing the base positions that are informative.
 #' @field ReferenceSeq A character vector of length one with the sequence name that is the reference.
 #' @field Populations A list of population definitions - a list of vectors containing sequence names.
-HybRIDSseq <- setRefClass("HybRIDSseq",
+HCseq <- setRefClass("HCseq",
                             fields = list( 
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
@@ -61,7 +61,7 @@ HybRIDSseq <- setRefClass("HybRIDSseq",
                               enforceDNA =
                                 function(){
                                   "Enforces some rules about the content of the sequence object and throws errors should they occur."
-                                  if(!hasDNA()){stop("Error: HybRIDSdna object has not got any sequences loaded in.")}
+                                  if(!hasDNA()){stop("Error: HCdna object has not got any sequences loaded in.")}
                                   if(length(InformativeSequence) != length(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
                                 },
                               

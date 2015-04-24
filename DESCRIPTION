@@ -1,4 +1,4 @@
-Package: HybRIDS
+Package: HybridCheck
 Type: Package
 Title: Detection and dating of Recombinant Regions in DNA sequence data.
 Version: 1.0

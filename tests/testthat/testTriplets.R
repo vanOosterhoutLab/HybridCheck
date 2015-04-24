@@ -2,7 +2,7 @@ context("tesing functionality of triplets.")
 
 test_that("reference objects storing sequence similarity scan tables work correctly", {
   data(MySequences)
-  expect_warning(hyb <- HybRIDS$new(MySequences))
+  expect_warning(hyb <- HC$new(MySequences))
   hyb$analyzeSS(c("Seq1", "Seq2", "Seq3"))
   ssObj <- hyb$triplets$triplets[[1]]$ScanData
   expect_is(ssObj$TableFile, "character")

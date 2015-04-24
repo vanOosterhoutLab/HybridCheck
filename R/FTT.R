@@ -111,9 +111,9 @@ FTTester <- setRefClass("FTTester",
                              },
                            
                            generateFTTs =
-                             function(hybridsDir){
+                             function(HCDir){
                                message("Initializing new FTtest data.")
-                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x[["P1"]], x[["P2"]], x[["P3"]], x[["A"]], hybridsDir))
+                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x[["P1"]], x[["P2"]], x[["P3"]], x[["A"]], HCDir))
                              },
                            
                            getAllNames = 
@@ -190,8 +190,6 @@ FTTester <- setRefClass("FTTester",
                            )
                          )
 
-#' @name compDist
-#' @description Compute hamming distances between a set of composite OTUs. 
 compDist <- function(popPairs, seqInPop, distMat){
   distances <- lapply(popPairs, function(y){
     grid <- expand.grid(seqInPop[y])
@@ -206,8 +204,6 @@ compDist <- function(popPairs, seqInPop, distMat){
   return(out)
 }
 
-#' @name Subset a DNAStringSet.
-#' @description For extracting only certain cites of an MSA represented as a DNA
 subsetSequence <- function(dna, indexes){
   subSeqs <- DNAStringSet(character(length = length(dna)))
   for(i in 1:length(dna)){
@@ -269,10 +265,7 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
   return(out)
 }
 
-#' @name populationSlice
-#' @description Calculate for a subset of an alignment of variable sites:
-#' The counts, the number of alleles, and the counts of the (global) bi-allelic,
-#' sites in the population. 
+
 populationSlice <- function(popSeqs, biSites){
   counts <- consensusMatrix(popSeqs)
   alleles <- colSums(counts != 0)
@@ -559,13 +552,13 @@ FTTrecord <- setRefClass("FTTrecord",
                          
                          methods = list(
                            initialize =
-                             function(p1, p2, p3, a, hybridsDir){
+                             function(p1, p2, p3, a, HCDir){
                                "Initialize the result object."
                                P1 <<- p1
                                P2 <<- p2
                                P3 <<- p3
                                A <<- a
-                               tableFile <<- tempfile(pattern = "FTTtable", tmpdir = hybridsDir)
+                               tableFile <<- tempfile(pattern = "FTTtable", tmpdir = HCDir)
                                blankTable()
                              },
                            

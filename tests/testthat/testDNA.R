@@ -1,8 +1,8 @@
 context("DNA related tests")
 
 test_that("dna reference objects correctly throws error when object has no sequences.", {
-  blank <- HybRIDS:::HybRIDSseq$new()
-  expect_is(blank, "HybRIDSseq")
+  blank <- HybridCheck:::HCseq$new()
+  expect_is(blank, "HCseq")
   expect_false(blank$hasDNA())
   expect_error(blank$enforceDNA())
   expect_error(blank$numberOfSequences())
@@ -20,8 +20,8 @@ test_that("dna reference objects correctly throws error when object has no seque
 
 test_that("dna reference objects correctly load and return information about sequences loaded in.", {
   data(MySequences)
-  tenSeqs <- HybRIDS:::HybRIDSseq$new(MySequences)
-  expect_is(tenSeqs, "HybRIDSseq")
+  tenSeqs <- HybridCheck:::HCseq$new(MySequences)
+  expect_is(tenSeqs, "HCseq")
   expect_true(tenSeqs$hasDNA())
   expect_is(tenSeqs$numberOfSequences(), "integer")
   expect_equal(tenSeqs$numberOfSequences(), 10)

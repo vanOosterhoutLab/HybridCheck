@@ -1,15 +1,15 @@
 #' @docType package
 #' ...
-#' @useDynLib HybRIDS
+#' @useDynLib HybridCheck
 #' @import ape Biostrings
 #' @importFrom png readPNG
 NULL
 
-#' A Reference Class for managing a HybRIDS analysis.
-#' @name HybRIDS
-#' @export HybRIDS
-#' @exportClass HybRIDS
-#' @field DNA A HybRIDSdna reference object.
+#' A Reference Class for managing a HybridCheck analysis.
+#' @name HC
+#' @export HC
+#' @exportClass HC
+#' @field DNA A HCdna reference object.
 #' @field FTTmodule A FTTester object, controls and stores results of the Four Taxon Tests.
 #' @field comparrisonSettings A ComparrisonSettings object.
 #' @field ssAnalysisSettings A SSAnalysisSettings object.
@@ -20,7 +20,7 @@ NULL
 #' @field userBlocks A UserBlocks object.
 #' @field filesDirectory Character - the root directory where all temporary files 
 #' used by this object are found.
-HybRIDS <- setRefClass("HybRIDS",
+HC <- setRefClass("HC",
                         
                         fields = list( 
                           DNA = "ANY",
@@ -37,10 +37,10 @@ HybRIDS <- setRefClass("HybRIDS",
                         
                          methods = list(initialize = 
                                            function(dnafile=NULL){
-                                             "Create HybRIDS object with default values for fields.
+                                             "Create HC object with default values for fields.
                                              The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
-                                             DNA <<- HybRIDSseq$new()
+                                             DNA <<- HCseq$new()
                                              FTTmodule <<- FTTester$new()
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
@@ -61,7 +61,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                             userBlocks$initializePairsFromDNA(DNA)
                                             comparrisonSettings <<- ComparrisonSettings$new(DNA, FTTmodule)
                                             if(triplets$tripletsGenerated()){
-                                              warning("Loading a new sequence file into HybRIDS object. Deleting triplets and data from previous sequence file.")
+                                              warning("Loading a new sequence file into HC object. Deleting triplets and data from previous sequence file.")
                                               triplets <<- Triplets$new()
                                             }
                                             setPopulations()
@@ -125,7 +125,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                          
                                         showParameters =
                                           function(Step = NULL){
-                                            "Displays to the R console, the settings of each HybRIDS analysis stage."
+                                            "Displays to the R console, the settings of each HC analysis stage."
                                             for(i in Step){
                                               if(i == "TripletGeneration"){
                                                 comparrisonSettings$show()
@@ -236,7 +236,7 @@ HybRIDS <- setRefClass("HybRIDS",
                                              triplets$dateBlocks(tripletSelections, settings, DNA)
                                            },
                                          
-                                         # GGplot method for HybRIDS object - activates sub-methods of triplets.
+                                         # GGplot method for HC object - activates sub-methods of triplets.
                                          plotTriplets =
                                            function(Selections = "ALL", ReplaceParams = TRUE, ...){
                                              settings <- plottingSettings
@@ -256,12 +256,12 @@ HybRIDS <- setRefClass("HybRIDS",
                                          tabulateDetectedBlocks =
                                            function(Selection = "ALL", Neat = TRUE) {
                                              output <- triplets$tabulateBlocks(Selection, Neat)
-                                             class(output) <- c(class(output), "HybRIDStable")   
+                                             class(output) <- c(class(output), "HCtable")   
                                              return(output)
                                            },
                                          
                                          show = function() {
-                                           cat("HybRIDS object:\n\n")
+                                           cat("HC object:\n\n")
                                            DNA$show()
                                            cat("\n\n\n")
                                            comparrisonSettings$show()

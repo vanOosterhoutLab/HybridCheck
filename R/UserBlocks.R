@@ -1,7 +1,7 @@
 #' @title UserBlocks reference class
 #' @name UserBlocks
 #' @description 
-#' The UserBlocks reference class is the class used to store and manipulate user defined blocks in HybRIDS.
+#' The UserBlocks reference class is the class used to store and manipulate user defined blocks in HC.
 UserBlocks <- setRefClass("UserBlocks",
                           
                           fields = list(
@@ -21,12 +21,12 @@ UserBlocks <- setRefClass("UserBlocks",
                             
                             enforceUserBlocks =
                               function(){
-                                if(!hasPairs()){"Error: UserBlocks object has not been initialized from a HybRIDSseq object."}
+                                if(!hasPairs()){"Error: UserBlocks object has not been initialized from a HCseq object."}
                               },
                             
                             initializePairsFromDNA =
                               function(dna){
-                                if(class(dna) != "HybRIDSseq"){stop("Object provided is not of class HybRIDSseq")}
+                                if(class(dna) != "HCseq"){stop("Object provided is not of class HCseq")}
                                 pairs <- unlist(lapply(combn(unique(dna$getSequenceNames()),2, simplify=F), function(x) paste(x[1], x[2], sep=":")))
                                 for (i in pairs){
                                   Pairs[[i]] <<- data.frame(FirstBP=as.numeric(), LastBP=as.numeric(), ApproxBpLength=as.numeric(), SNPs=as.numeric(), CorrectedSNPs=as.numeric(), P_Value=as.numeric(),
