@@ -26,9 +26,7 @@
 				{% if page.headimage %}
 				<div class="col-md-4 whitep">
 					{% if page.navname == "Home" %}
-					<object data="./img/HybridCheckLogo.svg" type="image/svg+xml">
-						<img src="./img/HybridCheckLogo.png" />
-					</object>
+					<img src="./img/HybridCheckLogo.svg" onerror="this.src='./img/HybridCheckLogo.png'">
 					{% else %}
 					<img src="{{ page.headimage }}" class="img-rounded">
 					{% endif %}
