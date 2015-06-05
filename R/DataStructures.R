@@ -431,7 +431,12 @@ SequenceInformation <-
                         }
                       } 
                     }
-                    InformativeUsed <<- which(colSums(consensusMatrix(modDNA) != 0) > 1)
+                    conMat <- consensusMatrix(modDNA)
+                    InformativeUsed <<- 
+                      which(
+                        (colSums(conMat[c(10:15, 17, 18),]) == 0) &
+                          (colSums(conMat != 0) > 1)
+                      )
                     InformativeUsedLength <<- length(InformativeUsed)
                     InformativeActual <<- dna$InformativeBp[InformativeUsed]
                     cutDNA <- DNAStringSet(character(length = 3))
