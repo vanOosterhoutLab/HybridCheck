@@ -23,7 +23,7 @@ Reference class to store and manage triplet data.
 
 \item{\code{blocksNotFound()}}{Returns TRUE, if the tables for block are blank and no block findng has been done.}
 
-\item{\code{initialize(sequencenames, fullseqlength, HCDir)}}{Initializer function, creates an instance of triplet.}
+\item{\code{initialize(sequenceNames, fullSeqLength, HCDir)}}{Initializer function, creates an instance of triplet.}
 
 \item{\code{noScanPerformed()}}{Returns TRUE, if the SS analysis table is blank and the informative sites are not known. This is indicative that a scan of the file has not been done yet.}
 
