@@ -414,8 +414,10 @@ SequenceInformation <-
                       message(" - Triplet of Sequences has heterozygous sites.")
                       message("   - Making alterations to input sequence based on calculated transformations.")
                       toDo <- which(!Transformations$ExtraHet)
+                      # First let's prepare an at matrix.
+                      #at <- matrix(FALSE, nrow = 3, ncol = FullDNALength)
                       for(i in toDo){
-                        message(i, "/", length(toDo))
+                        #message(i, "/", length(toDo))
                         if(!is.na(Transformations[i,4]) && !is.na(Transformations[i,7])){
                           modDNA <- modBase(modDNA, as.numeric(Transformations[i,1]), 
                                             DNAString(as.character(Transformations[i,4])),
