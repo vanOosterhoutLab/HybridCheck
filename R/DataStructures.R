@@ -413,7 +413,9 @@ SequenceInformation <-
                     if(seqsHaveHet()){
                       message(" - Triplet of Sequences has heterozygous sites.")
                       message("   - Making alterations to input sequence based on calculated transformations.")
-                      for(i in which(!Transformations$ExtraHet)){
+                      toDo <- which(!Transformations$ExtraHet)
+                      for(i in toDo){
+                        message(i, "/", length(toDo))
                         if(!is.na(Transformations[i,4]) && !is.na(Transformations[i,7])){
                           modDNA <- modBase(modDNA, as.numeric(Transformations[i,1]), 
                                             DNAString(as.character(Transformations[i,4])),

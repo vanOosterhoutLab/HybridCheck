@@ -54,7 +54,7 @@ transTwoAmb <- function(code, atypes, statemat){
       x[which(x != y)]
     }, twoLetters, chosenAmbig)
     # For each chosen ambiguous base, randomly pick one of its bases from the code.
-    chosenBases <- lapply(chosenAmbig, function(x){sample(code[[x]], 1)})
+    chosenBases <- unlist(lapply(chosenAmbig, function(x){sample(code[[x]], 1)}))
     # For the second ambiguous base, if the chosen base picked previously is also encoded for
     # by the ambiguous base, then resolve it the same way, otherwise, pick from its code randomly.
     chosenBases2 <- mapply(function(ambigs, pickedbase, altambig){
