@@ -445,7 +445,7 @@ SequenceInformation <-
                       modSequences <- DNAStringSet(
                         lapply(1:3, function(i){
                           transformSequenceRelative(sequence[[i]], 
-                                                    Transformations[which(!Transformations$ExtraHet), ],
+                                                    Transformations,
                                                     firstBase, lastBase)
                         })
                       )
@@ -476,8 +476,7 @@ SequenceInformation <-
                       message("  - Making extra transformations.")
                       modSequences2 <- DNAStringSet(
                         lapply(1:3, function(i){
-                          transformSequence(modSequences[[i]], 
-                                            Transformations[which(Transformations$ExtraHet),])
+                          transformSequence(modSequences[[i]], extraTrans)
                         })
                       )
                     } else {
