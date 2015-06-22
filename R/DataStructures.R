@@ -406,47 +406,29 @@ SequenceInformation <-
                       Transformations$TrueBase <<- dna$InformativeBp[Transformations$Base]
                       Transformations$ExtraHet <<- FALSE
                     }
-                    modDNA <- DNAStringSet(character(length = 3))
-                    modDNA[[1]] <- seqTriplet[[1]]
-                    modDNA[[2]] <- seqTriplet[[2]]
-                    modDNA[[3]] <- seqTriplet[[3]]
                     if(seqsHaveHet()){
                       message(" - Triplet of Sequences has heterozygous sites.")
                       message("   - Making alterations to input sequence based on calculated transformations.")
-                      toDo <- which(!Transformations$ExtraHet)
-                      # First let's prepare an at matrix.
-                      #at <- matrix(FALSE, nrow = 3, ncol = FullDNALength)
-                      for(i in toDo){
-                        #message(i, "/", length(toDo))
-                        if(!is.na(Transformations[i,4]) && !is.na(Transformations[i,7])){
-                          modDNA <- modBase(modDNA, as.numeric(Transformations[i,1]), 
-                                            DNAString(as.character(Transformations[i,4])),
-                                            DNAString(as.character(Transformations[i,7])))
-                        }
-                        if(!is.na(Transformations[i,3]) && !is.na(Transformations[i,6])){
-                          modDNA <- modBase(modDNA, as.numeric(Transformations[i,1]), 
-                                            DNAString(as.character(Transformations[i,3])),
-                                            DNAString(as.character(Transformations[i,6])))
-                        }
-                        if(!is.na(Transformations[i,2]) && !is.na(Transformations[i,5])){
-                          modDNA <- modBase(modDNA, as.numeric(Transformations[i,1]), 
-                                            DNAString(as.character(Transformations[i,2])),
-                                            DNAString(as.character(Transformations[i,5])))
-                        }
-                      } 
+                      modSequences <- DNAStringSet(
+                        lapply(1:3, function(i) {
+                          return(transformSequence(seqTriplet[[i]], Transformations[which(!Transformations$ExtraHet), ]))
+                          })
+                      )
                     }
-                    conMat <- consensusMatrix(modDNA)
+                    # Now that het bases have been transformed, we can do a pass over
+                    # to catch sites that are now uncertain bases or that are not poly.
+                    conMat <- consensusMatrix(modSequences)
                     InformativeUsed <<- 
                       which(
                         (colSums(conMat[c(10:15, 17, 18),]) == 0) &
                           (colSums(conMat != 0) > 1)
-                      )
+                        )
                     InformativeUsedLength <<- length(InformativeUsed)
                     InformativeActual <<- dna$InformativeBp[InformativeUsed]
                     cutDNA <- DNAStringSet(character(length = 3))
-                    cutDNA[[1]] <- modDNA[[1]][InformativeUsed]
-                    cutDNA[[2]] <- modDNA[[2]][InformativeUsed]
-                    cutDNA[[3]] <- modDNA[[3]][InformativeUsed]
+                    cutDNA[[1]] <- modSequences[[1]][InformativeUsed]
+                    cutDNA[[2]] <- modSequences[[2]][InformativeUsed]
+                    cutDNA[[3]] <- modSequences[[3]][InformativeUsed]
                     names(cutDNA) <- names(seqTriplet)
                     return(cutDNA)
                   },
@@ -458,35 +440,22 @@ SequenceInformation <-
                                        start = firstBase, end = lastBase)
                     if(seqsHaveHet()){
                       # Apply the transforms already decided upon.
-                      toTrans <- 
-                        Transformations[which(
-                          (Transformations$TrueBase >= firstBase) &
-                            (Transformations$TrueBase <= lastBase)),]
-                      relativePos <- (toTrans$TrueBase - firstBase) + 1
                       message(" - Making transformations to DNA for dating.")
                       message("  - These transformations are the same ones, used during scan.")
-                      for(i in 1:nrow(toTrans)){
-                        if(!is.na(toTrans[i,4]) && !is.na(toTrans[i,7])){
-                          sequence <- modBase(sequence, as.numeric(relativePos[i]), 
-                                              DNAString(as.character(toTrans[i,4])),
-                                              DNAString(as.character(toTrans[i,7])))
-                        }
-                        if(!is.na(toTrans[i,3]) && !is.na(toTrans[i,6])){
-                          sequence <- modBase(sequence, as.numeric(relativePos[i]), 
-                                              DNAString(as.character(toTrans[i,3])),
-                                              DNAString(as.character(toTrans[i,6])))
-                        }
-                        if(!is.na(toTrans[i,2]) && !is.na(toTrans[i,5])){
-                          sequence <- modBase(sequence, as.numeric(relativePos[i]), 
-                                              DNAString(as.character(toTrans[i,2])),
-                                              DNAString(as.character(toTrans[i,5])))
-                        }
-                      }
+                      modSequences <- DNAStringSet(
+                        lapply(1:3, function(i){
+                          transformSequenceRelative(sequence[[i]], 
+                                                    Transformations[which(!Transformations$ExtraHet), ],
+                                                    firstBase, lastBase)
+                        })
+                      )
+                    } else {
+                      modSequences <- sequence
                     }
-                    stateMatrix <- consensusMatrix(sequence)
+                    stateMatrix <- consensusMatrix(modSequences)
                     ambigTypes <- colSums(as.matrix(stateMatrix[5:10, ]) != 0)
                     numExtraHet <- length(which(ambigTypes > 0))
-                    if(numExtraHet){
+                    if(numExtraHet > 0){
                       message(" - Extra transformations are required for dating.")
                       message("  - Deciding on transformations and storing descision.")
                       heterozygousCode <- list(
@@ -503,27 +472,18 @@ SequenceInformation <-
                                                      }), ]
                       extraTrans$TrueBase <- (extraTrans$Base + firstBase) - 1
                       extraTrans$ExtraHet <- TRUE
-                      message("  - Making extra transformations.")
-                      for(i in 1:nrow(extraTrans)){
-                        if(!is.na(extraTrans[i,4]) && !is.na(extraTrans[i,7])){
-                          sequence <- modBase(sequence, as.numeric(extraTrans[i,1]), 
-                                              DNAString(as.character(extraTrans[i,4])),
-                                              DNAString(as.character(extraTrans[i,7])))
-                        }
-                        if(!is.na(extraTrans[i,3]) && !is.na(extraTrans[i,6])){
-                          sequence <- modBase(sequence, as.numeric(extraTrans[i,1]), 
-                                              DNAString(as.character(extraTrans[i,3])),
-                                              DNAString(as.character(extraTrans[i,6])))
-                        }
-                        if(!is.na(extraTrans[i,2]) && !is.na(extraTrans[i,5])){
-                          sequence <- modBase(sequence, as.numeric(extraTrans[i,1]), 
-                                              DNAString(as.character(extraTrans[i,2])),
-                                              DNAString(as.character(extraTrans[i,5])))
-                        }
-                      }
                       Transformations <<- rbind(Transformations, extraTrans)
+                      message("  - Making extra transformations.")
+                      modSequences2 <- DNAStringSet(
+                        lapply(1:3, function(i){
+                          transformSequence(modSequences[[i]], 
+                                            Transformations[which(Transformations$ExtraHet),])
+                        })
+                      )
+                    } else {
+                      modSequences2 <- modSequences
                     }
-                    return(sequence)
+                    return(modSequences2)
                   }
               )
   )

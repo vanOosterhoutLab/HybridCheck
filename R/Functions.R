@@ -11,15 +11,34 @@ getAmbig <- function(mat, sel){
   return(names(which(mat[5:10, sel] > 0)))
 }
 
-modBase <- function(dna, base, from, to){
-  baseToChange <- which(c(dna[[1]][base] == from, 
-                          dna[[2]][base] == from, 
-                          dna[[3]][base] == from))
-  for(n in baseToChange){
-    dna[[n]][base] <- to
-  }
-  return(dna)
+transformSequence <- function(dnaSeq, transTable){
+  sitesToBeTrans <- dnaSeq[as.numeric(transTable$Base)]
+  matchesToTransTable <- cbind(
+    strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,2],
+    strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,3],
+    strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,4])
+  matchesToTransTable[is.na(matchesToTransTable)] <- FALSE
+  transTo <- numeric(length=nrow(matchesToTransTable))
+  transTo[matchesToTransTable[,1]] <- 1
+  transTo[matchesToTransTable[,2]] <- 2
+  transTo[matchesToTransTable[,3]] <- 3
+  transTo[transTo == 0] <- NA
+  sitesToTrans <- transTable$Base[which(!is.na(transTo))]
+  transTable <- as.matrix(transTable[which(!is.na(transTo)),5:7])
+  midx <- cbind(1:nrow(transTable), transTo[which(!is.na(transTo))])
+  transSeq <- paste0(transTable[midx], collapse = "")
+  return(replaceLetterAt(dnaSeq, sitesToTrans, transSeq))
 }
+
+transformSequenceRelative <- function(dnaSeq, transTable, firstBase, lastBase){
+  transInSegment <- 
+    transTable[which(
+      (transTable$TrueBase >= firstBase) &
+        (transTable$TrueBase <= lastBase)),]
+  transInSegment$Base <- (transInSegment$TrueBase - firstBase) + 1
+  transformSequence(dnaSeq, transTable)
+}
+
 
 # Identify and decide on transformations for sites with one type of heterozygous base.
 transSingleAmb <- function(code, atypes, statemat){
