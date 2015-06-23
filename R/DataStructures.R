@@ -92,9 +92,9 @@ UserBlocks <- setRefClass("UserBlocks",
 HCseq <- setRefClass("HCseq",
                      fields = list( 
                        FullSequence = "ANY",
-                       InformativeSequence = "ANY",
-                       InformativeBp = "integer",
-                       ReferenceSeq = "character",
+                       #InformativeSequence = "ANY",
+                       #InformativeBp = "integer",
+                       #ReferenceSeq = "character",
                        Populations = "list"
                      ),
                      
@@ -116,29 +116,24 @@ HCseq <- setRefClass("HCseq",
                            if(length(unique(width(FullSequence))) > 1){
                              stop("Sequences are not of same length, is this an MSA??")
                            }
-                           message("Subsetting the informative segregating sites...")
-                           consensusM <- consensusMatrix(FullSequence)
-                           notUnknown <- consensusM[15, ] == 0
-                           polymorphic <- colSums(consensusM != 0) > 1
-                           InformativeBp <<- which(notUnknown & polymorphic)
-                           index <- rep.int(list(InformativeBp), length(FullSequence))
-                           InformativeSequence <<- FullSequence[index]
-                           names(InformativeSequence) <<- names(FullSequence)
-                           ReferenceSeq <<- names(FullSequence)[1]
+                           #message("Subsetting the informative segregating sites...")
+                           #consensusM <- consensusMatrix(FullSequence)
+                           #notUnknown <- consensusM[15, ] == 0
+                           #polymorphic <- colSums(consensusM != 0) > 1
+                           #InformativeBp <<- which(notUnknown & polymorphic)
+                           #index <- rep.int(list(InformativeBp), length(FullSequence))
+                           #InformativeSequence <<- FullSequence[index]
+                           #names(InformativeSequence) <<- names(FullSequence)
+                           #ReferenceSeq <<- names(FullSequence)[1]
                            message("Finished DNA input...")
-                         },
-                       
-                       addBAMSAMs = 
-                         function(files){
-                           
                          },
                        
                        hasDNA =
                          function(){
                            "Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false."
                            a <- is.initialized(FullSequence)
-                           b <- is.initialized(InformativeSequence)
-                           if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
+                           #b <- is.initialized(InformativeSequence)
+                           #if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
                            return(a)
                          },
                        
@@ -146,14 +141,14 @@ HCseq <- setRefClass("HCseq",
                          function(){
                            "Enforces some rules about the content of the sequence object and throws errors should they occur."
                            if(!hasDNA()){stop("Error: HCdna object has not got any sequences loaded in.")}
-                           if(length(InformativeSequence) != length(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
+                           #if(length(InformativeSequence) != length(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
                          },
                        
                        numberOfSequences =
                          function(){
                            "Returns the number of sequences in the stored alignment."
                            enforceDNA()
-                           return(length(InformativeSequence))
+                           return(length(FullSequence))
                          },
                        
                        getFullBp =
@@ -163,12 +158,12 @@ HCseq <- setRefClass("HCseq",
                            return(1:getFullLength())
                          },
                        
-                       getInformativeBp =
-                         function(){
-                           "Returns a vector of the base positions of the informative sites in the aligned sequences."
-                           enforceDNA()
-                           return(InformativeBp)
-                         },
+#                        getInformativeBp =
+#                          function(){
+#                            "Returns a vector of the base positions of the informative sites in the aligned sequences."
+#                            enforceDNA()
+#                            return(InformativeBp)
+#                          },
                        
                        getFullLength =
                          function(){
@@ -177,18 +172,18 @@ HCseq <- setRefClass("HCseq",
                            return(unique(width(FullSequence)))
                          },
                        
-                       getInformativeLength =
-                         function(){
-                           "Returns the number in base pairs, of informative sites in the aligned sequences."
-                           enforceDNA()
-                           return(unique(width(InformativeSequence)))
-                         },
+#                        getInformativeLength =
+#                          function(){
+#                            "Returns the number in base pairs, of informative sites in the aligned sequences."
+#                            enforceDNA()
+#                            return(unique(width(InformativeSequence)))
+#                          },
                        
                        getSequenceNames =
                          function(){
                            "Returns a character vector of the sequence names."
                            enforceDNA()
-                           return(names(InformativeSequence))
+                           return(names(FullSequence))
                          },
                        
                        pullTriplet =
@@ -196,7 +191,7 @@ HCseq <- setRefClass("HCseq",
                            "Extracts from the sequence object, a triplet of sequences."
                            enforceDNA()
                            if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
-                           return(InformativeSequence[selection])
+                           return(FullSequence[selection])
                          },
                        
                        setPopulations =
@@ -259,7 +254,7 @@ HCseq <- setRefClass("HCseq",
                            start <- paste0("DNA Sequence Information:\n",
                                            "-------------------------\nAn alignment of ", numberOfSequences(), 
                                            " sequences.\n\nFull length of alignment: ", getFullLength(),
-                                           "\nExcluding non-informative sites: ", getInformativeLength(),
+                                           #"\nExcluding non-informative sites: ", getInformativeLength(),
                                            "\n\nSequence names:\n")
                            names <- getSequenceNames()
                            end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse = "\n")
@@ -281,7 +276,7 @@ HCseq <- setRefClass("HCseq",
                            start <- paste0("<h2>DNA Sequence Information:</h2>",
                                            "<p>An alignment of ", numberOfSequences(),
                                            " sequences.</p><p><b>Full length of alignment:</b> ", getFullLength(),
-                                           " bp</p><p><b>Excluding non-informative sites:</b> ", getInformativeLength(),
+                                           #" bp</p><p><b>Excluding non-informative sites:</b> ", getInformativeLength(),
                                            " bp</p><p><b>Sequence names:</b><br>")
                            names <- getSequenceNames()
                            end <- paste0(lapply(1:length(names), function(i) paste0(i, ": ", names[i])), collapse="<br>")
@@ -352,8 +347,8 @@ SequenceInformation <-
                 ContigPairs = "list",
                 InformativeUsedLength = "numeric",
                 InformativeUsed = "numeric",
-                InformativeActual = "numeric",
-                FullDNALength = "numeric",
+                #InformativeActual = "numeric",
+                #FullDNALength = "numeric",
                 NumberOfHet = "numeric",
                 Transformations = "data.frame"),
               
@@ -362,7 +357,7 @@ SequenceInformation <-
                   function(seqNames, fullLength){
                     ContigNames <<- seqNames
                     ContigPairs <<- combn(ContigNames, 2, simplify = F)
-                    FullDNALength <<- fullLength
+                    #FullDNALength <<- fullLength
                     NumberOfHet <<- numeric()
                     Transformations <<- 
                       data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA,
@@ -403,87 +398,52 @@ SequenceInformation <-
                                                                 function(x){
                                                                   !all(is.na(x))
                                                                 }), ]
-                      Transformations$TrueBase <<- dna$InformativeBp[Transformations$Base]
-                      Transformations$ExtraHet <<- FALSE
+                      #Transformations$TrueBase <<- dna$InformativeBp[Transformations$Base]
+                      #Transformations$ExtraHet <<- FALSE
                     }
                     if(seqsHaveHet()){
                       message(" - Triplet of Sequences has heterozygous sites.")
                       message("   - Making alterations to input sequence based on calculated transformations.")
-                      modSequences <- DNAStringSet(
+                      seqTriplet <- DNAStringSet(
                         lapply(1:3, function(i) {
-                          return(transformSequence(seqTriplet[[i]], Transformations[which(!Transformations$ExtraHet), ]))
+                          return(transformSequence(seqTriplet[[i]], Transformations))
                           })
                       )
                     }
                     # Now that het bases have been transformed, we can do a pass over
-                    # to catch sites that are now uncertain bases or that are not poly.
-                    conMat <- consensusMatrix(modSequences)
+                    # to collect sites that are now certain and are poly.
+                    message(" - Only keeping certain and polymorphic sites.")
+                    conMat <- consensusMatrix(seqTriplet)
                     InformativeUsed <<- 
                       which(
                         (colSums(conMat[c(10:15, 17, 18),]) == 0) &
                           (colSums(conMat != 0) > 1)
                         )
                     InformativeUsedLength <<- length(InformativeUsed)
-                    InformativeActual <<- dna$InformativeBp[InformativeUsed]
+                    #InformativeActual <<- dna$InformativeBp[InformativeUsed]
                     cutDNA <- DNAStringSet(character(length = 3))
-                    cutDNA[[1]] <- modSequences[[1]][InformativeUsed]
-                    cutDNA[[2]] <- modSequences[[2]][InformativeUsed]
-                    cutDNA[[3]] <- modSequences[[3]][InformativeUsed]
-                    names(cutDNA) <- names(seqTriplet)
+                    cutDNA[[1]] <- seqTriplet[[1]][InformativeUsed]
+                    cutDNA[[2]] <- seqTriplet[[2]][InformativeUsed]
+                    cutDNA[[3]] <- seqTriplet[[3]][InformativeUsed]
                     return(cutDNA)
                   },
                 
                 prepareDNAForDating =
-                  function(dna, firstBase, lastBase){
+                  function(dna, pair){
                     # Extract region that needs to be dated.
-                    sequence <- subseq(dna,
-                                       start = firstBase, end = lastBase)
+                    seqTriplet <- dna$pullTriplet(ContigNames)
+                    seqNames <- names(seqTriplet)
                     if(seqsHaveHet()){
-                      # Apply the transforms already decided upon.
                       message(" - Making transformations to DNA for dating.")
                       message("  - These transformations are the same ones, used during scan.")
-                      modSequences <- DNAStringSet(
+                      seqTriplet <- DNAStringSet(
                         lapply(1:3, function(i){
-                          transformSequenceRelative(sequence[[i]], 
-                                                    Transformations,
-                                                    firstBase, lastBase)
+                          transformSequence(seqTriplet[[i]], Transformations)
                         })
                       )
-                    } else {
-                      modSequences <- sequence
                     }
-                    stateMatrix <- consensusMatrix(modSequences)
-                    ambigTypes <- colSums(as.matrix(stateMatrix[5:10, ]) != 0)
-                    numExtraHet <- length(which(ambigTypes > 0))
-                    if(numExtraHet > 0){
-                      message(" - Extra transformations are required for dating.")
-                      message("  - Deciding on transformations and storing descision.")
-                      heterozygousCode <- list(
-                        M = c('A', 'C'), R = c('A', 'G'), W = c('A', 'T'), 
-                        S = c('G', 'C'), Y = c('C', 'T'), K = c('G', 'T'))
-                      extraTrans <- 
-                        rbind(
-                          transSingleAmb(heterozygousCode, ambigTypes, stateMatrix),
-                          transTwoAmb(heterozygousCode, ambigTypes, stateMatrix),
-                          transThreeAmb(heterozygousCode, ambigTypes, stateMatrix))
-                      extraTrans <- extraTrans[apply(extraTrans, 1,
-                                                     function(x){
-                                                       !all(is.na(x))
-                                                     }), ]
-                      extraTrans$TrueBase <- (extraTrans$Base + firstBase) - 1
-                      extraTrans$ExtraHet <- TRUE
-                      Transformations <<- rbind(Transformations, extraTrans)
-                      message("  - Making extra transformations.")
-                      modSequences2 <- DNAStringSet(
-                        lapply(1:3, function(i){
-                          transformSequence(modSequences[[i]], extraTrans)
-                        })
-                      )
-                    } else {
-                      modSequences2 <- modSequences
-                    }
-                    names(modSequences2) <- names(sequence)
-                    return(modSequences2)
+                    names(seqTriplet) <- seqNames
+                    return(seqTriplet)
                   }
               )
   )
@@ -613,9 +573,10 @@ Triplet <- setRefClass("Triplet",
                            function(dnaobj, parameters){
                              "Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and ."
                              message("Now dating blocks")
-                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, 1, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
-                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, 2, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
-                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, 3, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             preparedDNA <- SequenceInfo$prepareDNAForDating(dnaobj)
+                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[1]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[2]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[3]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                              names(out.blocks) <- names(Blocks)
                              Blocks <<- out.blocks

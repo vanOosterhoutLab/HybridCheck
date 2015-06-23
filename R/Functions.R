@@ -13,12 +13,10 @@ getAmbig <- function(mat, sel){
 
 transformSequence <- function(dnaSeq, transTable){
   sitesToBeTrans <- dnaSeq[as.numeric(transTable$Base)]
-  message("1")
   matchesToTransTable <- cbind(
     strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,2],
     strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,3],
     strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,4])
-  message("2")
   matchesToTransTable[is.na(matchesToTransTable)] <- FALSE
   transTo <- numeric(length=nrow(matchesToTransTable))
   transTo[matchesToTransTable[,1]] <- 1
@@ -409,7 +407,7 @@ scan.similarity <- function(dna, triplet, settings){
                 of the sequence length, but since this value is below 1, instead setting
                 the sliding window length to 1...")
       }
-      }
+    }
     message("Making all the window frames...")
     if(triplet$ScanData$WindowSizeUsed >= 1L) {
       halfWindow <- as.integer(triplet$ScanData$WindowSizeUsed / 2)
@@ -429,9 +427,9 @@ scan.similarity <- function(dna, triplet, settings){
       Distances[, 1] <- allsteps
       Distances[, 2] <- windowp1
       Distances[, 3] <- windowp2
-      Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) triplet$SequenceInfo$InformativeActual[allsteps[i]]))) # ActualBP Center
-      Distances[, 5] <- as.numeric(triplet$SequenceInfo$InformativeActual[windowp1]) # Actual BP Start
-      Distances[, 6] <- as.numeric(triplet$SequenceInfo$InformativeActual[windowp2]) # Actual BP End
+      Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) triplet$SequenceInfo$InformativeUsed[allsteps[i]]))) # ActualBP Center
+      Distances[, 5] <- as.numeric(triplet$SequenceInfo$InformativeUsed[windowp1]) # Actual BP Start
+      Distances[, 6] <- as.numeric(triplet$SequenceInfo$InformativeUsed[windowp2]) # Actual BP End
       rm(windowp1, windowp2, allsteps, allstepsto, allstepsfrom)
       colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist(lapply(pairs, function(x) paste(LETTERS[x], collapse=""))))
       # Set up the loop for calculation.
@@ -553,32 +551,19 @@ block.find <- function(dist, thresh){
 
 binomcalc <- function(p, p0, N, B){pbinom(B, N, p) - p0}
 
-date.blocks <- function(blocksobj, dnaobj, seqinfo, mut, pair, pthresh, bonfcorrect, danyway, model){
+date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, model){
   if(!is.character(blocksobj) && nrow(blocksobj) > 0){ # Checking the blocksobj is not a string of characters.
-    message("DEBUG: Trying to pull dna...")
-    pulledDNA <- dnaobj$FullSequence[seqinfo$ContigNames]
-    
-    wholeSequenceDist <- stringDist(pulledDNA[seqinfo$ContigPairs[[pair]]],
-                                    method = "hamming")[1] / dnaobj$getFullLength()
-    
+    wholeSequenceDist <- stringDist(dnaobj,
+                                    method = "hamming")[1] / width(dnaobj)
     if(bonfcorrect == TRUE){
       blocksobj$P_Threshold <- pthresh <- pthresh/nrow(blocksobj)
     } else {
       blocksobj$P_Threshold <- pthresh
     }
     for(i in 1:nrow(blocksobj)){
-      
-      #Extract the two sequences required...
-      
-      modSequence <- seqinfo$prepareDNAForDating(pulledDNA,
-                                                 blocksobj[i, "FirstBP"],
-                                                 blocksobj[i, "LastBP"])
-      message(class(modSequence), " ", length(modSequence), " ", width(modSequence))
-      message(names(modSequence))
-      modSequence <- modSequence[seqinfo$ContigPairs[[pair]]]
-      
-      blocksobj[i, "SNPs"] <- stringDist(modSequence, method = "hamming")[1]
-      distanceByModel <- dist.dna(as.DNAbin(modSequence), model = model)[1]
+      seqBlock <- subseq(dnaobj, start = blocksobj[i, "FirstBP"], end = blocksobj[i, "LastBP"])
+      blocksobj[i, "SNPs"] <- stringDist(seqBlock, method = "hamming")[1]
+      distanceByModel <- dist.dna(as.DNAbin(seqBlock), model = model)[1]
       blocksobj[i, "CorrectedSNPs"] <- round(distanceByModel * blocksobj[i, "ApproxBpLength"])
     }
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)
