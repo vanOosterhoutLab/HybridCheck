@@ -13,10 +13,12 @@ getAmbig <- function(mat, sel){
 
 transformSequence <- function(dnaSeq, transTable){
   sitesToBeTrans <- dnaSeq[as.numeric(transTable$Base)]
+  message("1")
   matchesToTransTable <- cbind(
     strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,2],
     strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,3],
     strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,4])
+  message("2")
   matchesToTransTable[is.na(matchesToTransTable)] <- FALSE
   transTo <- numeric(length=nrow(matchesToTransTable))
   transTo[matchesToTransTable[,1]] <- 1
@@ -36,7 +38,7 @@ transformSequenceRelative <- function(dnaSeq, transTable, firstBase, lastBase){
       (transTable$TrueBase >= firstBase) &
         (transTable$TrueBase <= lastBase)),]
   transInSegment$Base <- (transInSegment$TrueBase - firstBase) + 1
-  transformSequence(dnaSeq, transTable)
+  transformSequence(dnaSeq, transInSegment)
 }
 
 
@@ -508,7 +510,7 @@ locate.dips <- function(prospectivePeaks, peaks, density, settings, overallMean)
   return(thresholds)
 }
 
-block.find <- function(dist,thresh){
+block.find <- function(dist, thresh){
   thresh2 <- rev(thresh)                                                           # Reverse the order of thresholds.
   b1 <- list()                                                                     # Create and empty list called b1.
   length(b1) <- length(thresh2)
@@ -553,17 +555,30 @@ binomcalc <- function(p, p0, N, B){pbinom(B, N, p) - p0}
 
 date.blocks <- function(blocksobj, dnaobj, seqinfo, mut, pair, pthresh, bonfcorrect, danyway, model){
   if(!is.character(blocksobj) && nrow(blocksobj) > 0){ # Checking the blocksobj is not a string of characters.
-    wholeSequenceDist <- stringDist(dnaobj$FullSequence[pair], method = "hamming")[1] / dnaobj$getFullLength()
+    message("DEBUG: Trying to pull dna...")
+    pulledDNA <- dnaobj$FullSequence[seqinfo$ContigNames]
+    
+    wholeSequenceDist <- stringDist(pulledDNA[seqinfo$ContigPairs[[pair]]],
+                                    method = "hamming")[1] / dnaobj$getFullLength()
+    
     if(bonfcorrect == TRUE){
       blocksobj$P_Threshold <- pthresh <- pthresh/nrow(blocksobj)
     } else {
       blocksobj$P_Threshold <- pthresh
     }
     for(i in 1:nrow(blocksobj)){
+      
       #Extract the two sequences required...
-      modSequence <- seqinfo$prepareDNAForDating(dnaobj, pair, blocksobj[i, "FirstBP"], blocksobj[i, "LastBP"])
+      
+      modSequence <- seqinfo$prepareDNAForDating(pulledDNA,
+                                                 blocksobj[i, "FirstBP"],
+                                                 blocksobj[i, "LastBP"])
+      message(class(modSequence), " ", length(modSequence), " ", width(modSequence))
+      message(names(modSequence))
+      modSequence <- modSequence[seqinfo$ContigPairs[[pair]]]
+      
       blocksobj[i, "SNPs"] <- stringDist(modSequence, method = "hamming")[1]
-      distanceByModel <- dist.dna(as.DNAbin(Seq), model = model)[1]
+      distanceByModel <- dist.dna(as.DNAbin(modSequence), model = model)[1]
       blocksobj[i, "CorrectedSNPs"] <- round(distanceByModel * blocksobj[i, "ApproxBpLength"])
     }
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)

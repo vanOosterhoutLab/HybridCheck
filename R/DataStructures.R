@@ -434,9 +434,9 @@ SequenceInformation <-
                   },
                 
                 prepareDNAForDating =
-                  function(dna, sequencePair, firstBase, lastBase){
+                  function(dna, firstBase, lastBase){
                     # Extract region that needs to be dated.
-                    sequence <- subseq(dna$FullSequence,
+                    sequence <- subseq(dna,
                                        start = firstBase, end = lastBase)
                     if(seqsHaveHet()){
                       # Apply the transforms already decided upon.
@@ -482,6 +482,7 @@ SequenceInformation <-
                     } else {
                       modSequences2 <- modSequences
                     }
+                    names(modSequences2) <- names(sequence)
                     return(modSequences2)
                   }
               )
@@ -612,9 +613,9 @@ Triplet <- setRefClass("Triplet",
                            function(dnaobj, parameters){
                              "Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and ."
                              message("Now dating blocks")
-                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, ContigPairs[[1]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
-                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, ContigPairs[[2]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
-                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, ContigPairs[[3]], parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, 1, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, 2, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
+                             bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, dnaobj, SequenceInfo, parameters$MutationRate, 3, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                              names(out.blocks) <- names(Blocks)
                              Blocks <<- out.blocks
@@ -622,7 +623,10 @@ Triplet <- setRefClass("Triplet",
                          
                          tabulateBlocks = function(){
                            "Tabulates the blocks for a triplet."
-                           message(paste("Tabulating blocks for the triplet", paste(ContigNames, collapse=":")))
+                           message(paste("Tabulating blocks for the triplet", 
+                                         paste(
+                                           SequenceInfo$ContigNames,
+                                           collapse=":")))
                            # Check that the tables are present, if they aren't, turn them into blank data.frames.
                            temps <- lapply(1:3, function(i) do.call(rbind, Blocks[[i]]))
                            SS <- lapply(1:3, function(i) floor(as.numeric(rownames(temps[[i]]))))
