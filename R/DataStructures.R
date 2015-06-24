@@ -603,7 +603,7 @@ Triplet <- setRefClass("Triplet",
                            temp2["SequencePair"] <- unlist(pair)
                            temp2["SequenceSimilarityThreshold"] <- unlist(SS)
                            if(nrow(temp2) > 0){
-                             temp2["Triplet"] <- paste(ContigNames, collapse=":")
+                             temp2["Triplet"] <- paste(SequenceInfo$ContigNames, collapse=":")
                            } else {
                              temp2["Triplet"] <- character()
                            }
@@ -758,7 +758,7 @@ Triplets <- setRefClass("Triplets",
                           matchNames =
                             function(selection){
                               if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
-                              return(unlist(lapply(triplets, function(x) sum(selection %in% x$ContigNames))))
+                              return(unlist(lapply(triplets, function(x) sum(selection %in% x$SequenceInfo$ContigNames))))
                             },
                           
                           deleteAllTriplets =
@@ -852,13 +852,13 @@ Triplets <- setRefClass("Triplets",
                           
                           tripletCombinations =
                             function(){
-                              return(unlist(lapply(triplets, function(x){paste0(x$ContigNames, collapse=", ")})))
+                              return(unlist(lapply(triplets, function(x){paste0(x$SequenceInfo$ContigNames, collapse=", ")})))
                             },
                           
                           htmlSummary =
                             function(){
                               "Prints a HTML summary of all the different triplet combinations."
-                              tripnames <- paste0(lapply(triplets, function(x){paste0(paste0(x$ContigNames, collapse=", "), " <br> ", collapse="")}), collapse="")
+                              tripnames <- paste0(lapply(triplets, function(x){paste0(paste0(x$SequenceInfo$ContigNames, collapse=", "), " <br> ", collapse="")}), collapse="")
                               output <- paste0("<h2>TripletCombinations</h2>")
                               return(tripnames)
                             },
