@@ -547,20 +547,28 @@ block.find <- function(dist, thresh){
 }
 
 
-
-
 binomcalc <- function(p, p0, N, B){pbinom(B, N, p) - p0}
 
+#' Calculate the significance of identified recombinant blocks, and calculate their coalescence times.
+#' 
+#' @param blocksobj A data.frame containing all the information about the location of the identified block.
+#' @param dnaobj A preprocessed DNAStringSet object.
+#' @param mut A predefined mutation rate.
+#' @param pthresh An alpha value threshold to use in significance testing.
+#' @param bonfcorrect A logical value - whether or not to apply bonferroni correction to the pthresh.
+#' @param danyway A logical value - if TRUE will esimate coalescence times of recombinant blocks even if they are not significant.
+#' @param model A character value; denoting one of the mutational models allowed for in dist.dna of the APE package. 
 date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, model){
-  if(!is.character(blocksobj) && nrow(blocksobj) > 0){ # Checking the blocksobj is not a string of characters.
+  nBlocksToProc <- nrow(blocksobj) 
+  if(!is.character(blocksobj) && nBlocksToProc > 0){ # Checking the blocksobj is not a string of characters.
     wholeSequenceDist <- stringDist(dnaobj,
-                                    method = "hamming")[1] / width(dnaobj)
+                                    method = "hamming")[1] / unique(width(dnaobj))
     if(bonfcorrect == TRUE){
-      blocksobj$P_Threshold <- pthresh <- pthresh/nrow(blocksobj)
+      blocksobj$P_Threshold <- pthresh <- pthresh/nBlocksToProc
     } else {
       blocksobj$P_Threshold <- pthresh
     }
-    for(i in 1:nrow(blocksobj)){
+    for(i in 1:nBlocksToProc){
       seqBlock <- subseq(dnaobj, start = blocksobj[i, "FirstBP"], end = blocksobj[i, "LastBP"])
       blocksobj[i, "SNPs"] <- stringDist(seqBlock, method = "hamming")[1]
       distanceByModel <- dist.dna(as.DNAbin(seqBlock), model = model)[1]
@@ -569,20 +577,29 @@ date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, m
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)
     if(!danyway){
       blocksobj <- blocksobj[which(blocksobj$P_Value < pthresh),]
+      nBlocksToProc <- nrow(blocksobj)
     }
-    ObservedRatio <- blocksobj$SNPs / blocksobj$ApproxBpLength
-    blocksobj <- blocksobj[(blocksobj$ApproxBpLength != blocksobj$SNPs) & (blocksobj$P_Value < 1),]
-    if(nrow(blocksobj) > 0){
-      for(i in 1:nrow(blocksobj)){
+    message("\t- Checking for bad blocks. Any found will not be dated.")
+    snpsBiggerThanLength <- blocksobj$ApproxBpLength <= blocksobj$CorrectedSNPs
+    pValBiggerThanOne <- blocksobj$P_Value > 1
+    snpsIsNA <- is.na(blocksobj$CorrectedSNPs)
+    badBlocks <- which(snpsBiggerThanLength | pValBiggerThanOne | snpsIsNA)
+    blocksToDate <- 1:nBlocksToProc
+    blocksToDate <- blocksToDate[-badBlocks]
+    if(length(blocksToDate) > 0){
+      for(i in blocksToDate){
+        nSNPs <- blocksobj[i, "CorrectedSNPs"]
+        bpLen <- blocksobj[i, "ApproxBpLength"]
+        message("\t- Dating block of length: ", bpLen, " with ", nSNPs," SNPs")
         soln5 <- uniroot(binomcalc, c(0,1), p0 = 0.05,
-                         B = blocksobj[i, "CorrectedSNPs"],
-                         N = blocksobj[i, "ApproxBpLength"])
+                         B = nSNPs,
+                         N = bpLen)
         soln50 <- uniroot(binomcalc, c(0,1), p0 = 0.5,
-                          B = blocksobj[i, "CorrectedSNPs"],
-                          N = blocksobj[i, "ApproxBpLength"])
+                          B = nSNPs,
+                          N = bpLen)
         soln95 <- uniroot(binomcalc, c(0,1), p0 = 0.95,
-                          B = blocksobj[i, "CorrectedSNPs"],
-                          N = blocksobj[i, "ApproxBpLength"])
+                          B = nSNPs,
+                          N = bpLen)
         blocksobj[i, "fiveAge"] <- round(soln5[["root"]] / (2 * mut))
         blocksobj[i, "fiftyAge"] <- round(soln50[["root"]]/ (2 * mut))
         blocksobj[i, "ninetyFiveAge"] <- round(soln95[["root"]] / (2 * mut))

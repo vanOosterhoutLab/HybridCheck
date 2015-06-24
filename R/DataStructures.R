@@ -348,7 +348,7 @@ SequenceInformation <-
                 InformativeUsedLength = "numeric",
                 InformativeUsed = "numeric",
                 #InformativeActual = "numeric",
-                #FullDNALength = "numeric",
+                FullDNALength = "numeric",
                 NumberOfHet = "numeric",
                 Transformations = "data.frame"),
               
@@ -357,7 +357,7 @@ SequenceInformation <-
                   function(seqNames, fullLength){
                     ContigNames <<- seqNames
                     ContigPairs <<- combn(ContigNames, 2, simplify = F)
-                    #FullDNALength <<- fullLength
+                    FullDNALength <<- fullLength
                     NumberOfHet <<- numeric()
                     Transformations <<- 
                       data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA,
@@ -572,14 +572,18 @@ Triplet <- setRefClass("Triplet",
                          blockDate =
                            function(dnaobj, parameters){
                              "Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and ."
-                             message("Now dating blocks")
+                             message("Now dating blocks for sequence triplet ", 
+                                     paste0(SequenceInfo$ContigNames, sep = ", "))
                              preparedDNA <- SequenceInfo$prepareDNAForDating(dnaobj)
+                             message(" - Done, now dating blocks...")
                              ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[1]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[2]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[3]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                              names(out.blocks) <- names(Blocks)
                              Blocks <<- out.blocks
+                             message(" - Done dating blocks for sequence triplet ",
+                                     paste0(SequenceInfo$ContigNames, sep = ", "))
                            },
                          
                          tabulateBlocks = function(){
