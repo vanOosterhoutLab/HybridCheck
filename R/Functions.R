@@ -228,6 +228,13 @@ calculateDandFd <- function(aln, pops){
   bi.all <- which(num.alleles.all == 2)
   # Find which ones are variable.
   var.sites.all <- which(num.alleles.all > 1)
+  # Find the sites containing uncertain bases.
+  uncertain.all <- which(colSums(counts.all[c(5:15, 17:18), ] != 0) >= 1)
+  
+  # Make sure that bi.all and var.sites.all does not include sites with uncertain bases.
+  bi.all <- bi.all[-which(bi.all %in% uncertain.all)]
+  var.sites.all <- var.sites.all[-which(var.sites.all %in% uncertain.all)]
+  
   # Make a version of the sequence alignment which only includes variable sites.
   aln.var <- subsetSequence(aln, var.sites.all)
   # Get the number of alleles at those variable sites.
@@ -257,7 +264,10 @@ calculateDandFd <- function(aln, pops){
 fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   # The jack-knife implementation and computation of Z score has been based on that
   # used in the software ANGSD.
-  message(paste(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A, collapse = ", "))
+  message(" - Running a Four Taxon Test for the four populations:\n    ",
+          paste(fttRecord$P1, fttRecord$P2, 
+                fttRecord$P3, fttRecord$A, collapse = ", "))
+  message("\t-Figureing out the size and number of jack-knife blocks.")
   if(!is.numeric(numBlocks) && !is.numeric(lengthOfBlocks)){
     stop("Invalid input - no number of blocks or size of blocks provided.")
   }
@@ -278,10 +288,24 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   }
   # Calculation of ABBA and BABA from segments of the alignment:
   results <- data.frame(BlockStart = blockStart, BlockEnd = blockEnd)
-  blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
+  
+  # SORT THIS OUT - IT IS INNEFICIENT TO SUBSET SEQUENCES LIKE THIS
+  message("\t- Subsetting sequences for jack-knife blocks...")
+  
+
+  
+  #blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
+  blocks <- apply(results, 1, function(x){
+    substring(dna$FullSequence, first = x[1], last = x[2])
+    })
+  
+  
+  message("\t-Calculating statistics needed for D and Fd, for each jack-knife block.")
+  
   blocksStats <- do.call(rbind, lapply(blocks, function(x){
     calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
   
+  message("\t-Calculating full set of Four Taxon Test statistics for all jackknife blocks.")
   # Calculation of stats for each jackknife segment:
   # Calculation of Observed S and S for complete introgression scenarios between P1:P3, and P2:P3.
   blocksStats$S_1234 <- blocksStats$ABBA - blocksStats$BABA
@@ -306,12 +330,14 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   statCalc <- function(x){sum(x[, 1])/sum(x[, 2])}
   
   # Global Estimates.
+  message("\t- Calculating Global Four Taxon Test statistics.")
   globalEstimate_D <- statCalc(blocksStats[, c("S_1234", "abbaBabaSum")])
   globalEstimate_Fd_1DD4 <- statCalc(blocksStats[, c("S_1234", "S_1DD4")])
   globalEstimate_Fd_D2D4 <- statCalc(blocksStats[, c("S_1234", "S_D2D4")])
   
   # Pseudoestimates:
   
+  message("\t- Making pseudoestimates as part of jack-knifing process.")
   # Allocate space for the results.
   blocksStats$pseudoD <- blocksStats$pseudoFd_1DD4 <- blocksStats$pseudoFd_D2D4 <- rep(0, nBlocks)
   
@@ -347,11 +373,12 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   
   fracReciprocal <- 1 / blocksStats$blockFraction - 1
   
-  # Set the observed global estimate s of D, and Fd in the results object. 
+  # Set the observed global estimate s of D, and Fd in the results object.
   fttRecord$Observed_D <- globalEstimate_D
   fttRecord$Observed_Fd_1DD4 <- globalEstimate_Fd_1DD4
   fttRecord$Observed_Fd_D2D4 <- globalEstimate_Fd_D2D4
   
+  message("\t- Calculating jack-knife corrected global estimates of\nFour Taxon Test statistics.")
   # Work out the jackknife corrected estimates of D and Fds.
   fttRecord$D_jEstimate <- prodGlobN_D - scaledPseudo_D_Sum
   fttRecord$Fd_1DD4_jEstimate <- prodGlobN_Fd_1DD4 - scaledPseudo_Fd_1DD4_Sum
@@ -389,9 +416,9 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 
 
 
-scan.similarity <- function(dna, triplet, settings){
+scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
   message(paste0("Scanning sequence similarity for triplet ", paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
-  cutDNA <- triplet$prepForScan(dna)
+  cutDNA <- triplet$prepForScan(dna, ambiguousAreHet)
   triplet$readSettings(settings)
   if(triplet$SequenceInfo$InformativeUsedLength >= 1){
     message(" - Checking the sliding window parameters.")

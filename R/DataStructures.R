@@ -21,7 +21,9 @@ UserBlocks <- setRefClass("UserBlocks",
                             
                             enforceUserBlocks =
                               function(){
-                                if(!hasPairs()){"Error: UserBlocks object has not been initialized from a HCseq object."}
+                                if(!hasPairs()){
+                                  "Error: UserBlocks object has not been initialized from a HCseq object."
+                                }
                               },
                             
                             initializePairsFromDNA =
@@ -66,7 +68,7 @@ UserBlocks <- setRefClass("UserBlocks",
                                 for(i in 1:length(Pairs)){
                                   if(nrow(Pairs[[i]]) > 0){
                                     pair <- which(sequences$getSequenceNames() %in% unlist(strsplit(names(Pairs)[i], ":")))
-                                    Pairs[[i]] <<- date.blocks(Pairs[[i]], sequences, parameters$MutationRate, pair, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection)
+                                    Pairs[[i]] <<- date.blocks(Pairs[[i]], sequences, parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection)
                                   }
                                 }
                               },
@@ -359,7 +361,12 @@ SequenceInformation <-
                     ContigPairs <<- combn(ContigNames, 2, simplify = F)
                     FullDNALength <<- fullLength
                     NumberOfHet <<- numeric()
-                    Transformations <<- 
+                    blankTransTable()
+                  },
+                
+                blankTransTable =
+                  function(){
+                    Transformations <<-
                       data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA,
                                  AmbigThree = NA, ResolveOne = NA, ResolveTwo = NA,
                                  ResolveThree = NA)
@@ -376,51 +383,51 @@ SequenceInformation <-
                   },
                 
                 prepareDNAForScan =
-                  function(dna){
+                  function(dna, ambigsAreHet){
                     # Pull the triplet from the DNA structure.
                     seqTriplet <- dna$pullTriplet(ContigNames)
                     stateMatrix <- consensusMatrix(seqTriplet)
-                    ambigTypes <- colSums(as.matrix(stateMatrix[5:10, ]) != 0)
-                    NumberOfHet <<- length(which(ambigTypes > 0))
-                    if(!basesResolved() && seqsHaveHet()){
+                    if(ambigsAreHet){
+                      message(" - Treating ambiguous sites of two states as heterozygous.")
                       message(paste0(" - Identifying heterozygous nucleotides for triplet. ",
                                      paste0(ContigNames, collapse = ", ")))
-                      message("   - An appropriate transformation will be decided for each.")
-                      message("   - This must be done the first time a triplet is analysed.")
-                      heterozygousCode <- list(
-                        M = c('A', 'C'), R = c('A', 'G'), W = c('A', 'T'), 
-                        S = c('G', 'C'), Y = c('C', 'T'), K = c('G', 'T'))
-                      Transformations <<-
-                        rbind(transSingleAmb(heterozygousCode, ambigTypes, stateMatrix),
-                              transTwoAmb(heterozygousCode, ambigTypes, stateMatrix),
-                              transThreeAmb(heterozygousCode, ambigTypes, stateMatrix))
-                      Transformations <<- Transformations[apply(Transformations, 1,
-                                                                function(x){
-                                                                  !all(is.na(x))
-                                                                }), ]
-                      #Transformations$TrueBase <<- dna$InformativeBp[Transformations$Base]
-                      #Transformations$ExtraHet <<- FALSE
-                    }
-                    if(seqsHaveHet()){
-                      message(" - Triplet of Sequences has heterozygous sites.")
-                      message("   - Making alterations to input sequence based on calculated transformations.")
-                      seqTriplet <- DNAStringSet(
-                        lapply(1:3, function(i) {
-                          return(transformSequence(seqTriplet[[i]], Transformations))
+                      ambigTypes <- colSums(as.matrix(stateMatrix[5:10, ]) != 0)
+                      NumberOfHet <<- length(which(ambigTypes > 0))
+                      if(!basesResolved() && seqsHaveHet()){
+                        message("   - An appropriate transformation will be decided for each.")
+                        message("   - This must be done the first time a triplet is analysed.")
+                        heterozygousCode <- list(
+                          M = c('A', 'C'), R = c('A', 'G'), W = c('A', 'T'), 
+                          S = c('G', 'C'), Y = c('C', 'T'), K = c('G', 'T'))
+                        Transformations <<-
+                          rbind(transSingleAmb(heterozygousCode, ambigTypes, stateMatrix),
+                                transTwoAmb(heterozygousCode, ambigTypes, stateMatrix),
+                                transThreeAmb(heterozygousCode, ambigTypes, stateMatrix))
+                        Transformations <<- Transformations[apply(Transformations, 1,
+                                                                  function(x){
+                                                                    !all(is.na(x))
+                                                                  }), ]
+                      } else {
+                        blankTransTable()
+                      }
+                      if(seqsHaveHet()){
+                        message(" - Triplet of Sequences has heterozygous sites.")
+                        message("   - Making alterations to input sequence based on calculated transformations.")
+                        seqTriplet <- DNAStringSet(
+                          lapply(1:3, function(i) {
+                            return(transformSequence(seqTriplet[[i]], Transformations))
                           })
-                      )
+                        )
+                      }
                     }
-                    # Now that het bases have been transformed, we can do a pass over
-                    # to collect sites that are now certain and are poly.
                     message(" - Only keeping certain and polymorphic sites.")
                     conMat <- consensusMatrix(seqTriplet)
                     InformativeUsed <<- 
                       which(
-                        (colSums(conMat[c(10:15, 17, 18),]) == 0) &
+                        (colSums(conMat[c(5:15, 17, 18),]) == 0) &
                           (colSums(conMat != 0) > 1)
                         )
                     InformativeUsedLength <<- length(InformativeUsed)
-                    #InformativeActual <<- dna$InformativeBp[InformativeUsed]
                     cutDNA <- DNAStringSet(character(length = 3))
                     cutDNA[[1]] <- seqTriplet[[1]][InformativeUsed]
                     cutDNA[[2]] <- seqTriplet[[2]][InformativeUsed]
@@ -430,7 +437,6 @@ SequenceInformation <-
                 
                 prepareDNAForDating =
                   function(dna, pair){
-                    # Extract region that needs to be dated.
                     seqTriplet <- dna$pullTriplet(ContigNames)
                     seqNames <- names(seqTriplet)
                     if(seqsHaveHet()){
@@ -799,11 +805,11 @@ Triplets <- setRefClass("Triplets",
                           #                             },
                           
                           scanTriplets =
-                            function(tripletSelections, dna, scansettings){
+                            function(tripletSelections, dna, ambhet, scansettings){
                               if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
                               tripletsToScan <- getTriplets(tripletSelections)
                               for(tripletToScan in tripletsToScan){
-                                scan.similarity(dna, tripletToScan, scansettings)
+                                scan.similarity(dna, tripletToScan, ambhet, scansettings)
                               }
                             },
                           
@@ -908,7 +914,7 @@ Triplets <- setRefClass("Triplets",
                           getAllIndexes =
                             function(){
                               "Returns the indexes of the sequences (according to their rows in the HC sequence object) in each triplet as a list."
-                              return(lapply(triplets, function(x) x$ContigIndexes))
+                              return(lapply(triplets, function(x) x$SequenceInfo$ContigIndexes))
                             }
                         )
 )

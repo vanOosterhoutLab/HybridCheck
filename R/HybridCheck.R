@@ -179,7 +179,7 @@ HC <- setRefClass("HC",
                                            },
                                          
                                          analyzeSS = 
-                                           function(tripletSelections = "NOT.SCANNED", replaceSettings = FALSE, ...){
+                                           function(tripletSelections = "NOT.SCANNED", ambigAreHet = FALSE, replaceSettings = FALSE, ...){
                                              "Analyzing the sequence similarity of triplets of sequences.
                                              tripletSelections can be 'NOT.SCANNED', 'ALL', 'SCANNED',
                                              or a list of character vectors of length 3, each specifying a sequence triplet
@@ -199,8 +199,8 @@ HC <- setRefClass("HC",
                                              } else {
                                                settings <- ssAnalysisSettings
                                              } 
-                                             triplets$scanTriplets(tripletSelections, DNA, settings)
-                                             message("Finished Sequence Similarity Analysis.")
+                                             triplets$scanTriplets(tripletSelections, DNA, amigAreHet, settings)
+                                             message(" - Finished Sequence Similarity Analysis.")
                                            },
                                          
                                          findBlocks =
