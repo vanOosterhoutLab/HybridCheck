@@ -223,6 +223,7 @@ calculateDandFd <- function(aln, pops){
   # State counts at each site.
   counts.all <- consensusMatrix(aln)
   # Calculate the number of alleles at each site in the alignment.
+  message("\t\t- Calculating D and Fd for jack-knife block.")
   num.alleles.all <- colSums(counts.all != 0)
   # Find which sites are bi-allelic.
   bi.all <- which(num.alleles.all == 2)
@@ -230,11 +231,9 @@ calculateDandFd <- function(aln, pops){
   var.sites.all <- which(num.alleles.all > 1)
   # Find the sites containing uncertain bases.
   uncertain.all <- which(colSums(counts.all[c(5:15, 17:18), ] != 0) >= 1)
-  
   # Make sure that bi.all and var.sites.all does not include sites with uncertain bases.
   bi.all <- bi.all[-which(bi.all %in% uncertain.all)]
   var.sites.all <- var.sites.all[-which(var.sites.all %in% uncertain.all)]
-  
   # Make a version of the sequence alignment which only includes variable sites.
   aln.var <- subsetSequence(aln, var.sites.all)
   # Get the number of alleles at those variable sites.
@@ -242,6 +241,7 @@ calculateDandFd <- function(aln, pops){
   s.all <- length(alleles.var)
   # Find which of the variable sites are bi-allelic.
   bi.var <- which(alleles.var == 2)
+  message("Width of jackknife block: ", unique(width(aln.var)))
   # Population slices - refer to function's description.
   p1Slice <- populationSlice(aln.var[pops[[1]]], bi.var)
   p2Slice <- populationSlice(aln.var[pops[[2]]], bi.var)
@@ -292,13 +292,10 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   # SORT THIS OUT - IT IS INNEFICIENT TO SUBSET SEQUENCES LIKE THIS
   message("\t- Subsetting sequences for jack-knife blocks...")
   
-
-  
   #blocks <- apply(results, 1, function(x){subsetSequence(dna$FullSequence, x[1]:x[2])})
   blocks <- apply(results, 1, function(x){
-    substring(dna$FullSequence, first = x[1], last = x[2])
+    subseq(dna$FullSequence, start = x[1], end = x[2])
     })
-  
   
   message("\t-Calculating statistics needed for D and Fd, for each jack-knife block.")
   
@@ -418,7 +415,7 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 
 scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
   message(paste0("Scanning sequence similarity for triplet ", paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
-  cutDNA <- triplet$prepForScan(dna, ambiguousAreHet)
+  cutDNA <- triplet$SequenceInfo$prepareDNAForScan(dna, ambiguousAreHet)
   triplet$readSettings(settings)
   if(triplet$SequenceInfo$InformativeUsedLength >= 1){
     message(" - Checking the sliding window parameters.")
@@ -464,7 +461,7 @@ scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
       conMatAB <- colSums(consensusMatrix(cutDNA[c(1, 2)]) != 0) > 1
       conMatAC <- colSums(consensusMatrix(cutDNA[c(1, 3)]) != 0) > 1
       conMatBC <- colSums(consensusMatrix(cutDNA[c(2, 3)]) != 0) > 1
-      #Do the loop - Calculates all the hamming distances for all contig pairs, in all window frames.
+      # Do the loop - Calculates all the hamming distances for all contig pairs, in all window frames.
       for(i in seq(nrow(Distances))){
         stretch <- Distances[i, 2] : Distances[i, 3]
         Distances[i, 7] <- sum(conMatAB[stretch])
@@ -477,7 +474,7 @@ scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
       stop("The sliding window size is less than 1, this is not supposed to be possible.")
     }
       } else {
-        warning(paste0("There are no informative sites to work on - skipping analysis of this triplet: ", triplet$ContigNames, collapse=", "))
+        warning(paste0("There are no informative sites to work on - skipping analysis of this triplet: ", triplet$ContigNames, collapse = ", "))
       }
   }
 
@@ -587,7 +584,7 @@ binomcalc <- function(p, p0, N, B){pbinom(B, N, p) - p0}
 #' @param model A character value; denoting one of the mutational models allowed for in dist.dna of the APE package. 
 date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, model){
   nBlocksToProc <- nrow(blocksobj) 
-  if(!is.character(blocksobj) && nBlocksToProc > 0){ # Checking the blocksobj is not a string of characters.
+  if(!is.character(blocksobj) && nBlocksToProc > 0){
     wholeSequenceDist <- stringDist(dnaobj,
                                     method = "hamming")[1] / unique(width(dnaobj))
     if(bonfcorrect == TRUE){
@@ -596,9 +593,13 @@ date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, m
       blocksobj$P_Threshold <- pthresh
     }
     for(i in 1:nBlocksToProc){
-      seqBlock <- subseq(dnaobj, start = blocksobj[i, "FirstBP"], end = blocksobj[i, "LastBP"])
-      blocksobj[i, "SNPs"] <- stringDist(seqBlock, method = "hamming")[1]
-      distanceByModel <- dist.dna(as.DNAbin(seqBlock), model = model)[1]
+      seqBlock <- as.DNAbin(
+        subseq(dnaobj, 
+               start = blocksobj[i, "FirstBP"],
+               end = blocksobj[i, "LastBP"])
+      )
+      blocksobj[i, "SNPs"] <- round(dist.dna(seqBlock, model = "N")[1])
+      distanceByModel <- dist.dna(seqBlock, model = model)[1]
       blocksobj[i, "CorrectedSNPs"] <- round(distanceByModel * blocksobj[i, "ApproxBpLength"])
     }
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)
@@ -612,7 +613,9 @@ date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, m
     snpsIsNA <- is.na(blocksobj$CorrectedSNPs)
     badBlocks <- which(snpsBiggerThanLength | pValBiggerThanOne | snpsIsNA)
     blocksToDate <- 1:nBlocksToProc
-    blocksToDate <- blocksToDate[-badBlocks]
+    if(length(badBlocks) > 0){
+      blocksToDate <- blocksToDate[-badBlocks]
+    }
     if(length(blocksToDate) > 0){
       for(i in blocksToDate){
         nSNPs <- blocksobj[i, "CorrectedSNPs"]
@@ -628,7 +631,7 @@ date.blocks <- function(blocksobj, dnaobj, mut, pthresh, bonfcorrect, danyway, m
                           B = nSNPs,
                           N = bpLen)
         blocksobj[i, "fiveAge"] <- round(soln5[["root"]] / (2 * mut))
-        blocksobj[i, "fiftyAge"] <- round(soln50[["root"]]/ (2 * mut))
+        blocksobj[i, "fiftyAge"] <- round(soln50[["root"]] / (2 * mut))
         blocksobj[i, "ninetyFiveAge"] <- round(soln95[["root"]] / (2 * mut))
       }
     }

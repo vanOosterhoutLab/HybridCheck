@@ -360,7 +360,7 @@ SequenceInformation <-
                     ContigNames <<- seqNames
                     ContigPairs <<- combn(ContigNames, 2, simplify = F)
                     FullDNALength <<- fullLength
-                    NumberOfHet <<- numeric()
+                    NumberOfHet <<- 0
                     blankTransTable()
                   },
                 
@@ -549,11 +549,6 @@ Triplet <- setRefClass("Triplet",
                              "Returns TRUE, if the blocks detected have not been tested for significance or had a divergence time estimated."
                              bools <- unlist(lapply(Blocks, function(y) all(unlist(lapply(y, function(x) all(is.na(x$SNPs)) && all(is.na(x$CorrectedSNPs)) && all(is.na(x$P_Value)) && all(is.na(x$P_Threshold)) && all(is.na(x$fiveAge)) && all(is.na(x$fiftyAge)) && all(is.na(x$ninetyFiveAge))   )))))
                              return(all(bools))
-                           },
-                         
-                         prepForScan =
-                           function(dna){
-                             return(SequenceInfo$prepareDNAForScan(dna))
                            },
                          
                          # Method for putative block detection.
