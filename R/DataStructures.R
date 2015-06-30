@@ -94,9 +94,6 @@ UserBlocks <- setRefClass("UserBlocks",
 HCseq <- setRefClass("HCseq",
                      fields = list( 
                        FullSequence = "ANY",
-                       #InformativeSequence = "ANY",
-                       #InformativeBp = "integer",
-                       #ReferenceSeq = "character",
                        Populations = "list"
                      ),
                      
@@ -114,28 +111,17 @@ HCseq <- setRefClass("HCseq",
                            "Reads in sequences from file and appropriately modifies fields of the object."
                            FullSequence <<- sortInput(intarget)
                            FullSequence <<- checkForDuplicates(FullSequence)
-                           message("Checking length of sequences...")
+                           message("\t- Checking length of sequences...")
                            if(length(unique(width(FullSequence))) > 1){
                              stop("Sequences are not of same length, is this an MSA??")
                            }
-                           #message("Subsetting the informative segregating sites...")
-                           #consensusM <- consensusMatrix(FullSequence)
-                           #notUnknown <- consensusM[15, ] == 0
-                           #polymorphic <- colSums(consensusM != 0) > 1
-                           #InformativeBp <<- which(notUnknown & polymorphic)
-                           #index <- rep.int(list(InformativeBp), length(FullSequence))
-                           #InformativeSequence <<- FullSequence[index]
-                           #names(InformativeSequence) <<- names(FullSequence)
-                           #ReferenceSeq <<- names(FullSequence)[1]
-                           message("Finished DNA input...")
+                           message(" - Finished DNA input...")
                          },
                        
                        hasDNA =
                          function(){
                            "Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false."
                            a <- is.initialized(FullSequence)
-                           #b <- is.initialized(InformativeSequence)
-                           #if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
                            return(a)
                          },
                        
@@ -306,16 +292,16 @@ HCseq <- setRefClass("HCseq",
 
 sortInput <- function(input){
   classOfInput <- class(input)
-  message("Reading in sequence file...")
+  message(" - Reading in sequence file...")
   if(classOfInput == "character"){
     dna <- readDNAStringSet(filepath = input, format = "fasta")
   } else {
     if(classOfInput == "DNAStringSet"){
-      message("Class of input is DNAStringSet from Biostrings package...")
+      message("\t- Class of input is DNAStringSet from Biostrings package...")
       dna <- input
     } else {
       if(classOfInput == "DNAbin"){
-        message("Class of input is DNAbin from the ape package...")
+        message("\t- Class of input is DNAbin from the ape package...")
         dna <- DNAStringSet(unlist(apply(as.character(input), 1, function(x) paste0(x, collapse = ""))))
       } else {
         stop("Input is not a valid path to a DNA file, nor is it a valid DNA object.")
@@ -326,10 +312,10 @@ sortInput <- function(input){
 }
 
 checkForDuplicates <- function(dna){
-  message("Looking for duplicates...")
+  message("\t- Looking for duplicates...")
   duplicates <- duplicated(dna)
   if(any(duplicates)){
-    message("Duplicated sequences were found! - These will be deleted...")
+    message("\t- Duplicated sequences were found! - These will be deleted...")
     dna <- dna[which(!duplicates)]
   }
   return(dna)
@@ -420,7 +406,7 @@ SequenceInformation <-
                         )
                       }
                     }
-                    message(" - Only keeping certain and polymorphic sites.")
+                    message("\t- Only keeping certain and polymorphic sites.")
                     conMat <- consensusMatrix(seqTriplet)
                     InformativeUsed <<- 
                       which(
@@ -555,17 +541,17 @@ Triplet <- setRefClass("Triplet",
                          putativeBlockFind = 
                            function(parameters){
                              "DOCSTRING TO BE COMPLETE"
+                             message("\t- Finding blocks for Triplet: ", paste0(SequenceInfo$ContigNames, collapse = ", "))
                              if(noScanPerformed()){stop("No sequence similarity scan data is available for this triplet - can't identify blocks.")}
                              if(parameters$AutoThresholds == TRUE) {
-                               message("Using the autodetect thresholds method...")
-                               message("Deciding on suitable thresholds...")
+                               message("\t\t- Using the autodetect thresholds method...")
+                               message("\t\t- Deciding on suitable thresholds...")
                                thresholds <- autodetect.thresholds(ScanData, parameters)
-                               # Results in a list of thresholds for AB, AC and BC.
                              } else {
                                thresholds <- list(parameters$ManualThresholds, parameters$ManualThresholds, parameters$ManualThresholds)
                              }
                              names(thresholds) <- unlist(lapply(combn(SequenceInfo$ContigNames, 2, simplify=F), function(x) paste(x, collapse=":")))
-                             message("Now beginning Block Search...")
+                             message("\t\t- Now beginning Block Search...")
                              Blocks <<- lapply(1:3, function(i) block.find(ScanData$Table[,c(1:6, 6+i)], thresholds[[i]]))
                              names(Blocks) <<- names(thresholds)
                            },
@@ -573,23 +559,20 @@ Triplet <- setRefClass("Triplet",
                          blockDate =
                            function(dnaobj, parameters){
                              "Block Dating method, estimates the ages of blocks detected based on how many mutations are observed in a block and ."
-                             message("Now dating blocks for sequence triplet ", 
+                             message(" - Now dating blocks for sequence triplet ", 
                                      paste0(SequenceInfo$ContigNames, sep = ", "))
                              preparedDNA <- SequenceInfo$prepareDNAForDating(dnaobj)
-                             message(" - Done, now dating blocks...")
                              ab.blocks <- lapply(Blocks[[1]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[1]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              ac.blocks <- lapply(Blocks[[2]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[2]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              bc.blocks <- lapply(Blocks[[3]], function(x) date.blocks(x, preparedDNA[SequenceInfo$ContigPairs[[3]]], parameters$MutationRate, parameters$PValue, parameters$BonfCorrection, parameters$DateAnyway, parameters$MutationCorrection))
                              out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
                              names(out.blocks) <- names(Blocks)
                              Blocks <<- out.blocks
-                             message(" - Done dating blocks for sequence triplet ",
-                                     paste0(SequenceInfo$ContigNames, sep = ", "))
                            },
                          
                          tabulateBlocks = function(){
                            "Tabulates the blocks for a triplet."
-                           message(paste("Tabulating blocks for the triplet", 
+                           message(paste(" - Tabulating blocks for the triplet", 
                                          paste(
                                            SequenceInfo$ContigNames,
                                            collapse=":")))
@@ -611,23 +594,23 @@ Triplet <- setRefClass("Triplet",
                            return(temp2)
                          },
                          
-                         plotTriplet = function(plottingSettings){
+                         plotTriplet = function(plottingSettings, begin, end){
                            if("Lines" %in% plottingSettings$What && "Bars" %in% plottingSettings$What){
-                             bars <- plotBars(plottingSettings)
-                             lines <- plotLines(plottingSettings)
+                             bars <- plotBars(plottingSettings, begin, end)
+                             lines <- plotLines(plottingSettings, begin, end)
                              return(arrangeGrob(bars, lines, ncol=1))
                            } else {
                              if("Lines" %in% plottingSettings$What){
-                               return(plotLines(plottingSettings))
+                               return(plotLines(plottingSettings, begin, end))
                              }
                              if("Bars" %in% plottingSettings$What){
-                               return(plotBars(plottingSettings))
+                               return(plotBars(plottingSettings, begin, end))
                              }
                            }
                          },
                          
                          plotLines =
-                           function(plottingSettings){
+                           function(plottingSettings, begin, end){
                              "Method plots a lineplot using ggplot2 of the sequence similarity data from the scan."
                              if(noScanPerformed()){stop("No sequence similarity scan has been performed for this triplet.")}
                              combo <- unlist(lapply(combn(SequenceInfo$ContigNames, 2, simplify=FALSE), function(x) paste(x, collapse=":")))
@@ -637,6 +620,7 @@ Triplet <- setRefClass("Triplet",
                                                           factors = rep(1:3, each = nrow(data)))
                              plot <- ggplot(plotting.frame, aes(x=basepos, y=yvalues)) + geom_line(aes(colour=factor(factors)), show_guide=plottingSettings$Legends, size=0.8) +
                                ylim(0,100) + 
+                               xlim(begin, end) +
                                scale_colour_manual(name = "Pairwise Comparrisons", labels=c(combo[1], combo[2], combo[3]),values=c("yellow","purple","cyan")) +
                                xlab("Base Position") +
                                ylab("% Sequence Similarity")
@@ -653,7 +637,7 @@ Triplet <- setRefClass("Triplet",
                            },
                          
                          plotBars =
-                           function(plottingSettings){
+                           function(plottingSettings, begin, end){
                              "Method plots the heatmap based graphic of bars, from the sequence similarity scan data."
                              if(noScanPerformed()){stop("No sequence similarity scan has been performed for this triplet.")}
                              # Generate the reference colour palette.
@@ -662,9 +646,9 @@ Triplet <- setRefClass("Triplet",
                              colourPalette$RefB <- rgb(green = 100, red = colourPalette$A, blue = colourPalette$B, maxColorValue = 100)
                              colourPalette$RefC <- rgb(green = colourPalette$B, red = colourPalette$A, blue = 100, maxColorValue = 100)
                              # Now figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
-                             div <- SequenceInfo$FullDNALength / plottingSettings$MosaicScale
-                             frame <- data.frame(bpstart = seq(from = 1, to = SequenceInfo$FullDNALength, by = div),
-                                                 bpend = seq(from=div, to = SequenceInfo$FullDNALength, by = div)) 
+                             div <- length(begin:end) / plottingSettings$MosaicScale
+                             frame <- data.frame(bpstart = seq(from = begin, to = end, by = div),
+                                                 bpend = seq(from = (begin + div) - 1, to = end, by = div))
                              frame$bpX <- round(frame$bpstart +  (div / 2))
                              scanTable <- ScanData$Table
                              AB <- round(apply(frame, 1, function(x) vertbar_create(scanTable, x, 7)))
@@ -696,6 +680,7 @@ Triplet <- setRefClass("Triplet",
                                ylab("Sequence Name") +
                                scale_x_continuous(breaks = c(seq(from = 1, to = plottingSettings$MosaicScale, by = plottingSettings$MosaicScale / 10), plottingSettings$MosaicScale), labels = c(frame$bpX[seq(from = 1, to = plottingSettings$MosaicScale, by = plottingSettings$MosaicScale / 10)], max(frame$bpX))) + 
                                scale_y_discrete(labels = c(SequenceInfo$ContigNames[3], SequenceInfo$ContigNames[2], SequenceInfo$ContigNames[1]))
+                             
                              bars <- applyPlottingParams(bars, plottingSettings, title = paste("Sequence Similarity Between Sequences for Triplet ", SequenceInfo$ContigNames[1], ":", SequenceInfo$ContigNames[2], ":", SequenceInfo$ContigNames[3], sep=""))
                              
                              if(plottingSettings$Legends == T){
@@ -765,7 +750,7 @@ Triplets <- setRefClass("Triplets",
                           deleteAllTriplets =
                             function(){
                               "Removes all current triplet data completely."
-                              message("Deleting all triplets data.")
+                              message(" - Deleting all triplets data.")
                               triplets <<- list()
                             },
                           
@@ -776,7 +761,7 @@ Triplets <- setRefClass("Triplets",
                                 if(tripletsGenerated()){
                                   deleteAllTriplets()
                                 }
-                                message("Initializing new triplets data.")
+                                message(" - Initializing new triplets data.")
                                 seqlength <- dna$getFullLength()
                                 seqnames <- dna$getSequenceNames()
                                 triplets <<- lapply(csettings$AcceptedCombinations, function(x) Triplet$new(c(x[1], x[2], x[3]), seqlength, basefile))
@@ -826,9 +811,9 @@ Triplets <- setRefClass("Triplets",
                               }
                             },
                           
-                          plotTriplets = function(tripletSelections, plotSettings){
+                          plotTriplets = function(tripletSelections, begin, end, plotSettings){
                             tripletsToPlot <- getTriplets(tripletSelections)
-                            return(lapply(tripletsToPlot, function(x) x$plotTriplet(plotSettings)))
+                            return(lapply(tripletsToPlot, function(x) x$plotTriplet(plotSettings, begin, end)))
                           },
                           
                           tabulateBlocks = function(tripletSelections, neat){
@@ -1204,7 +1189,7 @@ FTTester <- setRefClass("FTTester",
                           
                           generateFTTs =
                             function(HCDir){
-                              message("Initializing new FTtest data.")
+                              message(" - Initializing new FTtest data.")
                               results <<- lapply(taxaCombos, function(x) FTTrecord$new(x[["P1"]], x[["P2"]], x[["P3"]], x[["A"]], HCDir))
                             },
                           

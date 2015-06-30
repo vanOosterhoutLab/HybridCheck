@@ -186,11 +186,11 @@ ComparrisonSettings <- setRefClass("ComparrisonSettings",
                                          rejects <- c()
                                          if(hasMultipleCombinations()){
                                            if(1L %in% Method){
-                                             message("Deciding triplets based on results of Four Taxon Tests.")
+                                             message(" - Deciding triplets based on results of Four Taxon Tests.")
                                              if(partiallySignificant){
                                                rejects <- c(rejects, fttDescision(ftt, "PART.SIGNIFICANT", TripletCombinations, dna))
                                              } else {
-                                               message("Using tests that are globally significant.")
+                                               message("\t- Using tests that are globally significant.")
                                                rejects <- c(rejects, fttDescision(ftt, "SIGNIFICANT", TripletCombinations, dna))
                                              }
                                            }
@@ -299,7 +299,7 @@ fttDescision <- function(ftt, significanceStatement, combos, dna){
 }
 
 groupDescision <- function(populations, combos, thresh){
-  message("Generating triplets to find recombination in sequences, between partitions.")
+  message(" - Generating triplets to find recombination in sequences, between partitions.")
   matches <- unlist(lapply(populations, function(x){
     which(unlist(lapply(combos, function(y){
       length(which(x %in% y)) > thresh

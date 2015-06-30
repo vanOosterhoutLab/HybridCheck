@@ -241,7 +241,6 @@ calculateDandFd <- function(aln, pops){
   s.all <- length(alleles.var)
   # Find which of the variable sites are bi-allelic.
   bi.var <- which(alleles.var == 2)
-  message("Width of jackknife block: ", unique(width(aln.var)))
   # Population slices - refer to function's description.
   p1Slice <- populationSlice(aln.var[pops[[1]]], bi.var)
   p2Slice <- populationSlice(aln.var[pops[[2]]], bi.var)
@@ -267,7 +266,7 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
   message(" - Running a Four Taxon Test for the four populations:\n    ",
           paste(fttRecord$P1, fttRecord$P2, 
                 fttRecord$P3, fttRecord$A, collapse = ", "))
-  message("\t-Figureing out the size and number of jack-knife blocks.")
+  message("\t- Figureing out the size and number of jack-knife blocks.")
   if(!is.numeric(numBlocks) && !is.numeric(lengthOfBlocks)){
     stop("Invalid input - no number of blocks or size of blocks provided.")
   }
@@ -297,12 +296,12 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
     subseq(dna$FullSequence, start = x[1], end = x[2])
     })
   
-  message("\t-Calculating statistics needed for D and Fd, for each jack-knife block.")
+  message("\t- Calculating statistics needed for D and Fd, for each jack-knife block.")
   
   blocksStats <- do.call(rbind, lapply(blocks, function(x){
     calculateDandFd(x, dna$Populations[c(fttRecord$P1, fttRecord$P2, fttRecord$P3, fttRecord$A)])}))
   
-  message("\t-Calculating full set of Four Taxon Test statistics for all jackknife blocks.")
+  message("\t- Calculating full set of Four Taxon Test statistics for all jackknife blocks.")
   # Calculation of stats for each jackknife segment:
   # Calculation of Observed S and S for complete introgression scenarios between P1:P3, and P2:P3.
   blocksStats$S_1234 <- blocksStats$ABBA - blocksStats$BABA
@@ -414,25 +413,25 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 
 
 scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
-  message(paste0("Scanning sequence similarity for triplet ", paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
+  message(paste0(" - Scanning sequence similarity for triplet ", paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
   cutDNA <- triplet$SequenceInfo$prepareDNAForScan(dna, ambiguousAreHet)
   triplet$readSettings(settings)
   if(triplet$SequenceInfo$InformativeUsedLength >= 1){
-    message(" - Checking the sliding window parameters.")
+    message("\t- Checking the sliding window parameters.")
     if(triplet$ScanData$WindowSizeUsed > triplet$SequenceInfo$InformativeUsedLength){
       triplet$ScanData$WindowSizeUsed <- as.integer((triplet$SequenceInfo$InformativeUsedLength / 100) * 10)
-      message("The set sliding window size is bigger than the length of the actual informative sites of the contig!")
-      message("Continuing with analysis but set the sliding window to 10%
+      message("\t\t- The set sliding window size is bigger than the length of the actual informative sites of the contig!")
+      message("\t\t- Continuing with analysis but set the sliding window to 10%
               of the sequence length... ")
-      message("This is equal to ", triplet$ScanData$WindowSizeUsed)
+      message("\t\t- This is equal to ", triplet$ScanData$WindowSizeUsed)
       if(triplet$ScanData$WindowSizeUsed < 1L){
         triplet$ScanData$WindowSizeUsed <- 1L
-        message("Default behaviour in this case is to set the sliding window to 10%
+        message("\t\t- Default behaviour in this case is to set the sliding window to 10%
                 of the sequence length, but since this value is below 1, instead setting
                 the sliding window length to 1...")
       }
     }
-    message("Making all the window frames...")
+    message("\t- Making all the window frames...")
     if(triplet$ScanData$WindowSizeUsed >= 1L) {
       halfWindow <- as.integer(triplet$ScanData$WindowSizeUsed / 2)
       allstepsfrom <- 1 + halfWindow
@@ -457,7 +456,7 @@ scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
       rm(windowp1, windowp2, allsteps, allstepsto, allstepsfrom)
       colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist(lapply(pairs, function(x) paste(LETTERS[x], collapse=""))))
       # Set up the loop for calculation.
-      message("Scanning Now!")
+      message("\t- Scanning Now!")
       conMatAB <- colSums(consensusMatrix(cutDNA[c(1, 2)]) != 0) > 1
       conMatAC <- colSums(consensusMatrix(cutDNA[c(1, 3)]) != 0) > 1
       conMatBC <- colSums(consensusMatrix(cutDNA[c(2, 3)]) != 0) > 1
@@ -516,16 +515,16 @@ locate.dips <- function(prospectivePeaks, peaks, density, settings, overallMean)
     thresholds <- thresholds[which(thresholds > overallMean)]
     if(length(thresholds) < 1){
       if(settings$ManualFallback){
-        message("Falling back to manual thresholds...")
+        message("\t\t\t- Falling back to manual thresholds...")
         thresholds <- settings$ManualThresholds
       } 
     }
   } else {
     if(settings$ManualFallback){
-      message("Falling back to manual thresholds...")
+      message("\t\t\t- Falling back to manual thresholds...")
       thresholds <- settings$ManualThresholds
     } else {
-      message("Interesting peaks was of length zero, and manual falback is off, couldn't determine thresholds")
+      message(" - Interesting peaks was of length zero, and manual falback is off, couldn't determine thresholds")
       thresholds <- numeric(length=0)
     }
   }

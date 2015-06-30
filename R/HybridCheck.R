@@ -205,8 +205,11 @@ HC <- setRefClass("HC",
                                          
                                          findBlocks =
                                            function(tripletSelections = "NOT.SEARCHED", replaceSettings = FALSE, ...){
+                                             message(" - Begin block finding for triplets.")
                                              if(length(list(...)) > 0){
+                                               message("\t- Settings passed in on the fly.")
                                                if(replaceSettings){
+                                                 message("\t\t- Replacing global settings.")
                                                  blockDetectionSettings$setSettings(...)
                                                  settings <- blockDetectionSettings
                                                } else {
@@ -217,7 +220,7 @@ HC <- setRefClass("HC",
                                                settings <- blockDetectionSettings
                                              }
                                              triplets$findBlocks(tripletSelections, settings)
-                                             message("Finished finding potential blocks for all triplet selections.")
+                                             message(" - Finished finding potential blocks for all triplet selections.")
                                            },
                                          
                                          dateBlocks =
@@ -238,8 +241,14 @@ HC <- setRefClass("HC",
                                          
                                          # GGplot method for HC object - activates sub-methods of triplets.
                                          plotTriplets =
-                                           function(Selections = "ALL", ReplaceParams = TRUE, ...){
+                                           function(Selections = "ALL", 
+                                                    begin = NULL, end = NULL,
+                                                    ReplaceParams = TRUE, ...){
                                              settings <- plottingSettings
+                                             if(is.null(begin) || is.null(end)){
+                                               begin <- 1
+                                               end <- DNA$getFullLength()
+                                             }
                                              if(length(list(...)) > 0){
                                                if(ReplaceParams){
                                                 settings$setSettings(...) 
@@ -248,7 +257,7 @@ HC <- setRefClass("HC",
                                                 settings$setSettings(...)
                                                }
                                              }
-                                             return(triplets$plotTriplets(Selections, plottingSettings))
+                                             return(triplets$plotTriplets(Selections, begin, end, plottingSettings))
                                              },
 
                                          
