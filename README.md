@@ -1,7 +1,7 @@
 <a name="logo"/>
 <div align="center">
 <a href="http://ward9250.github.io/HybridCheck">
-<img src="http://ward9250.github.io/HybridCheck/img/HybridCheckLogo.png" alt="HybridCheck Logo Here"></img>
+<img src="http://ward9250.github.io/HybridCheck/img/HybridCheckLogo.png" height="200" alt="HybridCheck Logo Here"></img>
 </a>
 </div>
 
