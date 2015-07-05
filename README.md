@@ -1,7 +1,7 @@
 <a name="logo"/>
 <div align="center">
-<a href="http://ward9250.github.io/HybridCheck" target="_blank">
-<img src="http://ward9250.github.io/HybridCheck/img/HybridChecklogo.png" alt="HybridCheck Logo Here"></img>
+<a href="http://ward9250.github.io/HybridCheck">
+<img src="http://ward9250.github.io/HybridCheck/img/HybridCheckLogo.png" alt="HybridCheck Logo Here"></img>
 </a>
 </div>
 
@@ -14,7 +14,7 @@
 
 # Introduction
 
-The HybridCheck project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets. 
+The HybridCheck project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets.
 
 # Installation from Github
 
@@ -49,7 +49,7 @@ vignette("Scripting_with_HybridCheck")
 
 ## Test Data
 
-An example sequence alignment of 10 sequences as a DNAbin object is available in the package to use to test HybridCheck functionality. 
+An example sequence alignment of 10 sequences as a DNAbin object is available in the package to use to test HybridCheck functionality.
 ```R
 data(MySequences)
 ```
@@ -63,10 +63,10 @@ It is very new compared to this R package so feedback is always welcome and it's
 # Contributing
 
 If anyone wants to contribute in the future, we welcome it, whether it is improvements over old code or new features/ideas.
-Contribution can be done by the usual github cycle of sending pull requests, alternatively contact one of the authors of the paper: 
+Contribution can be done by the usual github cycle of sending pull requests, alternatively contact one of the authors of the paper:
 
 # Bugs and Issues
 
 If you have trouble working the package on your data there may be many causes from a genuine bug in the code - a misreading of a file leading to downstream issues, or unsuitability of the data for the kind of analysis HybridCheck does.
-HybridCheck has been developed and tested using both real datasets and simulated data. However of course that does not mean there are no datasets which may cause problems. If you run into problems, you can contact the maintainer or file an issue on the repository. 
+HybridCheck has been developed and tested using both real datasets and simulated data. However of course that does not mean there are no datasets which may cause problems. If you run into problems, you can contact the maintainer or file an issue on the repository.
 Be descriptive and detailed in what you did so as the error can be reproduced, a sample of the data that causes the error might be needed to get to the bottom of the issue.
