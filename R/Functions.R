@@ -1,5 +1,6 @@
 # Resolving the ambigious base positions in DNA sequences.
-# Ben J. Ward, 2015.
+# Ben J. Ward, 2015. 
+
 
 # Get the bases which the heterozygous codes fed in, have in common.
 inCommon <- function(code, bases){

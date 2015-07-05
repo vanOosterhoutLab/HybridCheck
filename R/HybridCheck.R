@@ -298,6 +298,14 @@ HC <- setRefClass("HC",
                                         
                                         tabulateUserBlocks = function(){
                                           return(userBlocks$tabulateBlocks())
+                                        },
+                                        
+                                        writeDNAasScanned = function(selection, filenames){
+                                          
+                                        },
+                                        
+                                        writeDNAasDated = function(selection, filenames){
+                                          
                                         }
                           )
                         )
