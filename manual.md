@@ -16,5 +16,5 @@ Users experienced with R will be able to just install the HybridCheck R package 
 -----
 
 <div align="center">
-<iframe src="http://ward9250.github.io/HybridCheck/HybridCheck_user_manual.pdf" width=1100 height=1500></iframe>
+<iframe src="http://ward9250.github.io/HybridCheck/Manual/HybridCheck_User_Manual.pdf" width=1100 height=1500></iframe>
 </div>
