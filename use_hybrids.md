@@ -41,7 +41,7 @@ library(HybridCheck)
         <div class="col-md-4">
           <h3>Linux</h3>
           Download this tarball and extract the folder. The folder includes two shell scripts that can be used to install HybridCheck and its dependencies, and also run HybridCheck with the webapp GUI.
-          <p><a class="btn btn-default" href="./Linux/HybridCheck_Linux_Installer_Scripts.zip" role="button" download="HybridCheck_Linux_Installer_Scripts.zip">Download for GNU/Linux</a></p>
+          <p><a class="btn btn-default" href="./Linux/HybridCheck_Linux_Installer.zip" role="button" download="HybridCheck_Linux_Installer_Scripts.zip">Download for GNU/Linux</a></p>
         </div>
       </div>
 </div>
