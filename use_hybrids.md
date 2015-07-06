@@ -35,14 +35,13 @@ library(HybridCheck)
         </div>
         <div class="col-md-4">
           <h3>OS X</h3>
-          Download this .app launcher and drag it to your Applications folder. This .app uses JavaScript for Automation and so is compatible with recent versions of OS X and has been tested on Yosemite. 
+          Download this .app launcher and drag it to your Applications folder. This .app uses JavaScript for Automation and so is compatible with recent versions of OS X and has been tested on Yosemite.
           <p><a class="btn btn-default" href="./OSX/HybridCheckapp.zip" role="button" download="HybridCheck.app">Download for OS X</a></p>
        </div>
         <div class="col-md-4">
           <h3>Linux</h3>
-          Download this tarball and extract the folder. The folder includes two shell scripts that can be used to install HybridCheck and its dependencies, and also run HybridCheck with the webapp GUI. 
-          <p><a class="btn btn-default" href="./Linux/HybridCheck_Launcher.tar.gz" role="button" download="HybridCheck_Launcher.tar.gz">Download for GNU/Linux</a></p>
+          Download this tarball and extract the folder. The folder includes two shell scripts that can be used to install HybridCheck and its dependencies, and also run HybridCheck with the webapp GUI.
+          <p><a class="btn btn-default" href="./Linux/HybridCheck_Linux_Installer_Scripts.zip" role="button" download="HybridCheck_Linux_Installer_Scripts.zip">Download for GNU/Linux</a></p>
         </div>
       </div>
 </div>
-
