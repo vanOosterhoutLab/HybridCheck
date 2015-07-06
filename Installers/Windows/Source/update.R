@@ -1,0 +1,6 @@
+message("Installing / updating HybridCheck and required packages")
+chooseCRANmirror(ind = 83)
+update.packages(ask=FALSE)
+library(devtools)
+install_github("ebailey78/shinyBS")
+install_github("Ward9250/HybridCheck", build_vignettes = TRUE)
