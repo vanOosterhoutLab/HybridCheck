@@ -232,7 +232,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                              bars <- applyPlottingParams(bars, plottingSettings, title = paste("Sequence Similarity Between Sequences for Triplet ", ContigNames[1], ":", ContigNames[2], ":", ContigNames[3], sep=""))
                              
                              if(plottingSettings$Legends == T){
-                               legend <- readPNG(system.file("extdata/rgblegend.png", package="Hybrids-Check"), TRUE)
+                               legend <- readPNG(system.file("extdata/rgblegend.png", package="HybridCheck"), TRUE)
                                if (names(dev.cur()) == "windows"){
                                  # windows device doesn’t support semi-transparency so we’ll need
                                  # to flatten the image
