@@ -11,22 +11,7 @@ For users who want to use HybridCheck without needing to know much R, we have de
 
 In addition we have provided a launcher for Windows, OS X, and Linux. So long as you have R on your machine, these launchers will make sure HybridCheck and its dependencies are installed, will fetch the current version of the Shiny files for the app from the GitHub repository, and then start up the app. You can then use HybridCheck with the GUI as detailed in the [HybridCheck User Manual.](./manual.html)
 
-### Deploying the Shiny app on a (web)server
-In addition to being run on a local machine, the HybridCheck app could be deployed on a server and logged into by many people in a lab for instance. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
-
-## Use HybridCheck in R scripts
-HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming and scripting R code with it right away. For example you could install the latest version with devtools:
-
-```R
-install.packages("devtools")
-library(devtools)
-install_github("Ward9250/HybridCheck", build_vignettes=TRUE)
-library(HybridCheck)
-```
-
------
-
-## Operating system specific installers
+### Operating system specific installers
 <div class="container">
       <div class="row">
         <div class="col-md-4">
@@ -49,7 +34,7 @@ library(HybridCheck)
 
 -----
 
-## 'The Installer doesn't work for me!' - Installing from the R console.
+#### 'The Installer doesn't work for me!' - Installing from the R console.
 If an installer for your operating system is not available or working for you, which may happen due to permissions. You can install HybridCheck and every one of it's dependencies to you R library manually by pasting the following commands into an R console:
 
 ```R
@@ -70,3 +55,23 @@ You can then run HybridCheck with the web-app by pasting the following in the R 
 library(shiny)
 runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
 ```
+
+
+### Deploying the Shiny app on a (web)server
+In addition to being run on a local machine, the HybridCheck app could be deployed on a server and logged into by many people in a lab for instance. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
+
+## Use HybridCheck in R scripts
+HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming and scripting R code with it right away. For example you could install the latest version with devtools:
+
+```R
+install.packages("devtools")
+library(devtools)
+install_github("Ward9250/HybridCheck", build_vignettes=TRUE)
+library(HybridCheck)
+```
+
+-----
+
+
+
+-----
