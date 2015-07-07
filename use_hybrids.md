@@ -48,6 +48,7 @@ library(HybridCheck)
 
 ## 'The Installer doesn't work for me!' - Installing from the R console.
 If an installer for your operating system is not available or working for you, which may happen due to permissions. You can install HybridCheck and every one of it's dependencies to you R library manually by pasting the following commands into an R console:
+
 ```R
 chooseCRANmirror(ind = 83)
 pkg <- c('devtools', 'shiny', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png')
@@ -61,6 +62,7 @@ if(!'HybridCheck' %in% installed.packages()){library(devtools); install_github('
 This bit of code explicitly downloads the dependencies HybridCheck needs in addition to HybridCheck.
 
 You can then run HybridCheck with the web-app by pasting the following in the R console:
+
 ```R
 library(shiny)
 runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
