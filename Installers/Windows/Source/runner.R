@@ -2,7 +2,7 @@ message("Checking all required packages installed.")
 
 chooseCRANmirror(ind = 83)
 
-pkg <- c('devtools', 'shiny', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png')
+pkg <- c('devtools', 'shiny', 'shinydashboard', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png')
 new.pkg <- pkg[!(pkg %in% installed.packages())]
 if(length(new.pkg)){install.packages(new.pkg)}
 source('http://bioconductor.org/biocLite.R')

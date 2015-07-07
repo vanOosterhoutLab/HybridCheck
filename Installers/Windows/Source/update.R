@@ -3,7 +3,7 @@ chooseCRANmirror(ind = 83)
 update.packages(ask=FALSE)
 library(devtools)
 
-pkg <- c('devtools', 'shiny', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png')
+pkg <- c('devtools', 'shiny', 'shinydashboard', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png')
 install.packages(pkg)
 source('http://bioconductor.org/biocLite.R')
 biocLite('Biostrings', ask = F)

@@ -17,7 +17,7 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
         <div class="col-md-4">
           <h3>Windows</h3>
           Download this installer and run to install the launcher to launch HybridCheck from the Start > All Programs menu.
-          <a class="btn btn-default" href="./Installers/Windows/LaunchHybridCheck_installer.EXE" role="button" download="install_HybridCheckLauncher.EXE">Download for Windows</a>
+          <a class="btn btn-default" href="./Installers/Windows/HybridCheckInstaller.EXE" role="button" download="install_HybridCheckLauncher.EXE">Download for Windows</a>
         </div>
         <div class="col-md-4">
           <h3>OS X</h3>
