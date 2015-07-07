@@ -1,0 +1,11 @@
+# Packages required from R's package manager:
+message("Setting CRAN mirror")
+chooseCRANmirror(ind = 83)
+message("Installing needed packages")
+install.packages(c('devtools', 'shiny', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png'))
+source("http://bioconductor.org/biocLite.R")
+biocLite()
+biocLite("Biostrings", "IRanges")
+library(devtools)
+devtools::install_github("rstudio/shinydashboard")
+install_github("Ward9250/HybridCheck", ref = "master", build_vignettes = TRUE)
