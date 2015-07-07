@@ -26,6 +26,7 @@ library(HybridCheck)
 
 -----
 
+## Operating system specific installers
 <div class="container">
       <div class="row">
         <div class="col-md-4">
@@ -45,6 +46,8 @@ library(HybridCheck)
         </div>
       </div>
 </div>
+
+-----
 
 ## 'The Installer doesn't work for me!' - Installing from the R console.
 If an installer for your operating system is not available or working for you, which may happen due to permissions. You can install HybridCheck and every one of it's dependencies to you R library manually by pasting the following commands into an R console:
