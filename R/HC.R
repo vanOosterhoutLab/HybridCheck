@@ -1,6 +1,5 @@
 #' @docType package
 #' ...
-#' @useDynLib HybridCheck
 #' @import ape Biostrings
 #' @importFrom png readPNG
 NULL
@@ -18,11 +17,11 @@ NULL
 #' @field plottingSettings A PlottingSettings object.
 #' @field triplets A Triplets object.
 #' @field userBlocks A UserBlocks object.
-#' @field filesDirectory Character - the root directory where all temporary files 
+#' @field filesDirectory Character - the root directory where all temporary files
 #' used by this object are found.
 HC <- setRefClass("HC",
-                        
-                        fields = list( 
+
+                        fields = list(
                           DNA = "ANY",
                           FTTmodule = "ANY",
                           comparrisonSettings = "ANY",
@@ -34,8 +33,8 @@ HC <- setRefClass("HC",
                           userBlocks = "ANY",
                           filesDirectory = "character"
                           ),
-                        
-                         methods = list(initialize = 
+
+                         methods = list(initialize =
                                            function(dnafile=NULL){
                                              "Create HC object with default values for fields.
                                              The path to the FASTA file can be provided."
@@ -52,7 +51,7 @@ HC <- setRefClass("HC",
                                                inputDNA(dnafile)
                                              }
                                            },
-                                         
+
                                          # Method for inputting DNA sequences...
                                         inputDNA =
                                           function(input){
@@ -66,19 +65,19 @@ HC <- setRefClass("HC",
                                             }
                                             setPopulations()
                                           },
-                                        
+
                                         sequencesLoaded =
                                           function(){
                                             "Returns TRUE if dna sequences have been loaded."
                                             return(DNA$hasDNA())
                                           },
-                                        
+
                                         sequenceNames =
                                           function(){
                                             "Returns a character vector of all the sequence names loaded."
                                             DNA$getSequenceNames()
                                           },
-                                        
+
                                         setPopulations =
                                           function(pops = NULL){
                                             "Sets up population definitions. If pops is NULL,
@@ -89,7 +88,7 @@ HC <- setRefClass("HC",
                                               DNA$setPopulations(pops)
                                             }
                                           },
-                                        
+
                                         prepareFourTaxonTests =
                                           function(taxa = NULL){
                                             "Prepares space for four taxon tests."
@@ -100,29 +99,29 @@ HC <- setRefClass("HC",
                                             }
                                             FTTmodule$generateFTTs(filesDirectory)
                                           },
-                                        
+
                                         runFourTaxonTests =
                                           function(selections = "NOT.TESTED", numberOfBlocks = NULL, blockLength = NULL){
                                             "Runs the four taxon tests that have been prepared.
-                                            You must provide either a number of blocks to use for the jackknife, 
-                                            or the size of the blocks to use for the jackknife, 
+                                            You must provide either a number of blocks to use for the jackknife,
+                                            or the size of the blocks to use for the jackknife,
                                             the exact size and number of blocks to use is then automatically worked out.
-                                            selections can be 'NOT.TESTED', 'ALL', 'TESTED', or a list of character vectors of length 4, each 
+                                            selections can be 'NOT.TESTED', 'ALL', 'TESTED', or a list of character vectors of length 4, each
                                             denoting a four taxon test by the names of the populations involved."
                                             FTTmodule$runFTTests(selections, DNA, numberOfBlocks, blockLength)
                                             if(1L %in% comparrisonSettings$Method){
                                               comparrisonSettings$decideAcceptedTriplets(DNA, FTTmodule)
                                             }
                                           },
-                                        
+
                                         tabulateFourTaxonTests =
                                           function(selections = "ALL", neat = TRUE, global = TRUE){
                                             "Fetches the results of the four taxon tests, returns a dataframe.
-                                            selections can be 'ALL', 'TESTED', or a list of character vectors of length 4, each 
+                                            selections can be 'ALL', 'TESTED', or a list of character vectors of length 4, each
                                             denoting a four taxon test by the names of the populations involved."
                                             FTTmodule$getResults(selections, neat = neat, global = global)
                                           },
-                                         
+
                                         showParameters =
                                           function(Step = NULL){
                                             "Displays to the R console, the settings of each HC analysis stage."
@@ -145,7 +144,7 @@ HC <- setRefClass("HC",
                                               cat('\n\n')
                                             }
                                           },
-                                        
+
                                          setParameters =
                                            function(Step = NULL, ...){
                                              "Set parameters for a single stage of the analysis.
@@ -161,7 +160,7 @@ HC <- setRefClass("HC",
                                                comparrisonSettings$setSettings(DNA, FTTmodule, ...)
                                              }
                                              if(Step == "SSAnalysis"){
-                                               ssAnalysisSettings$setSettings(...) 
+                                               ssAnalysisSettings$setSettings(...)
                                              }
                                              if(Step == "BlockDetection"){
                                                blockDetectionSettings$setSettings(...)
@@ -177,8 +176,8 @@ HC <- setRefClass("HC",
                                                FTTmodule$generateFTTs(filesDirectory)
                                              }
                                            },
-                                         
-                                         analyzeSS = 
+
+                                         analyzeSS =
                                            function(tripletSelections = "NOT.SCANNED", replaceSettings = FALSE, ...){
                                              "Analyzing the sequence similarity of triplets of sequences.
                                              tripletSelections can be 'NOT.SCANNED', 'ALL', 'SCANNED',
@@ -198,11 +197,11 @@ HC <- setRefClass("HC",
                                                }
                                              } else {
                                                settings <- ssAnalysisSettings
-                                             } 
+                                             }
                                              triplets$scanTriplets(tripletSelections, DNA, settings)
                                              message("Finished Sequence Similarity Analysis.")
                                            },
-                                         
+
                                          findBlocks =
                                            function(tripletSelections = "NOT.SEARCHED", replaceSettings = FALSE, ...){
                                              if(length(list(...)) > 0){
@@ -219,7 +218,7 @@ HC <- setRefClass("HC",
                                              triplets$findBlocks(tripletSelections, settings)
                                              message("Finished finding potential blocks for all triplet selections.")
                                            },
-                                         
+
                                          dateBlocks =
                                            function(tripletSelections = "NOT.DATED", replaceSettings = FALSE, ...){
                                              if(length(list(...)) > 0){
@@ -235,14 +234,14 @@ HC <- setRefClass("HC",
                                              }
                                              triplets$dateBlocks(tripletSelections, settings, DNA)
                                            },
-                                         
+
                                          # GGplot method for HC object - activates sub-methods of triplets.
                                          plotTriplets =
                                            function(Selections = "ALL", ReplaceParams = TRUE, ...){
                                              settings <- plottingSettings
                                              if(length(list(...)) > 0){
                                                if(ReplaceParams){
-                                                settings$setSettings(...) 
+                                                settings$setSettings(...)
                                                } else {
                                                 settings <- plottingSettings$copy()
                                                 settings$setSettings(...)
@@ -251,15 +250,15 @@ HC <- setRefClass("HC",
                                              return(triplets$plotTriplets(Selections, plottingSettings))
                                              },
 
-                                         
+
                                          # Method to put the data from detected blocks in triplets into a data format.
                                          tabulateDetectedBlocks =
                                            function(Selection = "ALL", Neat = TRUE) {
                                              output <- triplets$tabulateBlocks(Selection, Neat)
-                                             class(output) <- c(class(output), "HCtable")   
+                                             class(output) <- c(class(output), "HCtable")
                                              return(output)
                                            },
-                                         
+
                                          show = function() {
                                            cat("HC object:\n\n")
                                            DNA$show()
@@ -274,22 +273,21 @@ HC <- setRefClass("HC",
                                            cat("\n\nPlotting Settings are not shown because of the number of settings.")
                                            cat("\nuse showParameters('Plotting') to view them.")
                                          },
-                                         
+
                                          addUserBlock = function(selection, firstbp, lastbp){
                                            userBlocks$addBlock(firstbp, lastbp, selection)
                                          },
-                                        
+
                                          clearUserBlocks = function(selection){
                                            userBlocks$blankBlocks(selection)
                                          },
-                                        
+
                                          dateUserBlocks = function(){
                                            userBlocks$dateBlocks(DNA, blockDatingSettings)
                                          },
-                                        
+
                                         tabulateUserBlocks = function(){
                                           return(userBlocks$tabulateBlocks())
                                         }
                           )
                         )
-
