@@ -15,7 +15,7 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
 In addition to being run on a local machine, the HybridCheck app could be deployed on a server and logged into by many people in a lab for instance. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
 
 ## Use HybridCheck in R scripts
-HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming ans scripting R code with it right away. For example you could install the latest version with devtools:
+HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming and scripting R code with it right away. For example you could install the latest version with devtools:
 
 ```R
 install.packages("devtools")
@@ -45,3 +45,23 @@ library(HybridCheck)
         </div>
       </div>
 </div>
+
+## 'The Installer doesn't work for me!' - Installing from the R console.
+If an installer for your operating system is not available or working for you, which may happen due to permissions. You can install HybridCheck and every one of it's dependencies to you R library manually by pasting the following commands into an R console:
+```R
+chooseCRANmirror(ind = 83)
+pkg <- c('devtools', 'shiny', 'ggplot2', 'grid', 'gridExtra', 'ape', 'png')
+new.pkg <- pkg[!(pkg %in% installed.packages())]
+if(length(new.pkg)){install.packages(new.pkg)}
+source('http://bioconductor.org/biocLite.R')
+if(!('Biostrings' %in% installed.packages())){ biocLite('Biostrings', ask = F)}
+if(!'IRanges' %in% installed.packages()){biocLite('IRanges', ask = F)}
+if(!'HybridCheck' %in% installed.packages()){library(devtools); install_github('Ward9250/HybridCheck', ref = 'master')}
+```
+This bit of code explicitly downloads the dependencies HybridCheck needs in addition to HybridCheck.
+
+You can then run HybridCheck with the web-app by pasting the following in the R console:
+```R
+library(shiny)
+runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
+```
