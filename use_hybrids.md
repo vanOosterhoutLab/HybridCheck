@@ -5,6 +5,16 @@ subtitle: Install and use HybridCheck in one of several ways.
 permalink: use_HybridCheck.html
 ---
 
+There are several different ways you can use HybridCheck:
+
+1. If you don't want to use R, you may use one of the pre-packaged utilities we
+   provide for Windows, OS X, and Linux.
+
+2.  
+
+
+
+
 ## Using HybridCheck with a Graphical User Interface
 
 For users who want to use HybridCheck without needing to know much R, we have developed a Shiny web-app based GUI.
@@ -71,7 +81,9 @@ library(HybridCheck)
 ```
 
 -----
+## Common problems and solutions
 
+### I get error messages saying
 
 
 -----
