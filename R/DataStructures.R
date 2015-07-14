@@ -335,7 +335,6 @@ SequenceInformation <-
                 ContigPairs = "list",
                 InformativeUsedLength = "numeric",
                 InformativeUsed = "numeric",
-                #InformativeActual = "numeric",
                 FullDNALength = "numeric",
                 NumberOfHet = "numeric",
                 Transformations = "data.frame"),
@@ -379,31 +378,29 @@ SequenceInformation <-
                                      paste0(ContigNames, collapse = ", ")))
                       ambigTypes <- colSums(as.matrix(stateMatrix[5:10, ]) != 0)
                       NumberOfHet <<- length(which(ambigTypes > 0))
-                      if(!basesResolved() && seqsHaveHet()){
-                        message("   - An appropriate transformation will be decided for each.")
-                        message("   - This must be done the first time a triplet is analysed.")
-                        heterozygousCode <- list(
-                          M = c('A', 'C'), R = c('A', 'G'), W = c('A', 'T'), 
-                          S = c('G', 'C'), Y = c('C', 'T'), K = c('G', 'T'))
-                        Transformations <<-
-                          rbind(transSingleAmb(heterozygousCode, ambigTypes, stateMatrix),
-                                transTwoAmb(heterozygousCode, ambigTypes, stateMatrix),
-                                transThreeAmb(heterozygousCode, ambigTypes, stateMatrix))
-                        Transformations <<- Transformations[apply(Transformations, 1,
-                                                                  function(x){
-                                                                    !all(is.na(x))
-                                                                  }), ]
-                      } else {
-                        blankTransTable()
-                      }
                       if(seqsHaveHet()){
+                        if(!basesResolved()){
+                          message("   - An appropriate transformation will be decided for each.")
+                          message("   - This must be done the first time a triplet is analysed.")
+                          heterozygousCode <- list(
+                            M = c('A', 'C'), R = c('A', 'G'), W = c('A', 'T'), 
+                            S = c('G', 'C'), Y = c('C', 'T'), K = c('G', 'T'))
+                          Transformations <<-
+                            rbind(transSingleAmb(heterozygousCode, ambigTypes, stateMatrix),
+                                  transTwoAmb(heterozygousCode, ambigTypes, stateMatrix),
+                                  transThreeAmb(heterozygousCode, ambigTypes, stateMatrix))
+                          Transformations <<- Transformations[apply(Transformations, 1,
+                                                                    function(x){
+                                                                      !all(is.na(x))
+                                                                    }), ]
+                        }
                         message(" - Triplet of Sequences has heterozygous sites.")
                         message("   - Making alterations to input sequence based on calculated transformations.")
                         seqTriplet <- DNAStringSet(
                           lapply(1:3, function(i) {
                             return(transformSequence(seqTriplet[[i]], Transformations))
                           })
-                        )
+                        ) 
                       }
                     }
                     message("\t- Only keeping certain and polymorphic sites.")
@@ -418,6 +415,7 @@ SequenceInformation <-
                     cutDNA[[1]] <- seqTriplet[[1]][InformativeUsed]
                     cutDNA[[2]] <- seqTriplet[[2]][InformativeUsed]
                     cutDNA[[3]] <- seqTriplet[[3]][InformativeUsed]
+                    names(cutDNA) <- names(seqTriplet)
                     return(cutDNA)
                   },
                 
@@ -640,11 +638,13 @@ Triplet <- setRefClass("Triplet",
                            function(plottingSettings, begin, end){
                              "Method plots the heatmap based graphic of bars, from the sequence similarity scan data."
                              if(noScanPerformed()){stop("No sequence similarity scan has been performed for this triplet.")}
+                             
                              # Generate the reference colour palette.
                              colourPalette <- expand.grid(A = seq(0, 100, by = 1), B = seq(0, 100, by = 1))
                              colourPalette$RefA <- rgb(green = colourPalette$A, red = 100, blue = colourPalette$B, maxColorValue = 100)
                              colourPalette$RefB <- rgb(green = 100, red = colourPalette$A, blue = colourPalette$B, maxColorValue = 100)
                              colourPalette$RefC <- rgb(green = colourPalette$B, red = colourPalette$A, blue = 100, maxColorValue = 100)
+                             
                              # Now figure out the scale and data to go into each vertical bar: TODO - Put this in a function.
                              div <- length(begin:end) / plottingSettings$MosaicScale
                              frame <- data.frame(bpstart = seq(from = begin, to = end, by = div),
@@ -696,8 +696,26 @@ Triplet <- setRefClass("Triplet",
                                bars <- arrangeGrob(bars, legendgrob, widths = c(1, 0.13), ncol = 2)
                              }
                              return(bars)
-                             }
-                               )
+                             },
+                         
+                         writeScannedSequences = function(fullDNA){
+                           if(noScanPerformed()){stop("Triplet has not been scanned yet.")}
+                           fileBaseNames <- paste0(SequenceInfo$ContigNames, collapse = "_")
+                           seqs <- SequenceInfo$prepareDNAForScan(fullDNA, (SequenceInfo$basesResolved() && 
+                                                                              SequenceInfo$seqsHaveHet()))
+                           writeXStringSet(seqs, paste0(fileBaseNames, ".fas"))
+                           write(SequenceInfo$InformativeUsed, paste0(fileBaseNames, "_Sites", ".txt", sep = "\n"))
+                         },
+                         
+                         writeDatedSequences = function(fullDNA){
+                           if(noScanPerformed()){stop("Triplet has not been scanned yet.")}
+                           fileBaseNames <- paste0(SequenceInfo$ContigNames, collapse = "_")
+                           seqs <- SequenceInfo$prepareDNAForDating(fullDNA, (SequenceInfo$basesResolved() &&
+                                                                                SequenceInfo$seqsHaveHet()))
+                           writeXStringSet(seqs, paste0(fileBaseNames, ".fas"))
+                         }
+                         
+                         )
 )
 
 vertbar_create <- function(sequenceSimilarityTable, plottingFrameRow, whichComparrison){
@@ -830,6 +848,24 @@ Triplets <- setRefClass("Triplets",
                             }
                             return(output)
                           },
+                          
+                          writeTripletsAsScanned = 
+                            function(tripletSelections, dna){
+                              if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                              tripletsToWrite <- getTriplets(tripletSelections)
+                              for(triplet in tripletsToWrite){
+                                triplet$writeScannedSequences(dna)
+                              }
+                            },
+                          
+                          writeTripletsAsDated = 
+                            function(tripletsSelections, dna){
+                              if(!tripletsGenerated()){stop("No triplets have been prepared yet.")}
+                              tripletsToWrite <- getTriplets(tripletSelections)
+                              for(triplet in tripletsToWrite){
+                                triplet$writeDatedSequences(dna)
+                              }
+                            },
                           
                           show =
                             function(){

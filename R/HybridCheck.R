@@ -270,6 +270,7 @@ HC <- setRefClass("HC",
                                            },
                                          
                                          show = function() {
+                                           "A simple show method which "
                                            cat("HC object:\n\n")
                                            DNA$show()
                                            cat("\n\n\n")
@@ -300,12 +301,12 @@ HC <- setRefClass("HC",
                                           return(userBlocks$tabulateBlocks())
                                         },
                                         
-                                        writeDNAasScanned = function(selection, filenames){
-                                          
-                                        },
-                                        
-                                        writeDNAasDated = function(selection, filenames){
-                                          
+                                        writeDNAAsAnalysed = function(selection, onlyInf = TRUE){
+                                          if(onlyInf){
+                                            triplets$writeTripletsAsScanned(selection, DNA)
+                                          } else {
+                                            triplets$writeTripletsAsDated(selection, DNA)
+                                          }
                                         }
                           )
                         )
