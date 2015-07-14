@@ -684,15 +684,17 @@ Triplet <- setRefClass("Triplet",
                              bars <- applyPlottingParams(bars, plottingSettings, title = paste("Sequence Similarity Between Sequences for Triplet ", SequenceInfo$ContigNames[1], ":", SequenceInfo$ContigNames[2], ":", SequenceInfo$ContigNames[3], sep=""))
                              
                              if(plottingSettings$Legends == T){
-                               legend <- readPNG(system.file("extdata/rgblegend.png", package="HybridCheck"), TRUE)
-                               if (names(dev.cur()) == "windows"){
-                                 # windows device doesn’t support semi-transparency so we’ll need
-                                 # to flatten the image
-                                 transparent <- legend[,,4] == 0
-                                 legend <- as.raster(legend[,,1:3])
-                                 legend[transparent] <- NA
-                               }
-                               legendgrob <- grid::rasterGrob(image=legend)
+                               #legend <- readPNG(system.file("extdata/rgblegend.png", package="HybridCheck"), TRUE)
+                               legend <- readJPEG(system.file("extdata/rgblegend.jpg", package="HybridCheck"))
+#                                if (names(dev.cur()) == "windows"){
+#                                  # windows device doesn’t support semi-transparency so we’ll need
+#                                  # to flatten the image
+#                                  transparent <- legend[,,4] == 0
+#                                  legend <- as.raster(legend[,,1:3])
+#                                  legend[transparent] <- NA
+#                                }
+                               #legendgrob <- grid::rasterGrob(image=legend)
+                               legendgrob <- grid::rasterGrob(unclass(legend))
                                bars <- arrangeGrob(bars, legendgrob, widths = c(1, 0.13), ncol = 2)
                              }
                              return(bars)
