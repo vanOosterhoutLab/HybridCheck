@@ -685,7 +685,7 @@ Triplet <- setRefClass("Triplet",
                              
                              if(plottingSettings$Legends == T){
                                #legend <- readPNG(system.file("extdata/rgblegend.png", package="HybridCheck"), TRUE)
-                               legend <- readJPEG(system.file("extdata/rgblegend.jpg", package="HybridCheck"))
+                               legend <- jpeg::readJPEG(system.file("extdata/rgblegend.jpg", package="HybridCheck"))
 #                                if (names(dev.cur()) == "windows"){
 #                                  # windows device doesn’t support semi-transparency so we’ll need
 #                                  # to flatten the image
