@@ -131,9 +131,10 @@ locate.dips <- function(prospectivePeaks, peaks, density, settings, overallMean)
   return(thresholds)
 }
 
-block.find <- function(dist,thresh){
-  thresh2 <- rev(thresh)                                                           # Reverse the order of thresholds.
-  b1 <- list()                                                                     # Create and empty list called b1.
+block.find <- function(dist, thresh){
+  # Reverse the order of thresholds.
+  thresh2 <- rev(thresh)                                                           
+  b1 <- list()                                                                     # Create an empty list called b1.
   length(b1) <- length(thresh2)
   if(is.numeric(thresh2)){
     for(i in 1:length(thresh2)){                                                   #Find which sliding windows meet the threshold with for loop.
@@ -145,10 +146,15 @@ block.find <- function(dist,thresh){
       }
     }
     names(b1) <- thresh2
-    runs <- lapply(b1, function(x) rle(x))                                           # Generate a list of runs data...
-    ind <- lapply(runs, function(x) which(x$values == T))                              # Identify which runs are blocks and not runs of non-blocks.
-    runs2 <- lapply(1:length(runs), function(i) runs[[i]]$lengths[ind[[i]]])         # Get the lengths of all the runs for T, meaning blocks.
-    sums <- lapply(1:length(runs), function(i) cumsum(runs[[i]]$lengths)[ind[[i]]])  # Generate a cumulative sum of the run lengths and pick out the ones for the actual blocks.
+    # Generate a list of runs data...
+    runs <- lapply(b1, function(x) rle(x))
+    # Identify which runs are blocks and not runs of non-blocks.
+    ind <- lapply(runs, function(x) which(x$values == T))
+    # Get the lengths of all the runs for T, meaning blocks.
+    runs2 <- lapply(1:length(runs), function(i) runs[[i]]$lengths[ind[[i]]])  
+    # Generate a cumulative sum of the run lengths and pick out the ones for the actual blocks.
+    sums <- lapply(1:length(runs), function(i) cumsum(runs[[i]]$lengths)[ind[[i]]])
+    
     BlockPos2 <- lapply(1:length(runs), function(i) data.frame(Length = runs2[[i]], Last = sums[[i]]))
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, First <- (x$Last - (x$Length - 1))))
     BlockPos2 <- lapply(BlockPos2, function(x) within(x, FirstBP <- dist[x$First,4])) # We define the start of a block as the central bp position of the first window which covers it with sufficient SS to meet the threshold.
