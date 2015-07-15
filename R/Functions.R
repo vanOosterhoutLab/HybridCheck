@@ -478,6 +478,11 @@ scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
       }
   }
 
+
+
+
+### BLOCK DETECTION FUNCTIONS ###
+
 autodetect.thresholds <- function(ssdata, settings){
   ssDataTable <- ssdata$Table
   densities <- list(density(ssDataTable$AB), density(ssDataTable$AC), density(ssDataTable$BC))
@@ -532,44 +537,72 @@ locate.dips <- function(prospectivePeaks, peaks, density, settings, overallMean)
   return(thresholds)
 }
 
-block.find <- function(dist, thresh){
-  thresh2 <- rev(thresh)                                                           # Reverse the order of thresholds.
-  b1 <- list()                                                                     # Create and empty list called b1.
-  length(b1) <- length(thresh2)
-  if(is.numeric(thresh2)){
-    for(i in 1:length(thresh2)){                                                   #Find which sliding windows meet the threshold with for loop.
-      b1[[i]] <- rep(F, times = nrow(dist))
-      if(i == 1){
-        b1[[i]][which(dist[,7] > thresh2[i])] <- T
-      } else {
-        b1[[i]][which((dist[,7] > thresh2[i]) == (dist[,7] < thresh2[i-1]))] <- T
+# Function for finding which windows meet each level of threshold.
+winMeetThresh <- function(winData, thresholds){
+  out <- lapply(1:length(thresholds), rep(F, times = nrow(winData)))
+  if(is.numeric(thresholds)){
+    out[[1]][which(winData[, 7] > thresholds[1])] <- T
+    if(length(thresholds) >= 2){
+      for(i in 2:length(thresholds)){
+        out[[i]][which((winData[, 7] > thresholds[i]) == (winData[, 7] < thresholds[i-1]))] <- T
       }
     }
-    names(b1) <- thresh2
-    runs <- lapply(b1, function(x) rle(x))                                           # Generate a list of runs data...
-    ind <- lapply(runs, function(x) which(x$values == T))                              # Identify which runs are blocks and not runs of non-blocks.
-    runs2 <- lapply(1:length(runs), function(i) runs[[i]]$lengths[ind[[i]]])         # Get the lengths of all the runs for T, meaning blocks.
-    sums <- lapply(1:length(runs), function(i) cumsum(runs[[i]]$lengths)[ind[[i]]])  # Generate a cumulative sum of the run lengths and pick out the ones for the actual blocks.
-    BlockPos2 <- lapply(1:length(runs), function(i) data.frame(Length = runs2[[i]], Last = sums[[i]]))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, First <- (x$Last - (x$Length - 1))))
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, FirstBP <- dist[x$First,4])) # We define the start of a block as the central bp position of the first window which covers it with sufficient SS to meet the threshold.
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, LastBP <- dist[x$Last,4])) # We define the end of a block as the central bp position of the last window that covers it with a high enough SS to meet the threshold.
-    BlockPos2 <- lapply(BlockPos2, function(x) within(x, ApproxBpLength <- (x$LastBP - x$FirstBP) + 1))
-    BlockPos2 <- lapply(BlockPos2, function(x) x[which(x$ApproxBpLength > 1 ),]) # Remove any blocks with a bpsize of 1 straight away.
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, SNPs <- NA)))
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, CorrectedSNPs <- NA)))
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, P_Value <- NA)))
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, P_Threshold <- NA)))
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, fiveAge <- NA)))
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, fiftyAge <- NA)))
-    BlockPos2 <- suppressWarnings(lapply(BlockPos2, function(x) within(x, ninetyFiveAge <- NA)))
-    names(BlockPos2) <- thresh2
-  } else {
-    BlockPos2 <- NULL
   }
-  return(BlockPos2)
+  names(out) <- thresholds
+  return(out)
 }
 
+runsAndLengths <- function(wmt){
+  listOfruns <- lapply(wmt, function(x) rle(x))
+  iter <- 1:length(listOfRuns)
+  listOfBlockInd <- lapply(listOfRuns, function(x) which(x$values == T)) 
+  runLengths <- lapply(iter, function(i) listOfRuns[[i]]$lengths[listOfBlockInd[[i]]])
+  runLengthCumSum <- lapply(iter, function(i) cumsum(listOfRuns[[i]]$lengths)[listOfBlockInd[[i]]])
+  return(list(runLens = runLengths, runCumSum = runLengthCumSum, iter = iter))
+}
+
+createBlocksDataFrames <- function(runData, scanData){
+  Frames <- lapply(runData$iter, 
+                     function(i){
+                       data.frame(Length = runData$runLen[[i]], 
+                                  Last = runData$runCumSum[[i]])
+                     })
+  Frames <- lapply(Frames, function(x) within(x, First <- (x$Last - (x$Length - 1))))
+  # We define the start of a block as the central bp position of the first
+  #  window which covers it with sufficient SS to meet the threshold.
+  Frames <- lapply(Frames, function(x) within(x, FirstBP <- scanData[x$First, 4]))
+  # We define the end of a block as the central bp position of the last window
+  #  that covers it with a high enough SS to meet the threshold.
+  Frames <- lapply(Frames, function(x) within(x, LastBP <- scanData[x$Last, 4]))
+  Frames <- lapply(Frames, function(x) within(x, ApproxBpLength <- (x$LastBP - x$FirstBP) + 1))
+  Frames <- lapply(Frames, function(x) x[which(x$ApproxBpLength > 1 ), ])
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, SNPs <- NA)))
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, CorrectedSNPs <- NA)))
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, P_Value <- NA)))
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, P_Threshold <- NA)))
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, fiveAge <- NA)))
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, fiftyAge <- NA)))
+  Frames <- suppressWarnings(lapply(Frames, function(x) within(x, ninetyFiveAge <- NA)))
+  return(Frames)
+}
+
+block.find <- function(dist, thresh){
+  # Reverse the order of thresholds.
+  threshRev <- rev(thresh)  
+  if(is.numeric(threshRev)){
+    # For each threshold, find the windows that meet it.
+    windowsMeetingThresh <- winMeetThresh(dist, threshRev)
+    runsData <- runsAndLengths(windowsMeetingThresh)
+    blockFrames <- createBlocksDataFrames(runsData, dist)
+    names(blockFrames) <- threshRev
+  } else {
+    Frames <- NULL
+  }
+  return(Frames)
+}
+
+
+### BLOCK DATING FUNCTIONS ###
 
 binomcalc <- function(p, p0, N, B){pbinom(B, N, p) - p0}
 
