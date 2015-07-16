@@ -1,3 +1,21 @@
+
+#' @export
+print.HC_LB_Plot <- function(plot){
+  grid::grid.newpage()
+  grid::grid.draw(plot)
+}
+
+#' @export
+print.HC_L_Plot <- function(plot){
+  plot(plot)
+}
+
+#' @export
+print.HC_B_Plot <- function(plot){
+  grid::grid.newpage()
+  grid::grid.draw(plot)
+}
+
 PlottingSettings <- setRefClass("PlottingSettings",
                                 
                                 fields = list(

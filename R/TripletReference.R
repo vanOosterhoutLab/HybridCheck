@@ -154,15 +154,21 @@ Triplet <- setRefClass("Triplet",
                          
                          plotTriplet = function(plottingSettings){
                            if("Lines" %in% plottingSettings$What && "Bars" %in% plottingSettings$What){
-                             bars <- plotBars(plottingSettings)
-                             lines <- plotLines(plottingSettings)
-                             return(arrangeGrob(bars, lines, ncol=1))
+                             plottedbars <- plotBars(plottingSettings)
+                             plottedlines <- plotLines(plottingSettings)
+                             together <- arrangeGrob(plottedbars, plottedlines, ncol=1)
+                             class(together) <- c("HC_LB_Plot", class(together))
+                             return(together)
                            } else {
                              if("Lines" %in% plottingSettings$What){
-                               return(plotLines(plottingSettings))
+                               plottedlines <- plotLines(plottingSettings)
+                               class(plottedlines) <- c("HC_L_Plot", class(plottedlines))
+                               return(plottedlines)
                              }
                              if("Bars" %in% plottingSettings$What){
-                               return(plotBars(plottingSettings))
+                               plottedbars <- plotBars(plottingSettings)
+                               class(plottedbars) <- c("HC_B_Plot", class(plottedbars))
+                               return(plottedbars)
                              }
                            }
                          },
