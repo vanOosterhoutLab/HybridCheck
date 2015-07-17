@@ -16,6 +16,13 @@ print.HC_B_Plot <- function(plot){
   grid::grid.draw(plot)
 }
 
+# savePlot <- function(filename, plot, plotWidth = 15, plotHeight = 10){
+#   gridsvg(name = filename, width = plotWidth, height = plotHeight)
+#   print(plot)
+#   dev.off(which = dev.cur())
+# }
+
+
 PlottingSettings <- setRefClass("PlottingSettings",
                                 
                                 fields = list(
