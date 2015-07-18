@@ -39,7 +39,7 @@ HC <- setRefClass("HC",
                                              "Create HC object with default values for fields.
                                              The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
-                                             DNA <<- HCseq$new()
+                                             DNA <<- HCseq$new(hybCheckDir = filesDirectory)
                                              FTTmodule <<- FTTester$new()
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              blockDetectionSettings <<- BlockDetectionSettings$new()

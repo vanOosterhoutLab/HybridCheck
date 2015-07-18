@@ -87,22 +87,42 @@ UserBlocks <- setRefClass("UserBlocks",
 #' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
 #' @name HCseq
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
-#' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
-#' @field InformativeBp An integer vector containing the base positions that are informative.
-#' @field ReferenceSeq A character vector of length one with the sequence name that is the reference.
-#' @field Populations A list of population definitions - a list of vectors containing sequence names.
+#' @field InformativeSequence A DNAStringSet containing the elignment, with 
+#' uninformative sites removed.
+#' @field InformativeBp An integer vector containing the base positions that 
+#' are informative.
+#' @field ReferenceSeq A character vector of length one with the sequence name 
+#' that is the reference.
+#' @field Populations A list of population definitions - a list of vectors 
+#' containing sequence names.
+#' @field referenceSeq Single string. The name of the sequence to use as 
+#' the reference, when doing sliding window sequence similarity scans of many 
+#' sequences against one reference.
+#' @field manyToRefTable An instance of the SimilarityScan Reference class
+#' stores the data-frame of results from sliding window sequence similarity
+#' scans of many sequences against one reference, to a temporary file.
+#' @field winSizeUsed A single numberic value representing the size (in base
+#' pairs)of the sliding window used in sliding window sequence similarity 
+#' scans of many sequences against one reference.
+#' @field stepSizeUsed A single numberic value representing the size of the 
+#' sliding window used in sliding window sequence similarity scans of many 
+#' sequences against one reference.
 HCseq <- setRefClass("HCseq",
                      fields = list( 
                        FullSequence = "ANY",
-                       Populations = "list"
+                       Populations = "list",
+                       referenceSeq = "character",
+                       manyToRefSeqInfo = "ANY",
+                       manyToRefData = "ANY"
                      ),
                      
                      methods = list( 
                        initialize =
-                         function(sequenceInput = NULL){
+                         function(sequenceInput = NULL, hybCheckDir){
                            "Initializes the object, may be provided with a
                            filepath to a sequence file, currently only FASTA
                            is supported."
+                           manyToRefData <<- SimilarityScan$new(hybCheckDir)
                            if(!is.null(sequenceInput)){
                              InputDNA(sequenceInput)
                            }
@@ -119,6 +139,8 @@ HCseq <- setRefClass("HCseq",
                              stop("Sequences are not of same length, is this an MSA??")
                            }
                            message(" - Finished DNA input...")
+                           referenceSeq <<- getSequenceNames()[1]
+                           manyToRefSeqInfo <<- SequenceInformation$new(getSequenceNames(), getFullLength())
                          },
                        
                        hasDNA =
@@ -169,15 +191,11 @@ HCseq <- setRefClass("HCseq",
                            return(names(FullSequence))
                          },
                        
-                       pullTriplet =
+                       pullDNA =
                          function(selection){
                            "Extracts from the sequence object, a triplet of
                            sequences."
                            enforceDNA()
-                           if(length(selection) != 3 || 
-                                !is.character(selection)){
-                             stop("Three sequence names must be provided to pull a triplet of sequences.")
-                           }
                            return(FullSequence[selection])
                          },
                        
@@ -282,9 +300,27 @@ HCseq <- setRefClass("HCseq",
                          },
                        
                        scanManyToReference =
-                         function(){
+                         function(reference = NULL, windowSize = 100L,
+                                  stepSize = 1L){
+                           "Performs a sliding window scan of sequence
+                           similarity which compares many sequences to a
+                           single reference."
+                           if(!is.null(reference)){
+                             if(!(reference %in% getSequenceNames())){
+                               warning("Reference sequence specified is not
+                                       in the current dataset. Fallingback to
+                                       reference set by default when sequences 
+                                       were loaded.")
+                               reference <- referenceSeq
+                             }
+                           } else {
+                             reference <- referenceSeq
+                           }
+                           preparedDNA <- manyToRefSeqInfo$prepareDNAForScan(FullSequence, FALSE)
                            
                          }
+                           
+                         
                      ))
 
 
@@ -370,8 +406,8 @@ SequenceInformation <-
                 prepareDNAForScan =
                   function(dna, ambigsAreHet){
                     # Pull the triplet from the DNA structure.
-                    seqTriplet <- dna$pullTriplet(ContigNames)
-                    stateMatrix <- consensusMatrix(seqTriplet)
+                    pulledDNA <- dna$pullDNA(ContigNames)
+                    stateMatrix <- consensusMatrix(pulledDNA)
                     if(ambigsAreHet){
                       message(" - Treating ambiguous sites of two states as heterozygous.")
                       message(paste0(" - Identifying heterozygous nucleotides for triplet. ",
@@ -396,26 +432,15 @@ SequenceInformation <-
                         }
                         message(" - Triplet of Sequences has heterozygous sites.")
                         message("   - Making alterations to input sequence based on calculated transformations.")
-                        seqTriplet <- DNAStringSet(
+                        pulledDNA <- DNAStringSet(
                           lapply(1:3, function(i) {
-                            return(transformSequence(seqTriplet[[i]], Transformations))
+                            return(transformSequence(pulledDNA[[i]], Transformations))
                           })
                         ) 
                       }
                     }
                     message("\t- Only keeping certain and polymorphic sites.")
-                    conMat <- consensusMatrix(seqTriplet)
-                    InformativeUsed <<- 
-                      which(
-                        (colSums(conMat[c(5:15, 17, 18),]) == 0) &
-                          (colSums(conMat != 0) > 1)
-                        )
-                    InformativeUsedLength <<- length(InformativeUsed)
-                    cutDNA <- DNAStringSet(character(length = 3))
-                    cutDNA[[1]] <- seqTriplet[[1]][InformativeUsed]
-                    cutDNA[[2]] <- seqTriplet[[2]][InformativeUsed]
-                    cutDNA[[3]] <- seqTriplet[[3]][InformativeUsed]
-                    names(cutDNA) <- names(seqTriplet)
+                    cutDNA <- cutToInformativeSites(pulledDNA, .self)
                     return(cutDNA)
                   },
                 

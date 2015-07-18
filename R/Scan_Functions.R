@@ -113,8 +113,7 @@ scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
       Distances <- makeWindowFrames(triplet$ScanData$WindowSizeUsed,
                                     triplet$ScanData$StepSizeUsed,
                                     triplet$SequenceInfo$InformativeUsedLength,
-                                    triplet$SequenceInfo$InformativeUsed,
-                                    sequencePairs)
+                                    triplet$SequenceInfo$InformativeUsed)
       # Set up the loop for calculation.
       message("\t- Scanning Now!")
       tracks <- calculateDistanceTracks(cutDNA, sequencePairs, Distances)
@@ -125,7 +124,9 @@ scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
                                  lapply(sequencePairs, 
                                         function(x) paste(LETTERS[x], 
                                                           collapse=""))))
-      Distances[ , c(7, 8, 9)] <- 100 - round((as.numeric(Distances[ , c(7, 8, 9)]) / (triplet$ScanData$WindowSizeUsed + 1)) * 100)
+      Distances[ , c(7, 8, 9)] <- 
+        100 - round((as.numeric(Distances[, c(7, 8, 9)]) / 
+                       (triplet$ScanData$WindowSizeUsed + 1)) * 100)
       triplet$ScanData$Table <- as.data.frame(Distances)
     } else {
       stop("The sliding window size is less than 1, this is not supposed to be possible.")

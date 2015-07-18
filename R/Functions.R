@@ -1,6 +1,7 @@
 # Resolving the ambigious base positions in DNA sequences.
 # Ben J. Ward, 2015. 
 
+
 # Functions for HCseq.
 
 ## Check population selection are names or integers.
@@ -38,15 +39,6 @@ compDist <- function(popPairs, seqInPop, distMat){
   out$OTU2 <- as.character(out$OTU2)
   out$dist <- unlist(distances)
   return(out)
-}
-
-subsetSequence <- function(dna, indexes){
-  subSeqs <- DNAStringSet(character(length = length(dna)))
-  for(i in 1:length(dna)){
-    subSeqs[[i]] <- dna[[i]][indexes]
-  }
-  names(subSeqs) <- names(dna) 
-  return(subSeqs)
 }
 
 calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
