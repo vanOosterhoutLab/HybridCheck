@@ -1,6 +1,84 @@
 # Resolving the ambigious base positions in DNA sequences.
 # Ben J. Ward, 2015. 
 
+# Functions for HCseq.
+
+## Check population selection are names or integers.
+popIntegersToNames <- function(popSel, seqNames){
+  pops <- lapply(popSel, function(x){
+    if(is.integer(x)){
+      return(seqNames[x])
+    } else {
+      if(is.character(x)){
+        return(x)
+      } else {
+        stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")
+      }
+    }
+  })
+  if(any(table(unlist(pops)) > 1)){
+    stop("Entered a sequence name or number in more than one group.")
+  }
+  if(any(!unlist(lapply(pops, function(x) all(x %in% getSequenceNames()))))){
+    stop("Some sequences specified in the populations are not in the sequence data.")
+  }
+  return(pops)
+}
+
+# Functions for sliding window analyses.
+
+## Check the size of the sliding window used.
+windowSizeChecker <- function(winSize, trackLen){
+  message("\t- Checking the sliding window parameters.")
+  if(winSize > trackLen){
+    winSize <- as.integer((trackLen / 100) * 10)
+    message("\t\t- The set sliding window size is bigger than the length of the actual informative sites of the contig!")
+    message("\t\t- Continuing with analysis but set the sliding window to 10%
+              of the sequence length... ")
+    message("\t\t- This is equal to ", winSize)
+    if(winSize < 1L){
+      winSize <- 1L
+      message("\t\t- Default behaviour in this case is to set the sliding window to 10%
+                of the sequence length, but since this value is below 1, instead setting
+                the sliding window length to 1...")
+    }
+  }
+  return(winSize)
+}
+
+makeWindowFrames <- function(winSize, stepSize, trackLen, bases){
+  message("\t- Making all the window frames...")
+  if(winSize >= 1L){
+    halfWindow <- as.integer(winSize / 2)
+    allstepsfrom <- 1 + halfWindow
+    allstepsto <- (trackLen - halfWindow) + 1
+    allsteps <- seq(from = allstepsfrom, to = allstepsto, by = stepSize)
+    windowp1 <- allsteps - halfWindow # All the window start points.
+    windowp2 <- allsteps + halfWindow # All the window end points.
+    removals <- which(windowp2 > trackLen)
+    if(length(removals) > 0) {
+      allsteps <- allsteps[-removals]
+      windowp1 <- windowp1[-removals]
+      windowp2 <- windowp2[-removals]
+    }
+    Distances <- matrix(ncol = 6, nrow = length(windowp1))
+    Distances[, 1] <- allsteps
+    Distances[, 2] <- windowp1
+    Distances[, 3] <- windowp2
+    Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) bases[allsteps[i]]))) # ActualBP Center
+    Distances[, 5] <- as.numeric(bases[windowp1]) # Actual BP Start
+    Distances[, 6] <- as.numeric(bases[windowp2]) # Actual BP End
+    return(Distances)
+  } else {
+    stop("The sliding window size is less than 1, this is not supposed to be possible.")
+  }
+}
+
+
+
+
+
+
 
 # Get the bases which the heterozygous codes fed in, have in common.
 inCommon <- function(code, bases){
@@ -413,49 +491,29 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 
 
 
+
+
+
+
 scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
-  message(paste0(" - Scanning sequence similarity for triplet ", paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
+  message(paste0(" - Scanning sequence similarity for triplet ",
+                 paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
   cutDNA <- triplet$SequenceInfo$prepareDNAForScan(dna, ambiguousAreHet)
   triplet$readSettings(settings)
   if(triplet$SequenceInfo$InformativeUsedLength >= 1){
-    message("\t- Checking the sliding window parameters.")
-    if(triplet$ScanData$WindowSizeUsed > triplet$SequenceInfo$InformativeUsedLength){
-      triplet$ScanData$WindowSizeUsed <- as.integer((triplet$SequenceInfo$InformativeUsedLength / 100) * 10)
-      message("\t\t- The set sliding window size is bigger than the length of the actual informative sites of the contig!")
-      message("\t\t- Continuing with analysis but set the sliding window to 10%
-              of the sequence length... ")
-      message("\t\t- This is equal to ", triplet$ScanData$WindowSizeUsed)
-      if(triplet$ScanData$WindowSizeUsed < 1L){
-        triplet$ScanData$WindowSizeUsed <- 1L
-        message("\t\t- Default behaviour in this case is to set the sliding window to 10%
-                of the sequence length, but since this value is below 1, instead setting
-                the sliding window length to 1...")
-      }
-    }
-    message("\t- Making all the window frames...")
+    triplet$ScanData$WindowSizeUsed <- 
+      windowSizeChecker(triplet$ScanData$WindowSizeUsed,
+                        triplet$SequenceInfo$InformativeUsedLength)
     if(triplet$ScanData$WindowSizeUsed >= 1L) {
-      halfWindow <- as.integer(triplet$ScanData$WindowSizeUsed / 2)
-      allstepsfrom <- 1 + halfWindow
-      allstepsto <- (triplet$SequenceInfo$InformativeUsedLength - halfWindow) + 1
-      allsteps <- seq(from = allstepsfrom, to = allstepsto, by = triplet$ScanData$StepSizeUsed)
-      windowp1 <- allsteps - halfWindow # All the window start points.
-      windowp2 <- allsteps + halfWindow # All the window end points.
-      removals <- which(windowp2 > triplet$SequenceInfo$InformativeUsedLength) # Remove the last window and any accidentally beyond the sequence end point.
-      if(length(removals) > 0) {
-        allsteps <- allsteps[-removals]
-        windowp1 <- windowp1[-removals]
-        windowp2 <- windowp2[-removals]
-      }
-      pairs <- combn(1:3 , 2, simplify = F) # Generate all triplets pairs.
-      Distances <- matrix(ncol = 9, nrow = length(windowp1))
-      Distances[, 1] <- allsteps
-      Distances[, 2] <- windowp1
-      Distances[, 3] <- windowp2
-      Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) triplet$SequenceInfo$InformativeUsed[allsteps[i]]))) # ActualBP Center
-      Distances[, 5] <- as.numeric(triplet$SequenceInfo$InformativeUsed[windowp1]) # Actual BP Start
-      Distances[, 6] <- as.numeric(triplet$SequenceInfo$InformativeUsed[windowp2]) # Actual BP End
-      rm(windowp1, windowp2, allsteps, allstepsto, allstepsfrom)
+      Distances <- makeWindowFrames(triplet$ScanData$WindowSizeUsed,
+                                    triplet$ScanData$StepSizeUsed,
+                                    triplet$SequenceInfo$InformativeUsedLength,
+                                    triplet$SequenceInfo$InformativeUsed)
+      pairs <- combn(1:3 , 2, simplify = F)
       colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist(lapply(pairs, function(x) paste(LETTERS[x], collapse=""))))
+      
+      
+      
       # Set up the loop for calculation.
       message("\t- Scanning Now!")
       conMatAB <- colSums(consensusMatrix(cutDNA[c(1, 2)]) != 0) > 1
