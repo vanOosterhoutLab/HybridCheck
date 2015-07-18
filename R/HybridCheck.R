@@ -1,6 +1,5 @@
 #' @docType package
 #' ...
-#' @useDynLib HybridCheck
 #' @import ape Biostrings
 #' @importFrom png readPNG
 NULL

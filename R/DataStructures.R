@@ -471,8 +471,7 @@ SimilarityScan <- setRefClass("SimilarityScan",
                                   function(){
                                     "Method clears the SS analysis results table."
                                     Table <<- data.frame(WindowCenter = NA, WindowStart = NA, WindowEnd = NA,
-                                                         ActualCenter = NA, ActualStart = NA, ActualEnd = NA,
-                                                         AB = NA, AC = NA, BC = NA)
+                                                         ActualCenter = NA, ActualStart = NA, ActualEnd = NA)
                                   },
                                 
                                 tableIsBlank =
