@@ -8,11 +8,13 @@
     <a href="https://gitter.im/Ward9250/HybridCheck?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
         <img src="https://badges.gitter.im/Join Chat.svg" alt="Gitter">
     </a>
+    <a href="https://travis-ci.org/Ward9250/HybridCheck">
+        <img src="https://travis-ci.org/Ward9250/HybridCheck.svg?branch=master" alt="Build Status">
+    </a>
+    <a href="https://waffle.io/Ward9250/HybridCheck">
+        <img src="https://badge.waffle.io/Ward9250/HybridCheck.png?label=ready&title=Ready" alt="Stories in Ready">
+    </a>
 </p>
-
-[![Build Status](https://travis-ci.org/Ward9250/HybridCheck.svg?branch=master)](https://travis-ci.org/Ward9250/HybridCheck)
-
-[![Stories in Ready](https://badge.waffle.io/Ward9250/HybridCheck.png?label=ready&title=Ready)](https://waffle.io/Ward9250/HybridCheck)
 
 **An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
 **Visit the website ward9250.github.io/HybridCheck**
