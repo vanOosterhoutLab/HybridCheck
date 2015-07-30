@@ -14,6 +14,9 @@
     <a href="https://waffle.io/Ward9250/HybridCheck">
         <img src="https://badge.waffle.io/Ward9250/HybridCheck.png?label=ready&title=Ready" alt="Stories in Ready">
     </a>
+    <a href="https://waffle.io/Ward9250/HybridCheck">
+        <img src="https://badge.waffle.io/Ward9250/HybridCheck.png?label=In%20Progress&title=In%20Progress" alt="Stories in Ready">
+    </a>
 </p>
 
 **An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
