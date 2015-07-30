@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Ward9250/HybridCheck.png?label=ready&title=Ready)](https://waffle.io/Ward9250/HybridCheck)
 <a name="logo"/>
 <div align="center">
 <a href="http://ward9250.github.io/HybridCheck">
