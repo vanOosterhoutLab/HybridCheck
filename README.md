@@ -4,6 +4,9 @@
 <img src="http://ward9250.github.io/HybridCheck/img/HybridCheckLogo.png" height="250" alt="HybridCheck Logo Here"></img>
 </a>
 </div>
+<div align="center">
+    
+</div>
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Ward9250/HybridCheck?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
