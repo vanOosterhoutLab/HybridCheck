@@ -7,7 +7,7 @@
 extractBases <- function(dna, indexes){
   if(!is(dna, "DNAStringSet")){stop("Argument dna needs to be of class DNAStringSet")}
   if(!is.numeric(indexes)){stop("Argument indexes needs to be of class Numeric")}
-  i <- rep.int(IntegerList(indexes), length(dna))
+  i <- IntegerList(rep.int(list(indexes), length(dna)))
   newSeq <- dna[i]
   return(newSeq)
 }
@@ -244,27 +244,16 @@ HCseq <- setRefClass("HCseq",
                          },
                        
                        scanManyToReference =
-                         function(reference = NULL, windowSize = 100L,
-                                  stepSize = 1L){
+                         function(reference = NULL, winSize = 100L, stepSize = 1L){
                            "Performs a sliding window scan of sequence
                            similarity which compares many sequences to a
                            single reference."
                            if(!is.null(reference)){
-                             if(!(reference %in% getSequenceNames())){
-                               warning("Reference sequence specified is not
-                                       in the current dataset. Fallingback to
-                                       reference set by default when sequences 
-                                       were loaded.")
-                               reference <- referenceSeq
-                             }
-                           } else {
-                             reference <- referenceSeq
+                             ScanAnalysis$SequenceInfo$setReference(reference)
                            }
-                           preparedDNA <- manyToRefSeqInfo$prepareDNAForScan(FullSequence, FALSE)
-                           
+                           settings <- SSAnalysisSettings$new(winSize = winSize, stepSize = stepSize)
+                           scan.similarity(.self, ScanAnalysis, settings)
                          }
-                       
-                       
                        )
                      )
 

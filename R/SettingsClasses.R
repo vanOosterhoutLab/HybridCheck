@@ -374,9 +374,17 @@ SSAnalysisSettings <- setRefClass("SSAnalysisSettings",
                                   
                                   methods = list(
                                     initialize =
-                                      function(){
-                                        WindowSize <<- 100L
-                                        StepSize <<- 1L
+                                      function(winSize = NULL, stepSize = NULL){
+                                        if(is.null(winSize)){
+                                          WindowSize <<- 100L
+                                        } else {
+                                          WindowSize <<- winSize
+                                        }
+                                        if(is.null(stepSize)){
+                                          StepSize <<- 1L
+                                        } else {
+                                          StepSize <<- stepSize
+                                        }
                                       },
                                     
                                     getWindowSize =

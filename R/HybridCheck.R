@@ -56,7 +56,7 @@ HC <- setRefClass("HC",
                                         inputDNA =
                                           function(input){
                                             "Loads FASTA file or Biostrings object into the session."
-                                            DNA$InputDNA(input)
+                                            DNA$InputDNA(input, filesDirectory)
                                             userBlocks$initializePairsFromDNA(DNA)
                                             comparrisonSettings <<- ComparrisonSettings$new(DNA, FTTmodule)
                                             if(triplets$tripletsGenerated()){

@@ -31,9 +31,10 @@ windowSizeChecker <- function(winSize, trackLen){
               but since this value is below 1, instead setting
               the sliding window length to 1...")
     }
-    }
+  }
   return(winSize)
-    }
+}
+  
 
 #' @title Generate data-frame with co-ordinates of windows for analysis.
 #' @description Internal function. Used to make a data-frame of all the sliding
@@ -84,6 +85,7 @@ makeWindowFrames <- function(winSize, stepSize, trackLen, bases){
   }
 }
 
+
 makeConMats <- function(dnaSequences, pairs){
   conMats <- lapply(pairs, function(i){
     colSums(consensusMatrix(dnaSequences[i]) != 0) > 1
@@ -91,7 +93,9 @@ makeConMats <- function(dnaSequences, pairs){
   return(conMats)
 }
 
+
 calculateDistanceTracks <- function(dnaSequences, pairs, resTable){
+  # Make consensus matrices for each pair of sequences.
   consensusMatrices <- makeConMats(dnaSequences, pairs)
   mutationCountTracks <- lapply(consensusMatrices, function(x){
     unlist(lapply(seq(nrow(resTable)), function(i){
@@ -102,39 +106,38 @@ calculateDistanceTracks <- function(dnaSequences, pairs, resTable){
   return(mutationCountTracks)
 }
 
-scan.similarity <- function(dna, windowScan, ambiguousAreHet, settings){
-  message(paste0(" - Scanning sequence similarity for sequence combo ",
+scan.similarity <- function(dna, windowScan, settings){
+  message(paste0(" - Scanning sequence similarity for sequences ",
                  paste0(windowScan$SequenceInfo$ContigNames, collapse=", ")))
-  cutDNA <- windowScan$SequenceInfo$prepareDNAForScan(dna, ambiguousAreHet)
-  windowScan$readSettings(settings)
+  cutDNA <- windowScan$SequenceInfo$prepareDNA(dna, ambiguousAreHet)
+  windowScan$readAnalysisSettings(settings)
   if(windowScan$SequenceInfo$InformativeUsedLength >= 1){
     windowScan$ScanData$WindowSizeUsed <- 
       windowSizeChecker(windowScan$ScanData$WindowSizeUsed,
                         windowScan$SequenceInfo$InformativeUsedLength)
     if(windowScan$ScanData$WindowSizeUsed >= 1L) {
-      sequencePairs <- combn(1:3 , 2, simplify = F)
       Distances <- makeWindowFrames(windowScan$ScanData$WindowSizeUsed,
                                     windowScan$ScanData$StepSizeUsed,
                                     windowScan$SequenceInfo$InformativeUsedLength,
                                     windowScan$SequenceInfo$InformativeUsed)
       message("\t- Scanning Now!")
-      tracks <- calculateDistanceTracks(cutDNA, sequencePairs, Distances)
+      tracks <- calculateDistanceTracks(cutDNA, windowScan$SequenceInfo$ContigPairs, Distances)
       Distances <- cbind(Distances, do.call(cbind, tracks))
       colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", 
                                "ActualCenter", "ActualStart", "ActualEnd",
                                unlist(
-                                 lapply(sequencePairs, 
-                                        function(x) paste(LETTERS[x], 
-                                                          collapse=""))))
-      Distances[ , c(7, 8, 9)] <- 
-        100 - round((as.numeric(Distances[, c(7, 8, 9)]) / 
+                                 lapply(windowScan$SequenceInfo$ContigPairs, 
+                                        function(x) paste(x, collapse=":"))))
+      dataCols <- seq.int(from = 7, to = ncol(Distances), by = 1)
+      Distances[ , dataCols] <- 
+        100 - round((as.numeric(Distances[, dataCols]) / 
                        (windowScan$ScanData$WindowSizeUsed + 1)) * 100)
       windowScan$ScanData$Table <- as.data.frame(Distances)
     } else {
       stop("The sliding window size is less than 1, this is not supposed to be possible.")
     }
   } else {
-    warning(paste0("There are no informative sites to work on - skipping analysis of sequence combo: ", triplet$ContigNames, collapse = ", "))
+    warning(paste0("There are no informative sites to work on - skipping analysis of sequence combo: ", windowScan$SequenceInfo$ContigNames, collapse = ", "))
   }
 }
 
@@ -146,82 +149,29 @@ scan.similarity <- function(dna, windowScan, ambiguousAreHet, settings){
 #' @name SequenceInformation
 SequenceInformation <- 
   setRefClass("SequenceInformation",
+              
               fields = list(
                 ContigNames = "character",
                 ContigPairs = "list",
                 InformativeUsedLength = "numeric",
                 InformativeUsed = "numeric",
-                FullDNALength = "numeric",
-                NumberOfHet = "numeric",
-                Transformations = "data.frame"),
+                FullDNALength = "numeric"
+              ),
               
               methods = list(
                 initialize =
                   function(seqNames, dnaSequences){
-                    if(!(seqNames %in% dnaSequences$getSequenceNames())){
+                    if(any(!(seqNames %in% dnaSequences$getSequenceNames()))){
                       stop("Sequence names specified to be scanned are not in 
                            the full set of DNA sequences.")
                     }
                     ContigNames <<- seqNames
                     FullDNALength <<- dnaSequences$getFullLength()
-                    NumberOfHet <<- 0
-                    blankTransTable()
                   },
                 
-                blankTransTable =
-                  function(){
-                    Transformations <<-
-                      data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA,
-                                 AmbigThree = NA, ResolveOne = NA, ResolveTwo = NA,
-                                 ResolveThree = NA)
-                  },
-                
-                basesResolved =
-                  function(){
-                    return(seqsHaveHet() && !all(is.na(Transformations)))
-                  },
-                
-                seqsHaveHet =
-                  function(){
-                    return(NumberOfHet > 0)
-                  },
-                
-                prepareDNAForScan =
+                prepareDNA =
                   function(dna, ambigsAreHet){
-                    # Pull the triplet from the DNA structure.
                     pulledDNA <- dna$pullDNA(ContigNames)
-                    stateMatrix <- consensusMatrix(pulledDNA)
-                    if(ambigsAreHet){
-                      message(" - Treating ambiguous sites of two states as heterozygous.")
-                      message(paste0(" - Identifying heterozygous nucleotides for triplet. ",
-                                     paste0(ContigNames, collapse = ", ")))
-                      ambigTypes <- colSums(as.matrix(stateMatrix[5:10, ]) != 0)
-                      NumberOfHet <<- length(which(ambigTypes > 0))
-                      if(seqsHaveHet()){
-                        if(!basesResolved()){
-                          message("   - An appropriate transformation will be decided for each.")
-                          message("   - This must be done the first time a triplet is analysed.")
-                          heterozygousCode <- list(
-                            M = c('A', 'C'), R = c('A', 'G'), W = c('A', 'T'), 
-                            S = c('G', 'C'), Y = c('C', 'T'), K = c('G', 'T'))
-                          Transformations <<-
-                            rbind(transSingleAmb(heterozygousCode, ambigTypes, stateMatrix),
-                                  transTwoAmb(heterozygousCode, ambigTypes, stateMatrix),
-                                  transThreeAmb(heterozygousCode, ambigTypes, stateMatrix))
-                          Transformations <<- Transformations[apply(Transformations, 1,
-                                                                    function(x){
-                                                                      !all(is.na(x))
-                                                                    }), ]
-                        }
-                        message(" - Triplet of Sequences has heterozygous sites.")
-                        message("   - Making alterations to input sequence based on calculated transformations.")
-                        pulledDNA <- DNAStringSet(
-                          lapply(1:3, function(i) {
-                            return(transformSequence(pulledDNA[[i]], Transformations))
-                          })
-                        ) 
-                      }
-                    }
                     message("\t- Only keeping certain and polymorphic sites.")
                     cutDNA <- cutToInformativeSites(pulledDNA, .self)
                     return(cutDNA)
@@ -357,13 +307,22 @@ ScanResults <- setRefClass("ScanResults",
                                 
                                 tableIsBlank =
                                   function(){
-                                    "Returns TRUE, if the SS analysis table is blank and no results are contained in it."
+                                    "Returns TRUE, if the SS analysis table is
+                                    blank and no results are contained in it."
                                     return(all(is.na(Table)))
+                                  },
+                                
+                                readSettings =
+                                  function(settings){
+                                    StepSizeUsed <<- settings$StepSize
+                                    WindowSizeUsed <<- settings$WindowSize
                                   },
                                 
                                 finalize =
                                   function(){
-                                    "Called when the object is destroyed, makes sure to delete the file saved in the system's temporary directory."
+                                    "Called when the object is destroyed, makes
+                                    sure to delete the file saved in the system's
+                                    temporary directory."
                                     unlink(TableFile)
                                   }
                               )
@@ -388,8 +347,12 @@ SlidingWindowScan <-
                 
                 noScanPerformed =
                   function(){
-                    return(ScanData$tableIsBlank() &&
-                             length(SequenceInfo$InformativeUsedLength) == 0)
+                    return(ScanData$tableIsBlank())
+                  },
+                
+                readAnalysisSettings = 
+                  function(settingsObj){
+                    ScanData$readSettings(settingsObj)
                   },
                 
                 writeScannedSequences =
@@ -428,6 +391,7 @@ ManyToRefScan <-
   setRefClass("ManyToRefScan",
               
               contains = "SlidingWindowScan",
+              
               methods = list(
                 initialize =
                   function(sequenceNames, dnaSequences, HCDir){
@@ -437,6 +401,128 @@ ManyToRefScan <-
                   }
               )
   )
+
+TripletScan <- 
+  setRefClass("TripletScan",
+              
+              contains = "SlidingWindowScan",
+              
+              fields = list(Blocks = "list"),
+              
+              methods = list(
+                initialize =
+                  function(sequenceNames, dnaSequences, HCDir){
+                    callSuper(HCDir)
+                    SequenceInfo <<- TripletSequenceInfo$new(sequenceNames,
+                                                             dnaSequences)
+                  },
+                
+                blocksNotFound =
+                  function(){
+                    "Returns TRUE, if the tables for block are blank and no
+                    block findng has been done."
+                    return(length(Blocks) == 0)
+                  },
+                
+                blocksNotDated =
+                  function(){
+                    "Returns TRUE, if the blocks detected have not been tested
+                    for significance or had a divergence time estimated."
+                    bools <-
+                      unlist(lapply(
+                        Blocks, 
+                        function(y){
+                          all(unlist(lapply(y,
+                                            function(x){
+                                              all(is.na(x$SNPs)) &&
+                                                all(is.na(x$CorrectedSNPs)) &&
+                                                all(is.na(x$P_Value)) &&
+                                                all(is.na(x$P_Threshold)) &&
+                                                all(is.na(x$fiveAge)) &&
+                                                all(is.na(x$fiftyAge)) &&
+                                                all(is.na(x$ninetyFiveAge))
+                                            })))
+                        }))
+                    return(all(bools))
+                  },
+                
+                putativeBlockFind = 
+                  function(parameters){
+                    "DOCSTRING TO BE COMPLETE"
+                    message("\t- Finding blocks for Triplet: ",
+                            paste0(SequenceInfo$ContigNames, collapse = ", "))
+                    if(noScanPerformed()){
+                      stop("No sequence similarity scan data is available for this triplet - can't identify blocks.")
+                    }
+                    if(parameters$AutoThresholds == TRUE) {
+                      message("\t\t- Using the autodetect thresholds method...")
+                      message("\t\t- Deciding on suitable thresholds...")
+                      thresholds <- autodetect.thresholds(ScanData, parameters)
+                    } else {
+                      thresholds <- list(parameters$ManualThresholds,
+                                         parameters$ManualThresholds, 
+                                         parameters$ManualThresholds)
+                    }
+                    names(thresholds) <-
+                      unlist(lapply(
+                        combn(SequenceInfo$ContigNames, 2, simplify = F),
+                        function(x) paste(x, collapse=":")))
+                    message("\t\t- Now beginning Block Search...")
+                    Blocks <<- lapply(1:3, function(i){
+                      block.find(ScanData$Table[,c(1:6, 6+i)], thresholds[[i]])
+                    })
+                    names(Blocks) <<- names(thresholds)
+                  },
+                
+                blockDate =
+                  function(dnaobj, parameters){
+                    "Block Dating method, estimates the ages of blocks detected
+                    based on how many mutations are observed in a block and ."
+                    message(" - Now dating blocks for sequence triplet ", 
+                            paste0(SequenceInfo$ContigNames, sep = ", "))
+                    preparedDNA <- SequenceInfo$prepareDNAForDating(dnaobj)
+                    ab.blocks <-
+                      lapply(Blocks[[1]],
+                             function(x){
+                               date.blocks(x,
+                                           preparedDNA[SequenceInfo$ContigPairs[[1]]],
+                                           parameters$MutationRate,
+                                           parameters$PValue,
+                                           parameters$BonfCorrection,
+                                           parameters$DateAnyway,
+                                           parameters$MutationCorrection)
+                             })
+                    ac.blocks <-
+                      lapply(Blocks[[2]],
+                             function(x){
+                               date.blocks(x,
+                                           preparedDNA[SequenceInfo$ContigPairs[[2]]],
+                                           parameters$MutationRate,
+                                           parameters$PValue,
+                                           parameters$BonfCorrection,
+                                           parameters$DateAnyway,
+                                           parameters$MutationCorrection)
+                             })
+                    bc.blocks <-
+                      lapply(Blocks[[3]],
+                             function(x){
+                               date.blocks(x,
+                                           preparedDNA[SequenceInfo$ContigPairs[[3]]],
+                                           parameters$MutationRate,
+                                           parameters$PValue,
+                                           parameters$BonfCorrection,
+                                           parameters$DateAnyway,
+                                           parameters$MutationCorrection)
+                             })
+                    out.blocks <- list(ab.blocks, ac.blocks, bc.blocks)
+                    names(out.blocks) <- names(Blocks)
+                    Blocks <<- out.blocks
+                  }
+                
+              )
+  )
+              
+              
                                                        
                     
                              
