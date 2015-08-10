@@ -2,140 +2,30 @@
 # Ben J. Ward, 2015. 
 
 
-# Get the bases which the heterozygous codes fed in, have in common.
-inCommon <- function(code, bases){
-  return(Reduce(intersect, code[bases]))
-}
+# Functions for HCseq.
 
-# Get the heterozygous sites located at a particular base position.
-getAmbig <- function(mat, sel){
-  return(names(which(mat[5:10, sel] > 0)))
-}
-
-transformSequence <- function(dnaSeq, transTable){
-  sitesToBeTrans <- dnaSeq[as.numeric(transTable$Base)]
-  matchesToTransTable <- cbind(
-    strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,2],
-    strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,3],
-    strsplit(as.character(sitesToBeTrans), "")[[1]] == transTable[,4])
-  matchesToTransTable[is.na(matchesToTransTable)] <- FALSE
-  transTo <- numeric(length=nrow(matchesToTransTable))
-  transTo[matchesToTransTable[,1]] <- 1
-  transTo[matchesToTransTable[,2]] <- 2
-  transTo[matchesToTransTable[,3]] <- 3
-  transTo[transTo == 0] <- NA
-  sitesToTrans <- transTable$Base[which(!is.na(transTo))]
-  transTable <- as.matrix(transTable[which(!is.na(transTo)),5:7])
-  midx <- cbind(1:nrow(transTable), transTo[which(!is.na(transTo))])
-  transSeq <- paste0(transTable[midx], collapse = "")
-  return(replaceLetterAt(dnaSeq, sitesToTrans, transSeq))
-}
-
-transformSequenceRelative <- function(dnaSeq, transTable, firstBase, lastBase){
-  transInSegment <- 
-    transTable[which(
-      (transTable$TrueBase >= firstBase) &
-        (transTable$TrueBase <= lastBase)),]
-  transInSegment$Base <- (transInSegment$TrueBase - firstBase) + 1
-  transformSequence(dnaSeq, transInSegment)
-}
-
-
-# Identify and decide on transformations for sites with one type of heterozygous base.
-transSingleAmb <- function(code, atypes, statemat){
-  oneBase <- which(atypes == 1)
-  if(length(oneBase) > 0){
-    # - Figure out what the ambiguous state is in each case...
-    oneLetters <- unlist(lapply(oneBase, function(x) getAmbig(statemat, x)))
-    # - Decide on what bases the ambigious sites should be transformed to...
-    oneTrans <- lapply(oneLetters, function(i) sample(code[[i]], 1))
-    return(data.frame(Base = unlist(oneBase), AmbigOne = unlist(oneLetters), AmbigTwo = NA,
-                      AmbigThree = NA, ResolveOne = unlist(oneTrans), ResolveTwo = NA,
-                      ResolveThree = NA))
-  } else {
-    return(data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA, AmbigThree = NA,
-                      ResolveOne = NA, ResolveTwo = NA, ResolveThree = NA))
-  }
-}
-
-# Identify and decide on transformations of sites with two kinds of hetrozygous base.
-transTwoAmb <- function(code, atypes, statemat){
-  # Figure out which bases are bases with two kinds of ambiguity.
-  twoBase <- which(atypes == 2)
-  if(length(twoBase) > 0){
-    # Get the two ambiguous bases at each site identified.
-    twoLetters <- lapply(twoBase, function(x){getAmbig(statemat, x)})
-    # Decide randomly which of the two ambiguous sites to pick to resolve first.
-    whichOfTwo <- sample(c(1, 2), length(twoLetters), replace = T)
-    chosenAmbig <- mapply(function(x, y){
-      x[y]
-    }, x = twoLetters, y = whichOfTwo)
-    otherAmbig <- mapply(function(x, y){
-      x[which(x != y)]
-    }, twoLetters, chosenAmbig)
-    # For each chosen ambiguous base, randomly pick one of its bases from the code.
-    chosenBases <- unlist(lapply(chosenAmbig, function(x){sample(code[[x]], 1)}))
-    # For the second ambiguous base, if the chosen base picked previously is also encoded for
-    # by the ambiguous base, then resolve it the same way, otherwise, pick from its code randomly.
-    chosenBases2 <- mapply(function(ambigs, pickedbase, altambig){
-      if(pickedbase %in% inCommon(code, ambigs)){
-        return(pickedbase)
+## Check population selection are names or integers.
+popIntegersToNames <- function(popSel, seqNames){
+  pops <- lapply(popSel, function(x){
+    if(is.integer(x)){
+      return(seqNames[x])
+    } else {
+      if(is.character(x)){
+        return(x)
       } else {
-        sample(code[[altambig]], 1)
+        stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")
       }
-    }, twoLetters, chosenBases, otherAmbig)
-    # Collect the results into a datastructure and return it.
-    return(data.frame(Base = twoBase, AmbigOne = chosenAmbig, AmbigTwo = otherAmbig,
-                      AmbigThree = NA, ResolveOne = chosenBases, 
-                      ResolveTwo = chosenBases2, ResolveThree = NA))
-  } else {
-    return(data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA, AmbigThree = NA,
-                      ResolveOne = NA, ResolveTwo = NA, ResolveThree = NA))
+    }
+  })
+  if(any(table(unlist(pops)) > 1)){
+    stop("Entered a sequence name or number in more than one group.")
   }
+  if(any(!unlist(lapply(pops, function(x) all(x %in% seqNames))))){
+    stop("Some sequences specified in the populations are not in the sequence data.")
+  }
+  return(pops)
 }
 
-# Identify and decide on transformations for sites with three distinct kinds of heteroztgous base.
-transThreeAmb <- function(code, atypes, statemat){
-  threeBase <- which(atypes == 3)
-  if(length(threeBase) > 0){
-    # Get the three ambiguous bases at each site identified.
-    threeLetters <- lapply(threeBase, function(x){getAmbig(statemat, x)})
-    oneToDiscard <- lapply(threeLetters, function(x){
-      return(sample(x, 1))
-    })
-    leftToResolve <- mapply(function(x, y){
-      return(x[x != y])
-    }, threeLetters, oneToDiscard, SIMPLIFY = FALSE)
-    resolveDiscard <- lapply(leftToResolve, function(x){
-      return(sample(x, 1))
-    })
-    twoLetters <- mapply(function(x, y, z){
-      x[which(x == y)] <- z
-      return(unique(x))
-    }, threeLetters,  oneToDiscard, resolveDiscard, SIMPLIFY = FALSE)
-    whichOfTwo <- sample(c(1, 2), length(twoLetters), replace = T)
-    chosenAmbig <- mapply(function(x, y){
-      x[y]
-    }, x = twoLetters, y = whichOfTwo)
-    otherAmbig <- mapply(function(x, y){
-      x[which(x != y)]
-    }, twoLetters, chosenAmbig)
-    chosenBases <- lapply(chosenAmbig, function(x){sample(code[[x]], 1)})
-    chosenBases2 <- mapply(function(ambigs, pickedbase, altambig){
-      if(pickedbase %in% inCommon(code, ambigs)){
-        return(pickedbase)
-      } else {
-        sample(code[[altambig]], 1)
-      }
-    }, twoLetters, chosenBases, otherAmbig)
-    return(data.frame(Base = unlist(threeBase), AmbigOne = unlist(chosenAmbig), AmbigTwo = unlist(otherAmbig),
-                      AmbigThree = unlist(oneToDiscard), ResolveOne = unlist(chosenBases),
-                      ResolveTwo = unlist(chosenBases2), ResolveThree = unlist(resolveDiscard)))
-  } else {
-    return(data.frame(Base = NA, AmbigOne = NA, AmbigTwo = NA, AmbigThree = NA,
-                      ResolveOne = NA, ResolveTwo = NA, ResolveThree = NA))
-  }
-}
 
 compDist <- function(popPairs, seqInPop, distMat){
   distances <- lapply(popPairs, function(y){
@@ -149,15 +39,6 @@ compDist <- function(popPairs, seqInPop, distMat){
   out$OTU2 <- as.character(out$OTU2)
   out$dist <- unlist(distances)
   return(out)
-}
-
-subsetSequence <- function(dna, indexes){
-  subSeqs <- DNAStringSet(character(length = length(dna)))
-  for(i in 1:length(dna)){
-    subSeqs[[i]] <- dna[[i]][indexes]
-  }
-  names(subSeqs) <- names(dna) 
-  return(subSeqs)
 }
 
 calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slice4){
@@ -413,70 +294,11 @@ fourTaxonTest <- function(dna, fttRecord, numBlocks, lengthOfBlocks){
 
 
 
-scan.similarity <- function(dna, triplet, ambiguousAreHet, settings){
-  message(paste0(" - Scanning sequence similarity for triplet ", paste0(triplet$SequenceInfo$ContigNames, collapse=", ")))
-  cutDNA <- triplet$SequenceInfo$prepareDNAForScan(dna, ambiguousAreHet)
-  triplet$readSettings(settings)
-  if(triplet$SequenceInfo$InformativeUsedLength >= 1){
-    message("\t- Checking the sliding window parameters.")
-    if(triplet$ScanData$WindowSizeUsed > triplet$SequenceInfo$InformativeUsedLength){
-      triplet$ScanData$WindowSizeUsed <- as.integer((triplet$SequenceInfo$InformativeUsedLength / 100) * 10)
-      message("\t\t- The set sliding window size is bigger than the length of the actual informative sites of the contig!")
-      message("\t\t- Continuing with analysis but set the sliding window to 10%
-              of the sequence length... ")
-      message("\t\t- This is equal to ", triplet$ScanData$WindowSizeUsed)
-      if(triplet$ScanData$WindowSizeUsed < 1L){
-        triplet$ScanData$WindowSizeUsed <- 1L
-        message("\t\t- Default behaviour in this case is to set the sliding window to 10%
-                of the sequence length, but since this value is below 1, instead setting
-                the sliding window length to 1...")
-      }
-    }
-    message("\t- Making all the window frames...")
-    if(triplet$ScanData$WindowSizeUsed >= 1L) {
-      halfWindow <- as.integer(triplet$ScanData$WindowSizeUsed / 2)
-      allstepsfrom <- 1 + halfWindow
-      allstepsto <- (triplet$SequenceInfo$InformativeUsedLength - halfWindow) + 1
-      allsteps <- seq(from = allstepsfrom, to = allstepsto, by = triplet$ScanData$StepSizeUsed)
-      windowp1 <- allsteps - halfWindow # All the window start points.
-      windowp2 <- allsteps + halfWindow # All the window end points.
-      removals <- which(windowp2 > triplet$SequenceInfo$InformativeUsedLength) # Remove the last window and any accidentally beyond the sequence end point.
-      if(length(removals) > 0) {
-        allsteps <- allsteps[-removals]
-        windowp1 <- windowp1[-removals]
-        windowp2 <- windowp2[-removals]
-      }
-      pairs <- combn(1:3 , 2, simplify = F) # Generate all triplets pairs.
-      Distances <- matrix(ncol = 9, nrow = length(windowp1))
-      Distances[, 1] <- allsteps
-      Distances[, 2] <- windowp1
-      Distances[, 3] <- windowp2
-      Distances[, 4] <- as.numeric(unlist(lapply(1:length(allsteps), function(i) triplet$SequenceInfo$InformativeUsed[allsteps[i]]))) # ActualBP Center
-      Distances[, 5] <- as.numeric(triplet$SequenceInfo$InformativeUsed[windowp1]) # Actual BP Start
-      Distances[, 6] <- as.numeric(triplet$SequenceInfo$InformativeUsed[windowp2]) # Actual BP End
-      rm(windowp1, windowp2, allsteps, allstepsto, allstepsfrom)
-      colnames(Distances) <- c("WindowCenter", "WindowStart", "WindowEnd", "ActualCenter", "ActualStart", "ActualEnd", unlist(lapply(pairs, function(x) paste(LETTERS[x], collapse=""))))
-      # Set up the loop for calculation.
-      message("\t- Scanning Now!")
-      conMatAB <- colSums(consensusMatrix(cutDNA[c(1, 2)]) != 0) > 1
-      conMatAC <- colSums(consensusMatrix(cutDNA[c(1, 3)]) != 0) > 1
-      conMatBC <- colSums(consensusMatrix(cutDNA[c(2, 3)]) != 0) > 1
-      # Do the loop - Calculates all the hamming distances for all contig pairs, in all window frames.
-      for(i in seq(nrow(Distances))){
-        stretch <- Distances[i, 2] : Distances[i, 3]
-        Distances[i, 7] <- sum(conMatAB[stretch])
-        Distances[i, 8] <- sum(conMatAC[stretch])
-        Distances[i, 9] <- sum(conMatBC[stretch])
-      }      
-      Distances[ , c(7, 8, 9)] <- 100 - round((as.numeric(Distances[ , c(7, 8, 9)]) / (triplet$ScanData$WindowSizeUsed + 1)) * 100)
-      triplet$ScanData$Table <- as.data.frame(Distances)
-    } else {
-      stop("The sliding window size is less than 1, this is not supposed to be possible.")
-    }
-      } else {
-        warning(paste0("There are no informative sites to work on - skipping analysis of this triplet: ", triplet$ContigNames, collapse = ", "))
-      }
-  }
+
+
+
+
+
 
 
 

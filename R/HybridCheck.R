@@ -1,6 +1,5 @@
 #' @docType package
 #' ...
-#' @useDynLib HybridCheck
 #' @import ape Biostrings
 #' @importFrom png readPNG
 NULL
@@ -40,7 +39,7 @@ HC <- setRefClass("HC",
                                              "Create HC object with default values for fields.
                                              The path to the FASTA file can be provided."
                                              filesDirectory <<- tempdir()
-                                             DNA <<- HCseq$new()
+                                             DNA <<- HCseq$new(hybCheckDir = filesDirectory)
                                              FTTmodule <<- FTTester$new()
                                              ssAnalysisSettings <<- SSAnalysisSettings$new()
                                              blockDetectionSettings <<- BlockDetectionSettings$new()
@@ -57,7 +56,7 @@ HC <- setRefClass("HC",
                                         inputDNA =
                                           function(input){
                                             "Loads FASTA file or Biostrings object into the session."
-                                            DNA$InputDNA(input)
+                                            DNA$InputDNA(input, filesDirectory)
                                             userBlocks$initializePairsFromDNA(DNA)
                                             comparrisonSettings <<- ComparrisonSettings$new(DNA, FTTmodule)
                                             if(triplets$tripletsGenerated()){
