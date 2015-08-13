@@ -36,7 +36,7 @@ body {
 }
 
 #maincontent {
-	background: url('../img/backgroundgrey.jpg') 100% no-repeat 0 fixed;
+	background: url('../img/backgroundgrey.jpg') 50% no-repeat 0 fixed;
 	height: auto;
 	margin: 0 auto;
 	width: 100%;
