@@ -5,6 +5,8 @@ subtitle: Install and use HybridCheck in one of several ways.
 permalink: use_HybridCheck.html
 ---
 
+### You have several options for installing and using HybridCheck.
+
 There are several different ways you can install and use HybridCheck:
 
 1. If you don't want to use R, you may use one of the pre-packaged utilities we
@@ -19,13 +21,13 @@ HybridCheck straight from Github using the R devtools package.
 
 -----
 
-## 1. Using HybridCheck with the pre-packaged utilities for Windows 7, OSX, and Linux.
+### 1. Using HybridCheck with the pre-packaged utilities for Windows 7, OSX, and Linux.
 
 For users who want to use HybridCheck without needing to know much R, we have developed a Shiny web-app based GUI.
 
 In addition we have provided a launcher for Windows, OS X, and Linux. So long as you have R on your machine, these launchers will make sure HybridCheck and its dependencies are installed, will fetch the current version of the Shiny files for the app from the GitHub repository, and then start up the app. You can then use HybridCheck with the GUI as detailed in the [HybridCheck User Manual.](./manual.html)
 
-### Operating system specific installers
+##### Operating system specific installers
 <div class="container">
       <div class="row">
         <div class="col-md-4">
@@ -48,7 +50,7 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
 
 -----
 
-## 2. Installing and using a Docker container.
+### 2. Installing and using a Docker container.
 
 [Docker](https://www.docker.com) is an open platform for building, shipping and
 running distributed applications. We provide docker containers with R, HybridCheck,
@@ -57,19 +59,19 @@ DockerHub using the docker utility.
 
 We provide two containers:
 
-### 1. [ward9250/hybridcheck](https://hub.docker.com/r/ward9250/hybridcheck/)
+#### 1. [ward9250/hybridcheck](https://hub.docker.com/r/ward9250/hybridcheck/)
 A Docker container with R, HybridCheck and it's dependencies installed. Use this
 if you just want to use the HybridCheck package from the R console.
 
 
-### 2. [ward9250/dockerized-hybridcheckapp](https://hub.docker.com/r/ward9250/dockerized-hybridcheckapp/)
+#### 2. [ward9250/dockerized-hybridcheckapp](https://hub.docker.com/r/ward9250/dockerized-hybridcheckapp/)
 A Docker container with R and HybridCheck installed, and which also has Shiny
 and HybridCheckApp installed. Use this container if you want to use the web-app
-designed to provide a Graphical User Interface for the R package. 
+designed to provide a Graphical User Interface for the R package.
 
 -----
 
-## 3. Installing from the R console.
+### 3. Installing from the R console.
 
 If an installer for your operating system is not available or working for you,
 which may happen due to permissions. You can install HybridCheck and every one
@@ -96,7 +98,9 @@ library(shiny)
 runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
 ```
 
-## Use HybridCheck in R scripts
+-----
+
+### Use HybridCheck in R scripts
 HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming and scripting R code with it right away. For example you could install the latest version with devtools:
 
 ```R
