@@ -27,16 +27,16 @@ body {
 /* For achieving the parralax effect for the heading and main content */
 #heading {
 	background: url('../img/headbackground2.jpg') 50% 0 fixed;
-	height: auto;  
-    margin: 0 auto; 
-    width: 100%; 
-    position: relative; 
+	height: auto;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
     padding: 100px 0;
 }
 
 #maincontent {
-	background: url('../img/backgroundgrey.jpg') 50% 0 fixed;
+	background: url('../img/backgroundgrey.jpg') 100% no-repeat 0 fixed;
 	height: auto;
 	margin: 0 auto;
 	width: 100%;
@@ -64,6 +64,3 @@ body {
 	top: 70px;
 	width: 160px;
 }
-
-
-	

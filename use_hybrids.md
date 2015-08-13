@@ -55,7 +55,7 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
 [Docker](https://www.docker.com) is an open platform for building, shipping and
 running distributed applications. We provide docker containers with R, HybridCheck,
 HybridCheckApp and any dependencies installed. These containers can be installed from
-DockerHub using the docker utility.
+[DockerHub](https://hub.docker.com) using the docker utility.
 
 We provide two containers:
 
