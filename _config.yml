@@ -1,9 +1,9 @@
-name: "HybRIDS"
-description: "Site for the HybRIDS R package for analysing recombination signal in DNA sequences"   
+name: "HybridCheck"
+description: "Site for the HybridCheck R package for analysing recombination signals in DNA sequences"
 
 paginate: 10
 
-url: "ward9250.github.io/HybRIDS"
+url: "ward9250.github.io/HybridCheck"
 
 markdown: rdiscount
 permalink: pretty

@@ -5,17 +5,22 @@ subtitle: Install and use HybridCheck in one of several ways.
 permalink: use_HybridCheck.html
 ---
 
-There are several different ways you can use HybridCheck:
+There are several different ways you can install and use HybridCheck:
 
 1. If you don't want to use R, you may use one of the pre-packaged utilities we
    provide for Windows, OS X, and Linux.
 
-2.  
+2. We provide Docker containers on Dockerhub which provide an image, which may be
+run on any machine compatible with Docker, which has R, HybridCheck and HybridCheckApp
+pre-installed.
+
+3. If you have an up to date installation of R on your machine you can install
+HybridCheck straight from Github using the R devtools package.
 
 
 
 
-## Using HybridCheck with a Graphical User Interface
+## 1. Using HybridCheck with the pre-packaged utilities for Windows 7, OSX, and Linux.
 
 For users who want to use HybridCheck without needing to know much R, we have developed a Shiny web-app based GUI.
 
@@ -44,8 +49,31 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
 
 -----
 
-#### 'The Installer doesn't work for me!' - Installing from the R console.
-If an installer for your operating system is not available or working for you, which may happen due to permissions. You can install HybridCheck and every one of it's dependencies to you R library manually by pasting the following commands into an R console:
+## 2. Installing and using a Docker container.
+
+[Docker](https://www.docker.com) is an open platform for building, shipping and
+running distributed applications. We provide docker containers with R, HybridCheck,
+HybridCheckApp and any dependencies installed. These containers can be installed from
+DockerHub using the docker utility.
+
+We provide two containers:
+
+### 1. [ward9250/hybridcheck](https://hub.docker.com/r/ward9250/hybridcheck/)
+A Docker container with R, HybridCheck and it's dependencies installed. Use this
+if you just want to use the HybridCheck package from the R console.
+
+
+### 2. [ward9250/dockerized-hybridcheckapp](https://hub.docker.com/r/ward9250/dockerized-hybridcheckapp/)
+ 
+
+-----
+
+## 3. Installing from the R console.
+
+If an installer for your operating system is not available or working for you,
+which may happen due to permissions. You can install HybridCheck and every one
+of it's dependencies to you R library manually by pasting the following commands
+into an R console:
 
 ```R
 chooseCRANmirror(ind = 83)
@@ -57,7 +85,8 @@ if(!('Biostrings' %in% installed.packages())){ biocLite('Biostrings', ask = F)}
 if(!'IRanges' %in% installed.packages()){biocLite('IRanges', ask = F)}
 if(!'HybridCheck' %in% installed.packages()){library(devtools); install_github('Ward9250/HybridCheck', ref = 'master')}
 ```
-This bit of code explicitly downloads the dependencies HybridCheck needs in addition to HybridCheck.
+This bit of code explicitly downloads the dependencies HybridCheck needs in
+addition to the HybridCheck package itself.
 
 You can then run HybridCheck with the web-app by pasting the following in the R console:
 
@@ -65,10 +94,6 @@ You can then run HybridCheck with the web-app by pasting the following in the R 
 library(shiny)
 runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
 ```
-
-
-### Deploying the Shiny app on a (web)server
-In addition to being run on a local machine, the HybridCheck app could be deployed on a server and logged into by many people in a lab for instance. For more information about deploying shiny apps, visit the [website.](http://shiny.rstudio.com)
 
 ## Use HybridCheck in R scripts
 HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming and scripting R code with it right away. For example you could install the latest version with devtools:
@@ -79,11 +104,5 @@ library(devtools)
 install_github("Ward9250/HybridCheck", build_vignettes=TRUE)
 library(HybridCheck)
 ```
-
------
-## Common problems and solutions
-
-### I get error messages saying
-
 
 -----
