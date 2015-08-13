@@ -17,8 +17,7 @@ pre-installed.
 3. If you have an up to date installation of R on your machine you can install
 HybridCheck straight from Github using the R devtools package.
 
-
-
+-----
 
 ## 1. Using HybridCheck with the pre-packaged utilities for Windows 7, OSX, and Linux.
 
@@ -64,7 +63,9 @@ if you just want to use the HybridCheck package from the R console.
 
 
 ### 2. [ward9250/dockerized-hybridcheckapp](https://hub.docker.com/r/ward9250/dockerized-hybridcheckapp/)
- 
+A Docker container with R and HybridCheck installed, and which also has Shiny
+and HybridCheckApp installed. Use this container if you want to use the web-app
+designed to provide a Graphical User Interface for the R package. 
 
 -----
 
