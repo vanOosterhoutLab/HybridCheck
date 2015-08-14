@@ -36,10 +36,7 @@ body {
 }
 
 #maincontent {
-	background: -webkit-linear-gradient(black, darkgrey, black) 50% 0 fixed; /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(black, darkgrey, black) 50% 0 fixed;; /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(black, darkgrey, black) 50% 0 fixed; /* For Firefox 3.6 to 15 */
-  background: linear-gradient(black, darkgrey, black) 50% 0 fixed;
+	background: black;
 	height: auto;
 	margin: 0 auto;
 	width: 100%;
@@ -56,14 +53,4 @@ body {
 	position: relative;
 	box-shadow: 0 0 50px rgba(0,0,0,0.8);
 	padding: 20px 0;
-}
-
-/* Styling for the side menubar and affixed navbar for the pages */
-
-
-
-#sidemenu.affix {
-	position: fixed;
-	top: 70px;
-	width: 160px;
 }
