@@ -51,8 +51,8 @@ form suitable for HybridCheck. Scripts will be added over time as they are creat
 
 <table>
   <tr>
-    <td>Name</td>
-    <td>Description</td>
+    <td>Script Name</td>
+    <td>Script Description</td>
   </tr>
   <tr>
     <td>MAF_2_FASTA.py</td>
@@ -67,7 +67,7 @@ form suitable for HybridCheck. Scripts will be added over time as they are creat
 
 # Bugs and Issues
 
-HybridCheck has and associated files, have been developed and tested using both
+HybridCheck and associated files have been developed and tested using both
 real datasets and simulated data.
 However of course that does not mean there are no datasets which may cause problems.
 If you run into problems, you can contact the maintainer or file an issue on the repository.
