@@ -49,14 +49,20 @@ form suitable for HybridCheck. Scripts will be added over time as they are creat
 
 # Scripts
 
-| Script Name    | Description                                                  |
-|----------------|--------------------------------------------------------------|
-| MAF_2_FASTA.py | A Python script, which converts Multiple Alignment format    |
-|                | (MAF), into FASTA files suitable for parsing by HybridCheck. |
-|                | At the time of writing, this script depends on an up to      |
-|                | date BioPython installation with functionality to read in    |
-|                | MAF files. This functionality is provided by the             |
-|                | Bio.AlignIO.MafIO module.                                    |
+<table>
+  <tr>
+    <td>Name</td>
+    <td>Description</td>
+  </tr>
+  <tr>
+    <td>MAF_2_FASTA.py</td>
+    <td>A Python script, which converts Multiple Alignment format
+        (MAF), into FASTA files suitable for parsing by HybridCheck.<br>
+        At the time of writing, this script depends on an up to date BioPython<br>
+        installation  with functionality to read in MAF files.<br>
+        This functionality is provided by the Bio.AlignIO.MafIO module.<.td>
+  </tr>
+</table>
 
 
 # Bugs and Issues
