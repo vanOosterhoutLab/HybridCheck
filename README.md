@@ -60,7 +60,7 @@ form suitable for HybridCheck. Scripts will be added over time as they are creat
         (MAF), into FASTA files suitable for parsing by HybridCheck.<br>
         At the time of writing, this script depends on an up to date BioPython<br>
         installation  with functionality to read in MAF files.<br>
-        This functionality is provided by the Bio.AlignIO.MafIO module.<.td>
+        This functionality is provided by the Bio.AlignIO.MafIO module.</td>
   </tr>
 </table>
 
