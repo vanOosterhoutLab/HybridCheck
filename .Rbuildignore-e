@@ -1,7 +1,0 @@
-^.*\.Rproj$
-^\.Rproj\.user$
-README.md
-README.html
-.gitignore
-.Rhistory
-.DS_Store

@@ -19,64 +19,53 @@
     </a>
 </p>
 
-**An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
-**Visit the website ward9250.github.io/HybridCheck**
+# File format converters
 
-# Introduction
+The HybridCheck project is an R package that is intended to make it quick,
+simple and easy to script scans of recombination signal in sequence triplets.
 
-The HybridCheck project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets.
+When HybridCheck was written, it was designed in response to specific needs of
+several of my (Ward9250) academic projects. These projects involved analyzing
+large assembled contigs or large consensus sequences, generated from reads
+aligned to references.
 
-# Installation from Github
+As more people became interested and asked about HybridCheck here at the NRP,
+we learned that not everyone has FASTA files like that available for all their organisms/isolates/individuals/etc.
 
-Note for this you must have the "devtools" installed.
+Sometimes it was easy to convert or process their data into an aligned FASTA
+format. Sometimes it was more difficult.
 
-1. Open an R window and type into it: `install_github("Ward9250/HybridCheck", build_vignettes=TRUE)`
-2. Thats it!
+I (Ward9250) am working on a second version of HybridCheck. This will add more
+features, fix stuff in the codebase I hated about the first version, refactor
+code, and improve performance. There is no set ETA for version 2 yet, because of
+other projects and PhD commitments like thesis writing.
 
-# Running HybridCheck
+This second version shall be able to parse and make use of multiple file formats
+and convert between some formats. Especially those formats dedicated to variant
+and mutation data.
 
-Once R is open, and you have installed HybridCheck as described above you simply need to invoke the library command:
+This repository forms an intermediate solution for converting file formats to a
+form suitable for HybridCheck. Scripts will be added over time as they are created.
 
-```R library(HybridCheck) ```
+# Scripts
 
-## Documentation
+* MAF_2_FASTA.py:    A Python script, which converts Multiple Alignment format
+                     (MAF), into FASTA files suitable for parsing by HybridCheck.
+                     At the time of writing, this script depends on an up to
+                     date BioPython installation with functionality to read in
+                     MAF files. This functionality is provided by the
+                     Bio.AlignIO.MafIO module.
 
-The documentation of each HybridCheck class and method function can be viewed from within R by typing:
-```R ?function_name_here ``` in the R console.
-
-New users should start with the HybridCheck User Manual vignette provided with the package in the vignettes directory.
-It is also available as a PDF from the website.
-
-To get the vignette enter in your R session:
-```R
-vignette("HybridCheck_user_manual")
-```
-
-A vignette on scripting with the HybridCheck library can be obtained with:
-```R
-vignette("Scripting_with_HybridCheck")
-```
-
-## Test Data
-
-An example sequence alignment of 10 sequences as a DNAbin object is available in the package to use to test HybridCheck functionality.
-```R
-data(MySequences)
-```
-
-# HybridCheck-App
-
-A Shiny based web-app is available to help people use this package's functionality with a GUI or on a server / cluster.
-It is very new compared to this R package so feedback is always welcome and it's layout and functionality is likely to change in the future. It is located at the [following repo.](https://github.com/Ward9250/HybridCheck-App)
-
-
-# Contributing
-
-If anyone wants to contribute in the future, we welcome it, whether it is improvements over old code or new features/ideas.
-Contribution can be done by the usual github cycle of sending pull requests, alternatively contact one of the authors of the paper:
 
 # Bugs and Issues
 
-If you have trouble working the package on your data there may be many causes from a genuine bug in the code - a misreading of a file leading to downstream issues, or unsuitability of the data for the kind of analysis HybridCheck does.
-HybridCheck has been developed and tested using both real datasets and simulated data. However of course that does not mean there are no datasets which may cause problems. If you run into problems, you can contact the maintainer or file an issue on the repository.
+HybridCheck has and associated files, have been developed and tested using both
+real datasets and simulated data.
+However of course that does not mean there are no datasets which may cause problems.
+If you run into problems, you can contact the maintainer or file an issue on the repository.
 Be descriptive and detailed in what you did so as the error can be reproduced, a sample of the data that causes the error might be needed to get to the bottom of the issue.
+
+# Contribution
+
+We welcome contribution to the project in all forms, contact the maintainers
+listed on the website, or drop a line on the HybridCheck Gitter chatroom.
