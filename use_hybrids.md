@@ -13,7 +13,7 @@ There are several different ways you can install and use HybridCheck:
    provide for Windows, OS X, and Linux.
 
 2. We provide Docker containers on Dockerhub which provide an image, which may be
-run on any machine compatible with Docker, which has R, HybridCheck and HybridCheckApp
+run on any machine compatible with Docker. This Docker image has R, HybridCheck and HybridCheckApp
 pre-installed.
 
 3. If you have an up to date installation of R on your machine you can install
@@ -100,14 +100,3 @@ runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
 
 -----
 
-### Use HybridCheck in R scripts
-HybridCheck is an open source package of R code, and so if you are familiar with R you can install the package in several ways and you can get programming and scripting R code with it right away. For example you could install the latest version with devtools:
-
-```R
-install.packages("devtools")
-library(devtools)
-install_github("Ward9250/HybridCheck", build_vignettes=TRUE)
-library(HybridCheck)
-```
-
------
