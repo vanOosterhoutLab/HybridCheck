@@ -42,7 +42,7 @@ In addition we have provided a launcher for Windows, OS X, and Linux. So long as
        </div>
         <div class="col-md-4">
           <h3>Linux</h3>
-          Download this tarball and extract the folder. The folder includes two shell scripts that can be used to install HybridCheck and its dependencies, and also run HybridCheck with the webapp GUI.
+          Download this tarball and extract the folder. The folder includes two bash scripts that can be used to install HybridCheck and its dependencies, and also run HybridCheck with the webapp GUI. Note: This will add an alias to your .bashrc.
           <p><a class="btn btn-default" href="./Installers/Linux/HybridCheck_Linux_Installer.zip" role="button" download="HybridCheck_Linux_Installer_Scripts.zip">Download for GNU/Linux</a></p>
         </div>
       </div>
@@ -99,4 +99,3 @@ runGitHub('HybridCheckApp', 'Ward9250', launch.browser = TRUE)
 ```
 
 -----
-
