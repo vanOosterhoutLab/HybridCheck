@@ -1,9 +1,8 @@
 ---
-title: "Programming with HybRIDS"
+title: "Programming with HybridCheck"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
 output:
-  word_document: default
   pdf_document:
     fig_height: 7
     fig_width: 10
@@ -13,93 +12,93 @@ output:
     fig_height: 7
     fig_width: 10
     toc: yes
+  word_document: default
 vignette: |
-  %\VignetteIndexEntry{HybRIDS-user-manual} %\VignetteEngine{knitr::rmarkdown} \usepackage[utf8]{inputenc}
+  %\VignetteIndexEntry{Scripting-with-HybridCheck} %\VignetteEngine{knitr::rmarkdown} \usepackage[utf8]{inputenc}
 ---
-
-This manual is provided as a vignette to the HybRIDS package for R. It can be acessed from an R session with with following:
+*****
+This manual is provided as a vignette to the HybridCheck package for R. It can be acessed from an R session with with following:
 
 ```{r eval=FALSE}
-vignette("HybRIDS_user_manual")
+vignette("Scripting_with_HybridCheck")
 ```
 
-# Installing HybRIDS
+# Installing HybridCheck
 
-To install HybRIDS from the GitHub repository executing the following code - snippet into an R session should get HybRIDS installed with minimum difficulty:
+To install HybridCheck from the GitHub repository executing the following code - snippet into an R session should get HybridCheck installed with minimum difficulty:
 
 ```{r eval=FALSE}
-install.packages("devtools", dep=T)
+install.packages("devtools", dep = T)
 library(devtools)
-install_github("Ward9250/HybRIDS", build_vignettes=TRUE)
+install_github("Ward9250/HybridCheck", build_vignettes = TRUE)
 ```
 
 This installs a package by R community contributor Hadley Wickham which allows you to install R packages from their GitHub Repositories with minimum fuss.
 
-Now you have the latest version of HybRIDS installed in your R library. By default the above command installs the master branch of the HybRIDS repository. This is the "safest" option by which we mean it is the version we are by far most confident in to contain no errors or bugs. Anything new that is written for HybRIDS first is written in it's own branch, before being pulled to the devel branch. When we are then sure this is stable it is merged into the master branch.
-
-You may wish to use some of the devel features before they are merged into the master branch. In this case you would replace the last line of code in the box above with the following:
-
-```{r eval=FALSE}
-install_github("Ward9250/HybRIDS", ref="devel")
-```
+Now you have the latest version of HybridCheck installed in your R library. By default the above command installs the master branch of the HybridCheck repository. This is the "safest" option by which we mean it is the version we are by far most confident in to contain no errors or bugs. Anything new that is written for HybridCheck first is written in it's own branch, before being pulled to the devel branch. When we are then sure this is stable it is merged into the master branch.
 
 -----
 
-# Starting HybRIDS and Loading Data
+# Starting HybridCheck and Loading Data
 
 To get started fire up the R console and enter:
 
 ```{r message=FALSE}
-library(HybRIDS)
+library(HybridCheck)
 ```
 
-To get started using HybRIDS to analyse a set of sequences, you first have to create a new HybRIDS object.
+To get started using HybridCheck to analyse a set of sequences, you first have to create a new HybridCheck object.
  
-The HybRIDS object will contain all data, options, and will carry out the analysis. So everything you do in HybRIDS is done by interacting with this object.
+The HybridCheck object will contain all data, options, and will carry out the analysis. So everything you do in HybridCheck is done by interacting with this object.
+
 By providing a file-path to a FASTA format sequence file when the new object is created the DNA data will also be loaded and prepared automatically. Base positions of the alignment which are non-informative, or positions with 'N's will be excluded.
 
 ```{r eval=FALSE}
-MyAnalysis <- HybRIDS$new("~/Dropbox/MySequences.fas")
+MyAnalysis <- HC$new("~/Dropbox/MySequences.fas")
 ```
 
-With the above line a new HybRIDS object would be created and assigned to a variable "MyAnalysis".
+With the above line a new HybridCheck object would be created and assigned to a variable "MyAnalysis".
 
-The HybRIDS package has been loaded, and data has been read in and is now contained in a HybRIDS object, which also contains all analysis settings and steps.
+The HybridCheck package has been loaded, and data has been read in and is now contained in a HybridCheck object, which also contains all analysis settings and steps.
 
-You can also create a new HybRIDS object from sequences you already have loaded into R as a `DNAbin` object (the DNA type used in the `ape` package). The HybRIDS package comes with an example datasets that is used in this user manual.
-It can be accessed with the `data` command after loading the HybRIDS package.
+You can also create a new HybridCheck object from sequences you already have loaded into R as a `DNAbin` object (the DNA type used in the `ape` package). The HybridCheck package comes with an example datasets that is used in this user manual.
+It can be accessed with the `data` command after loading the HybridCheck package.
 
 ```{r}
 data(MySequences)
-MyAnalysis <- HybRIDS$new(MySequences)
+MyAnalysis <- HC$new(MySequences)
 ```
+
+The warning that is produced by this command may be ignored. It only means that one of the analysis steps has not been performed yet.
 
 -----
 
 # Viewing and editing analysis settings
 
-When scripting with a HybRIDS object, you execute several methods that make the HybRIDS object perform several steps of the analysis. Each analysis step is performed according to its settings. Before we walk through executing the analysis steps in detail, it's important to know how to view and alter the settings of the steps.
+When scripting with a HybridCheck object, you execute several methods that make the HybridCheck object perform several steps of the analysis. Each analysis step is performed according to its settings. Before we walk through executing the analysis steps in detail, it's important to know how to view and alter the settings of the steps.
 
-## Viewing HybRIDS current settings
+## Viewing HybridCheck current settings
 
-To view the settings and state of your current HybRIDS object, you just need to enter the name of the variable you used to assign the HybRIDS object, in the case of this example, the HybRIDS object created was assigned to the name `MyAnalysis`
+To view the settings and state of your current HybridCheck object, you just need to enter the name of the variable you used to assign the HybridCheck object, in the case of this example, the HybridCheck object created was assigned to the name `MyAnalysis`.
 
 ```{r}
 MyAnalysis
 ```
-A text summary printed like that above which shows the settings for each analysis step.
+
+A text summary printed like that above will be printed which shows the settings for each analysis step.
 
 Alternatively, to view the settings of only a single step, the `showParameters` method can be used:
+
 ```{r}
 MyAnalysis$showParameters("TripletGeneration")
 ```
 
+This command outputs a description of the settings as well as the keyword HybridCheck uses to identify them in brackets.
+
 ## Changing the analysis settings
 
-The settings of each analysis step are altered in a consistent way, using the same method of the HybRIDS object.
-
-To change the settings for any given step of the HybRIDS analysis, you use the `setParameters` method.
-
+The settings of each analysis step are altered in a consistent way, using the same method of the HybridCheck object.
+To change the settings for any given step of the HybridCheck analysis, you use the `setParameters` method.
 This method accepts first a word that dictates which analysis step it is you want to change:
 
 1. `TripletGeneration` - Settings for Sequence Scan Combinations.
@@ -110,99 +109,166 @@ This method accepts first a word that dictates which analysis step it is you wan
 
 In addition the method is then provided a series of name, value pairs where a name is one of the settings, and the value is the value to change it to.
 
-To use an example, we know from the text summary printed for the HybRIDS object above, that the `TripletGeneration` step has several settings: `Method`, `DistanceThreshold`, and `PartitionStrictness`.
 
-(Don't worry about what these settings do right now, they are described more fully in the next manual sections - although the nice text summary gives you a clue e.g. `DistanceThreshold` is a *Distance Threshold for eliminating triplets with too similar sequences*)
 
-Let's say we wanted to increace the `DistanceThreshold` parameters from 0.01 to 0.1. We can do that by calling the `setParameters` method:
+To use an example, we know from the text summary printed for the HybridCheck object above, that the `TripletGeneration` step has three settings, identified by the three keywords: `Method`, `DistanceThreshold`, and `PartitionStrictness`.
+Let's say we wanted to increace the `DistanceThreshold` parameter from 0.01 to 0.1. We can do that by calling the `setParameters` method:
 ```{r}
 MyAnalysis$setParameters("TripletGeneration", DistanceThreshold = 0.1)
 ```
 
-Multiple settings could be edited too, for example:
+Don't worry about what these settings do right now, they are described more fully in the next manual sections - although the nice text summary gives you a clue e.g. `DistanceThreshold` is a *Distance Threshold for eliminating triplets with too similar sequences*.
+
+You can also edit multiple settings for the same step in one command, for example:
 ```R
 MyAnalysis$setParameters("TripletGeneration", DistanceThreshold = 0.1, PartitionStrictness = 1)
 ```
 
-To summarize: Each step of a HybRIDS analysis has settings associated with them, but the settings of each step are all easily changed by calling the `setParameters` method of the HybRIDS object.
+### Summary
 
-In the next sections, each step of the HybRIDS analysis, and how to execute them, will be described.
+Each step of a HybridCheck analysis has settings associated with them, but the settings of each step are all easily changed by calling the `setParameters` method of the HybridCheck object.
+
+In the next sections, each step of the HybridCheck analysis, and how to execute them, will be described.
+
+-----
+
+# Loading DNA data, and changing and setting populations.
+
+Load in a sequence into a HybridCheck object:
+
+```{r}
+data(MySequences)
+MyAnalysis <- HC$new(MySequences)
+```
+
+When you print the summary of the HybridCheck object, you will see that, by default, the HybridCheck object has assumed each sequence, was sampled from one population. There are 10 populations listed, and they have been automatically assigned a name.
+
+```{r}
+MyAnalysis
+```
+
+If each sequence is from a seperate population, then this is fine, but if not, then the population settings will need to be changed. This is possible by creating a named list that specifies the populations. Then provide that list to the `setPopulations`
+method of the HybridCheck object:
+```{r}
+populations <- list(
+  Norfolk = c("Seq1", "Seq2", "Seq3"),
+  Lincolnshire = c("Seq4", "Seq5", "Seq6"),
+  Cambridgeshire = c("Seq7", "Seq8"),
+  Suffolk = c("Seq9", "Seq10")
+)
+
+MyAnalysis$setPopulations(populations)
+```
+
+Check that the populations have indeed been set:
+```{r}
+MyAnalysis
+```
+
+## Summary
+HybridCheck assumes that each sequence loaded in is from a seperate population. If this is not the case, then you can tell HybridCheck which sequences belong to which population using a named list with the setPopulations method.
+
+-----
+
+# Four-Taxon Tests
+
+**The Four-Taxon test is an optional step of the analysis. It requires four sequences from 4 seperate populations, at the very minimum.**
+
+To perform a Four taxon test of introgression and gene flow, first use the `prepareFourTaxonTests` method.
+
+```{r}
+MyAnalysis$prepareFourTaxonTests()
+```
+
+If no arguments is provided to the method, then HybridCheck will generate every possible combination of four populations possible for your data. For every combination of four populations, HybridCheck then does a simple distance analysis to decide which population is designated as P1, P2, P3, and A for the purposes of the four taxon test. The test assumes the phylogeny: (((P1, P2), P3), A);  
+
+Alternatively you can feed in a list of named vectors. Each named vector is a combination of four populations to test, designated as P1, P2, P3 and A for the purposes of the test.
+
+```{r eval=FALSE}
+popCombos <- list(
+  c(P1 = "Norfolk", P2 = "Lincolnshire", P3 = "Cambridgeshire", A = "Suffolk")
+)
+
+MyAnalysis$prepareFourTaxonTests(popCombos)
+```
+
+Once the tests have been prepared, they can be run with the `runFourTaxonTests` method. This method accepts three parameters:
+
+1. `selections`
+2. `numberOfBlocks`
+3. `blockLength`
+
+`selections` accepts a list of population combinations to run e.g. `list(c(P1 = "Norfolk", P2 = "Lincolnshire", P3 = "Cambridgeshire", A = "Suffolk"))` to just run that one specific test. Alternatively the keyword `"NOT.TESTED"` (default), tells HybridCheck to run the test for all tests not previously run. The keyword `"ALL"` Tells HybridCheck to run all tests.
+
+The functions requires one of the two parameters `blockLength` or `numberOfBlocks` to be provided. It is used to calculate the number and size of Jack-knife blocks to use in the test:
+
+```{r message=FALSE}
+MyAnalysis$runFourTaxonTests(blockLength = 1000L)
+MyAnalysis$runFourTaxonTests(numberOfBlocks = 10L)
+```
+
+To tabulate the results of the four taxon tests, use the tabulateFourTaxonTests method.
+The method accepts the following parameters:
+
+1. `selections`
+2. `neat`
+3. `global`
+
+`selections` can be `'ALL'`, `'TESTED'`, or a list of character vectors of length 4, each denoting a four taxon test by the names of the populations involved.
+If neat is set to `TRUE`, intermediate values used in calculation of the four taxon tests will be excluded. If global is set to `TRUE`. Then global statistics will be included in the tables. The method returns a `data.frame` which can be assigned as a variable and manipulated, explored, and saved, using usual R commands and/or packages.
+
+```{r message=FALSE}
+fttResults <- MyAnalysis$tabulateFourTaxonTests(selections = "ALL", neat = TRUE, global = TRUE)
+```
+
+## Summary
+
+Four-taxon tests are a optional step that can be run if four or more sequences are available, each from a seperate population.
+Four-taxon tests are computed using the `prepareFourTaxonTests` and `runFourTaxonTests` methods.
 
 -----
 
 # Specifying sequence triplets
 
-The first thing you need to do after creating the HybRIDS object for your alignment file, is inform the HybRIDS object which triplets for your sequences you would like to analyze for evidence of
-recombination.
+Before performing the sliding window triplet scan, you must inform the HybridCheck object which sequence triplets you would like to scan.
 
-The following methods of generating triplets are provided denoted by the integers 1, 2 and 3, and are selected by changeing the `Method` parameter:
+The following methods of generating triplets are provided denoted by the integers 1, 2, 3, and 4. They are selected by changeing the `Method` parameter.
 
-1
-  : (DEFAULT) - HybRIDS will analyze sequence triplets based on a set of specified groups (defined by the `Groups` parameter, such that triplets analyzed will be made up of sequences to try and find recombination events between the groups.
-  
-  : A group is any given subset of sequences from your input file. For example, the example anaysis has 10 DNA sequences. The first 3 sequences, might be from one population, the next three from a second population, and the remaining sequences from a third population. 
-	
-  : If you wanted to find evidence of recombination between these populations. You would want to analyze triplets made of e.g. The first sequence, the fourth sequence, and the seventh sequence, or e.g. the second sequence, the fourth sequence, and the ninth sequence. With this default method HybRIDS will figure out all the possible triplets that need to be analyzed that might find evidence of recombination between the populations or Groups. 
+The settings are as follows:
 
-  : If this method of triplet generation is set, as it is by default, and no groups are provided, the HybRIDS object will analyze every possible combination of three of your provided sequences.
-
-2
-  : HybRIDS will analyze sequences triplet based on how similar the sequences that make the triplet are to one another. Every possible triplet of your provided sequences will be analyzed, providing that all the pairwise distances in a triplet are above a set threshold, and this threshold is defined by the `DistanceThreshold` parameter.
-
-3
-  : HybRIDS will analyze triplet based on sequence similarity as in method 2, however instead of using the `DistanceThreshold` parameter, a threshold is automatically chosen based on the distribution of pairwise distances for your provided alignment.
-
-Now you know what this step does and how each of the settings for this step affect it, the example demonstrates how to appropriately edit the settings of this step.
-
-In this example, there is an alignment of 10 sequences loaded in the HybRIDS object, and a researcer has collected the sequences from three populations/locations. Sequences one to three are from one location, sequences four to six are from the second location, and sequences 7 to 10 are from the final population or location.
-
-First the sequences are loaded into a HybRIDS object as demonstrated in previous sections and the summary is printed to the console:
+1. Decide which triplets will be generated and scanned based on Four-Taxon Test results.
+2. Decide which triplets will be generated and scanned by combinding sequences from seperate populations to form a triplet. The parameter `PartitionStrictness` determines how many sequences from each population is allowed in a triplet. With only 3 populations this should be `2L` or more. For more populations this may be set to `1L`.
+3. Decide which triplets will be generated and analysed by considering the distances between sequences in the triplet, and then eliminating triplets with sequences too related using an automatic threshold. This is combinable with methods 1 and 2.
+4. Decide which triplets will be generated and analysed by considering the distances between sequences in the triplet, and then eliminating triplets with sequences too related using a manually set threshold (set this using `DistanceThreshold`). This is combinable with methods 1 and 2:
 
 ```{r}
-library(HybRIDS)
-MyAnalysis <- HybRIDS$new("~/Dropbox/MySequences.fas")
-MyAnalysis$showParameters("TripletGeneration")
+# Method 1.
+MyAnalysis$setParameters("TripletGeneration", Method = 1L)
+
+# Method 2.
+MyAnalysis$setParameters("TripletGeneration", Method = 2L)
+
+# Method 3.
+MyAnalysis$setParameters("TripletGeneration", Method = 3L)
+
+# Method 4.
+MyAnalysis$setParameters("TripletGeneration", Method = 4L, DistanceThreshold = 0.1)
+
+# Combine Distance methods with method 1 or 2:
+MyAnalysis$setParameters("TripletGeneration", Method = c(2L, 4L), DistanceThreshold = 0.1)
+
 ```
 
-We can see from the print-out that 120 triplets will be analyzed - this is because we have speified no groups but are using method 1. As a result, ever possible triplet that could be generated for these sequences will be analyzed.
 
-Now the settings can be changed to add the groups between which we wish to find recombination, and edit the `PartitionStrictness` so as only one sequence from each group is allowed in a triplet.
-
-In order to specify a group, you simply make a vector of the sequence names for each group, and then combine each one into a list:
-
-```{r}
-# Let's make our groups:
-
-FirstGroup <- c("Seq1", "Seq2", "Seq3")
-SecondGroup <- c("Seq4", "Seq5", "Seq6")
-ThirdGroup <- c("Seq7", "Seq8", "Seq9", "Seq10")
-myGroups <- list(FirstGroup, SecondGroup, ThirdGroup) # Put the groups in a list.
-
-# Let's edit the Triplet Generation settings
-MyAnalysis$setParameters("TripletGeneration", Groups = myGroups, PartitionStrictness = 1L)
-
-# All done, now let's print the settings again:
-MyAnalysis$showParameters("TripletGeneration")
-```
-Note in the above example, that `1L` is used and not `1` when setting the `PartitionStrictness` as `1L` specifies the value is a whole number integer and not the floating point `1.0`.
-
-We see after altering these settings, less triplets will be analyzed now, and each one will contain only one sequence from each group.
-
-It is also possible to combine method 1 with either method 2 or 3, thereby only generating triplets that contain A). One sequence from each group, and B). Sequences that are all sufficiently diverged.
-
-```{r}
-MyAnalysis$setParameters("TripletGeneration", Method = c(1L, 2L),
-                         Groups = myGroups, PartitionStrictness = 1L)
-```
-
-Now that you have instructed the HybRIDS object on which triplets will be analyzed, the recombination signal in each triplet can be scanned. This is explained in the next section.
+## Summary
+Four methods are available by which HybridCheck will generate sequence triplets to scan for recombination signal. It may do this based on the results of four taxon tests, based on population grouping, and/or based on the level of sequence similarity between sequences.
 
 -----
 
 # Scanning triplets for recombination signal
 
 This step will use a sliding window to measure pairwise sequence similarity across the informative sites of sequence
-triplets. It is started by using the `analyzeSS()` method of the HybRIDS object.
+triplets. It is started by using the `analyzeSS()` method of the HybridCheck object.
 The parameters of the step are:
 
 WindowSize
@@ -226,14 +292,17 @@ If the argument is not one of these two arguments, it can be a list of vectors t
 For example just two triplets could be scanned:
 
 ```{r}
+MyAnalysis$setParameters("TripletGeneration", Method = c(2L, 4L), DistanceThreshold = 0.1)
+
+MyAnalysis$setParameters("SSAnalysis", WindowSize = 500L, StepSize = 1L)
+
 tripletsToScan <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8")) 
 
 MyAnalysis$analyzeSS(tripletsToScan)
 ```
 
 It is important to note that you can't enter a triplet of names which either contains names which are not names
-of your sequences, or is not allowed by the `TripletGeneration` settings. This is demonstrated in the example below.
-Recall from the previous section that the sequences "Seq1", "Seq2", and "Seq3" were defined as being in the same group, and because of the settings, only triplets that compared sequences from different groups were set. Therefore the following will not analyze any triplets, as the selected triplet does not exist. 
+of your sequences, or is not allowed by the `TripletGeneration` settings:
 
 ```{r error=FALSE}
 # This triplet is not allowed, because earlier the TripletGeneration
@@ -242,10 +311,53 @@ tripletsToScan <- list(c("Seq1", "Seq2", "Seq3"))
 MyAnalysis$analyzeSS(tripletsToScan)
 ```
 
+## Convieniently changing scan settings
+If you want to perform scans of various window and step sizes. You could do it like this:
+```{r eval=FALSE}
+tripletsToScan <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8")) 
+MyAnalysis$setParameters("SSAnalysis", WindowSize = 500L, StepSize = 1L)
+MyAnalysis$analyzeSS(tripletsToScan)
+## Do stuff here with result...
+MyAnalysis$setParameters("SSAnalysis", WindowSize = 1000L, StepSize = 1L)
+MyAnalysis$analyzeSS(tripletsToScan)
+## Do stuff here after scan...
+MyAnalysis$setParameters("SSAnalysis", WindowSize = 100L, StepSize = 1L)
+MyAnalysis$analyzeSS(tripletsToScan)
+# Do stuff here after scan...
+```
+
+But alternatively the analyzeSS method allows you to merge these two repeated statements into one statement:
+
+```{r eval=FALSE}
+tripletsToScan <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8")) 
+MyAnalysis$analyzeSS(tripletsToScan, replaceSettings = FALSE, WindowSize = 500L, StepSize = 1L)
+# Do stuff after scan...
+MyAnalysis$analyzeSS(tripletsToScan, replaceSettings = FALSE, WindowSize = 1000L, StepSize = 1L)
+# Do stuff after scan...
+MyAnalysis$analyzeSS(tripletsToScan, replaceSettings = FALSE, WindowSize = 100L, StepSize = 1L)
+```
+
+The option `replaceSettings` being set to `FALSE` means that you are basically passing in the settings for use with that scan run only, the settings stored in the HybridCheck object will not be overwritten. This is useful if you want to run most scans with the options set, but want to make sure the HybridCheck object will keep these settings for subsequent analyses as it would for the `setParameters` method, you must set `replaceSettings` to `TRUE` e.g.
+```{r eval=FALSE}
+MyAnalysis$analyzeSS(tripletsToScan1, replaceSettings = TRUE, WindowSize = 500L, StepSize = 1L) 
+# HybridCheck has remembered the settings and will apply them to all future analyses, providing they don't have their own options.
+# Do stuff after scan...
+
+# This time HybridCheck will do the scan with the settings provided here instead of the stored settings, but won't remember the settings provided here.
+MyAnalysis$analyzeSS(tripletsToScan2, replaceSettings = FALSE, WindowSize = 1000L, StepSize = 1L)
+# Do stuff after scan...
+
+# Now the analysis will be done with a window size of 500 and a step size of 1. Because it is using the settings HybridCheck 'remembers' from the first analysis. After the second analysis was done, the settings used for the second analysis were not 'remembered'.
+MyAnalysis$analyzeSS(tripletsToScan3)
+```
+
+## Summary
+
+HybridCheck can be instructed to scan sequence triplets of a given window and step size, and you can fine tune exactly which triplets are scanned. In addition, scanning triplets introduces a convienient way to change settings for the scan step, without having to use an extra `setParameters` command. You can choose whether HybridCheck should remember those settings for the subsequent scans you perform, or whether it should only apply them to the current scan and then forget them. 
+
 -----
 
-# Detection of recombination blocks in signal
-
+# Detecting recombination blocks in sequence triplet scan data
 Having scanned for recombination signal for the desired sequence triplets, the `BlockDetection` step is executed using the `findBlocks` method.
 
 This step identifies regions of recombination in a given sequence triplet by examining the data from the sliding window scans in the previous `SSAnalysis` step. If there are any regions in which two sequences meet a certain sequence similarity threshold, they are treated as potentially recombinant.
@@ -256,7 +368,7 @@ ManualThresholds
   : A vector of numbers between 0 and 100.
   : Each is a percenage sequence similarity threshold.
   : These thresholds are set by the user, and can be used to find recombination,
-  : or used as a fallback if HybRIDS fails to automatically decide on some thresholds.
+  : or used as a fallback if HybridCheck fails to automatically decide on some thresholds.
   
 AutoThresholds
   : A logical argument (`TRUE`, or `FALSE`), if `TRUE` (default) then during execution of the `findBlocks` method,
@@ -275,8 +387,8 @@ By default this is set to `"NOT.SEARCHED"` which will find blocks for triplets w
 
 The below example finds blocks in the two triplets that were scanned for recombination signal in the previous section:
 ```{r}
-tripletsToSearch <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
-MyAnalysis$findBlocks(tripletsToSearch)
+tripletsToProcess <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
+MyAnalysis$findBlocks(tripletsToProcess)
 ```
 
 Note that, as with the `analyzeSS` method, you cannot specify a triplet which was not specified by the `TripletGeneration` settings:
@@ -286,7 +398,7 @@ tripletsToSearch <- list(c("Seq1", "Seq2", "Seq3"))
 MyAnalysis$findBlocks(tripletsToSearch)
 ```
 
-You also cannot search for blocks for triplets which have not been analyzed by `analyzeSS`:
+You also cannot search for blocks for triplets which have not been analyzed by `analyzeSS` yet:
 ```{r error=FALSE}
 tripletsToSearch <- list(c("Seq1", "Seq4", "Seq9"))
 MyAnalysis$findBlocks(tripletsToSearch)
@@ -294,6 +406,16 @@ MyAnalysis$findBlocks(tripletsToSearch)
 # A triplet must be scanned for recombination signal first
 MyAnalysis$analyzeSS(tripletsToSearch)
 MyAnalysis$findBlocks(tripletsToSearch)
+```
+
+Note that some columns are NA because they are calculated the next step, which is discussed in the next section.
+
+The `tabulateDetectedBlocks` method, just like the `analyzeSS` method, allows you to alter settings convieniently without
+an extra command. The works exactly as it does for `analyzeSS`.
+
+```{r eval=FALSE}
+tripletsToProcess <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
+MyAnalysis$findBlocks(tripletsToProcess, replaceSettings = FALSE, AutoThresholds = FALSE)
 ```
 
 If you want to get a Data Frame containing a table of the detected blocks in some triplets, use the `tabulateDetectedBlocks` method.
@@ -304,8 +426,6 @@ This method needs to be given a set of sequence names to set the triplets that w
 tripletsToTabulate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
 MyAnalysis$tabulateDetectedBlocks(tripletsToTabulate)
 ```
-
-Note that some columns are NA because they are produced from the next step, which is discussed in the next section.
 
 -----
 
@@ -344,11 +464,24 @@ tripletsToDate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
 MyAnalysis$dateBlocks(tripletsToDate)
 ```
 
+You can't specify triplets which have not been scanned, or analysed to find blocks. You can't date blocks before you've found them!
+
 The blocks can then be tabulated again, the columns of the table that were previously `NA` are now filled with values:
 
 ```{r}
 MyAnalysis$tabulateDetectedBlocks(tripletsToDate)
 ```
+
+Just like `analyzeSS` and `findBlocks`, the `dateBlocks`, settings for the analysis step can be set convieniently without the need for an additional call to `setParameters`. It works the same as for `analyzeSS` and `findBlocks`:
+
+```{r}
+tripletsToDate <- list(c("Seq1", "Seq4", "Seq7"), c("Seq1", "Seq4", "Seq8"))
+MyAnalysis$dateBlocks(tripletsToDate, replaceSettings = FALSE, DateAnyway = TRUE, MutationCorrection = "F81")
+```
+
+## Summary
+
+HybridCheck dates and calculates p-values for putative blocks detected by the `findBlocks` method, with the `dateBlocks` method. Like `analyzeSS` and `findBlocks`, it supports conviniently changing the settings for that step. Results can be tabulated with the `tabulateDetectedBlocks` method.
 
 -----
 
@@ -361,7 +494,7 @@ The method returns a list containing ggplot objects of each triplet chosen to be
 The parameters for plotting are as follows:
 
 What:
-  : This value can either be "Bars", "Lines" or an R vector of both. This determines which plots HybRIDS will plot. HybRIDS produces two class of plot of a given triplet's SS similarity data (often on one canvas), a lines plot, and a coloured heatmap-like plot.
+  : This value can either be "Bars", "Lines" or an R vector of both. This determines which plots HybridCheck will plot. HybridCheck produces two class of plot of a given triplet's SS similarity data (often on one canvas), a lines plot, and a coloured heatmap-like plot.
 
 PlotTitle:
   : Boolean, set wether to include a title with the plot.
@@ -422,16 +555,22 @@ LegendFontSize:
 
 MosaicScale:
   : An integer value, 500 by default. This affects how the Bars plot is drawn. With a higher value, a greater resolution is achieved but more and finer sequence similarity data is required. This is achieved with sequences with high numbers of informative sites and by adjusting the WindowSize and StepSize settings for the SSAnalysis step.
-  : HybRIDS will print a message to the console if problems arise during plot drawing due to the MosaicScale settings.
+  : HybridCheck will print a message to the console if problems arise during plot drawing due to the MosaicScale settings.
 
 ```{r}
-MyAnalysis$plotTriplets(c("Seq1", "Seq4", "Seq7"))[[1]]
+plotsInAList <- MyAnalysis$plotTriplets(c("Seq1", "Seq4", "Seq7"))
+plotsInAList[[1]]
 ```
+
+## Summary
+
+HybridCheck produces graphics of recombination signal scanned across sequences and supports a wide range of parameter settings,
+but this range is not 100% exhaustive, therefore HybridCheck returns graphics as `ggplot2` or `grid` objects, which may be manipulated programatically by the user to get the exact look that is desired.
 
 -----
 
 # Testing known blocks
-It is possible to tell HybRIDS to assume a given region between your two sequences is recombinant, and then test them for significance and estimate their date.
+It is possible to tell HybridCheck to assume a given region between your two sequences is recombinant, and then test them for significance and estimate their date.
 
 This is done using the `addUserBlock` method, providing the two sequence names, the base position the block starts at,
 and the base position the block ends at.
@@ -450,32 +589,14 @@ MyAnalysis$clearUserBlocks(c("Seq1", "Seq4"))
 MyAnalysis$tabulateUserBlocks()
 ```
 
------
+## Summary
 
-# The HybRIDSapp
-
-We provide a Shiny based webapp that allows and R session with HybRIDS to be run as a webapp - providing either a web-based graphical user interface on the user's local machine, or a means of a centalized platform.
-
-It can be obtained from its GitHub repository by using git on the terminal:
-
-```sh
-git clone https://github.com/Ward9250/HybRIDSapp.git
-```
-
-Once it has been downloaded, you can open the project file in RStudio and hit the Run App button to run the app on your machine. You will need the `shiny` and [`shinyBS`](https://github.com/ebailey78/shinyBS) packages installed to R.  
-
-There are multiple options and avenues for deploying a Shiny based web app. See the [Shiny webpage and documentation](http://shiny.rstudio.com/) for details on these.
-
-The settings and steps of the analysis are exactly the same as those presented in this manual. The web-app provides a way for people to use HybRIDS in an exporatory manner if they are not proficient at coding, or want to change the settings of the analysis frequently.
-
-The HybRIDS package was designed to be easy to use in an exploratory way on the R console, or in a script for batch processing. The 'reactive' design of Shiny and the web-app is particularily suited for exploratory analyses: Whenever a setting is altered the analysis is updated and the results are displayed to the user in real-time automatically.
-
-The HybRIDSapp is much newer than the package and some bugs may be likely and the design of the app may change.
+HybridCheck can be told that regions are putatively recombinant between two sequences, and will calculate a p value and estimated coalesence time for the region dictated.
 
 -----
 
 # Problems, Bugs, and assistance
 
-If you have any trouble using the HybRIDS package, or find an error or bug you are unfamiliar with, don't hesitate to contact code author and repo maintainer Ben J. Ward (Ward9250) at b.ward@uea.ac.uk, or visit the GitHub Repository Ward9250/HybRIDS and file a bug report or message there.
+If you have any trouble using the HybridCheck package, or find an error or bug you are unfamiliar with, don't hesitate to contact code author and repo maintainer Ben J. Ward (Ward9250) at ben.ward@tgac.ac.uk, or visit the GitHub Repository Ward9250/HybridCheck and file a bug report or message there.
 
 -----
