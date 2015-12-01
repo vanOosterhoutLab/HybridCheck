@@ -11,9 +11,21 @@ The HybridCheck user manual instructs the user how to install R and then HybridC
 
 The manual is divided up according to the tasks you would perform with HybridCheck, from loading the package and reading in data, to altering the options for and running the analysis, and exporting data and plotting data.
 
-Users experienced with R will be able to just install the HybridCheck R package from the github repository using devtools, and will find inforation in the 'Programming with HybridCheck vignette' and R help system manpages for the package.
+Users experienced with R will be able to just install the HybridCheck R package from the github repository using devtools, and will find information in the vignette below.
 
 -----
+
+<div align="center">
+<iframe src="http://ward9250.github.io/HybridCheck/Manual/HybridCheck_User_Manual.pdf" width=1100 height=1500></iframe>
+</div>
+
+<hr>
+
+## The HybridCheck vignette
+
+This vignette is for if you want to use HybridCheck in the R console. It provides
+examples on how to manipulate HybridCheck objects in the R terminal, by using their
+methods, in order to execute the steps of an analysis.
 
 <div align="center">
 <iframe src="http://ward9250.github.io/HybridCheck/Manual/HybridCheck_User_Manual.pdf" width=1100 height=1500></iframe>
