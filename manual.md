@@ -28,5 +28,5 @@ examples on how to manipulate HybridCheck objects in the R terminal, by using th
 methods, in order to execute the steps of an analysis.
 
 <div align="center">
-<iframe src="http://ward9250.github.io/HybridCheck/Manual/HybridCheck_User_Manual.pdf" width=1100 height=1500></iframe>
+<iframe src="http://ward9250.github.io/HybridCheck/Manual/HybridCheck-in-console.pdf" width=1100 height=1500></iframe>
 </div>
