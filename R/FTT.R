@@ -222,7 +222,7 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
   maxBABA_23 <- vector(mode = "numeric", length = length(biSites.all))
   maxABBA_13 <- vector(mode = "numeric", length = length(biSites.all))
   maxBABA_13 <- vector(mode = "numeric", length = length(biSites.all))
-  for(i in 1:length(biSites.all)){
+  for(i in seq_along(biSites.all)){
     i.bi.counts <- counts.all[, biSites.all[i]]
     alleles <- names(which(i.bi.counts > 0))
     anc <- names(which(slice4$countsBi[, i] != 0))
@@ -268,7 +268,11 @@ calculateStats <- function(counts.all, biSites.all, slice1, slice2, slice3, slic
 
 populationSlice <- function(popSeqs, biSites){
   counts <- consensusMatrix(popSeqs)
-  alleles <- colSums(counts != 0)
+  if(any(biSites > 0)){
+    alleles <- colSums(counts != 0)
+  } else {
+    alleles <- 0
+  }
   S <- sum(alleles > 1)
   return(list(counts = counts, countsBi = counts[, biSites], alleles = alleles, S = S))
 }
@@ -295,7 +299,7 @@ calculateDandFd <- function(aln, pops){
   p3Slice <- populationSlice(aln.var[pops[[3]]], bi.var)
   p4Slice <- populationSlice(aln.var[pops[[4]]], bi.var)
   return(data.frame(S = s.all, P1_S = p1Slice$S, P2_S = p2Slice$S,
-             P3_S = p3Slice$S, P4_S = p4Slice$S, 
+             P3_S = p3Slice$S, P4_S = p4Slice$S,
              calculateStats(counts.all, bi.all,
                             p1Slice, p2Slice, p3Slice, p4Slice)))
 }
