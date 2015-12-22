@@ -13,6 +13,15 @@ setClass(
                  results = "RangedData")
 )
 
+
+setMethod("sequenceLength",
+          signature(object = "SignalAnalysis"),
+          function(object){
+            sequenceLength(object@data)
+          })
+
+
+
 #' A Virtual class to which all methods of computing a signal analysis should belong.
 #' 
 #' As a virtual class, has no fields, and should not be instantiated.
@@ -23,13 +32,24 @@ setClass("SignalAnalysisMethod",
 
 #' Generic function used to perform a SignalAnalysis.
 #' 
-#' 
+#' @field data A variable containing the sequence data you wish to analyse.
+#' @field method A variable which inherits from SignalAnalysisMethod. This
+#' variable needs to contain all the options for the given SignalAnalysis method.
+#' The specific method analyzeSignal is then al 
 setGeneric("analyzeSignal", function(data, method) {
   standardGeneric("analyzeSignal")
 })
 
 
-# More specific methods of analysis.
+#' A class for a Sliding Window based method of analysing recombination signal.
+#' 
+#' This class, and others which inherit from it, represent methods of analysing
+#' recombination signal which utilise sliding windows to copute their values.
+#' For example, the class ReferenceWindowScan inherits from this class.
+#' @slot width An integer specifying the width of the sliding window in the analysis
+#' in base pairs.
+#' @slot step An integer specifying the number of base positions by which the sliding window in the 
+#' analysis will move between each calculation.
 setClass(
   "SlidingWindow",
   representation(width = "integer",
@@ -39,6 +59,17 @@ setClass(
                         step = 1000L)
 )
 
+
+#' A class for a Sliding Window based method of analysing recombination signal,
+#' by comparing sequence similarity of many sequences, against one reference.
+#' 
+#' This class, and others which inherit from it, represent methods of analysing
+#' recombination signal which utilise sliding windows to copute their values.
+#' For example, the class ReferenceWindowScan inherits from this class.
+#' @slot width An integer specifying the width of the sliding window in the analysis
+#' in base pairs.
+#' @slot step An integer specifying the number of base positions by which the sliding window in the 
+#' analysis will move between each calculation.
 setClass(
   "ReferenceWindowScan",
   representation(reference = "character"),
@@ -79,12 +110,6 @@ setMethod("analyzeSignal",
               settings = method,
               results = results
             ))
-          })
-
-setMethod("sequenceLength",
-          signature(object = "SignalAnalysis"),
-          function(object){
-            sequenceLength(object@data)
           })
 
 
