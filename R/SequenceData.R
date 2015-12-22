@@ -1,20 +1,20 @@
-#' An internal Reference Class to represent a DNA alignment, read from a FASTA file.
-#' @name HCseq
+#' An internal Reference Class to represent DNA data, read from a FASTA file.
+#' @name SequenceData
 #' @field FullSequence A DNAStringSet containing the full sequence alignment.
 #' @field InformativeSequence A DNAStringSet containing the elignment, with uninformative sites removed.
 #' @field InformativeBp An integer vector containing the base positions that are informative.
 #' @field ReferenceSeq A character vector of length one with the sequence name that is the reference.
 #' @field Populations A list of population definitions - a list of vectors containing sequence names.
-HCseq <- setRefClass("HCseq",
-                            fields = list( 
+SequenceData <- setRefClass("SequenceData",
+                            fields = list(
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
                               InformativeBp = "integer",
                               ReferenceSeq = "character",
                               Populations = "list"
                               ),
-                              
-                            methods = list( 
+
+                            methods = list(
                               initialize =
                                 function(sequenceInput = NULL){
                                   "Initializes the object, may be provided with a filepath to a sequence file, currently only FASTA is supported."
@@ -22,7 +22,7 @@ HCseq <- setRefClass("HCseq",
                                     InputDNA(sequenceInput)
                                   }
                                 },
-                              
+
                               InputDNA =
                                 function(intarget){
                                   "Reads in sequences from file and appropriately modifies fields of the object."
@@ -43,12 +43,12 @@ HCseq <- setRefClass("HCseq",
                                   ReferenceSeq <<- names(FullSequence)[1]
                                   message("Finished DNA input...")
                                 },
-                              
-                              addBAMSAMs = 
+
+                              addBAMSAMs =
                                 function(files){
-                                  
+
                                 },
-                              
+
                               hasDNA =
                                 function(){
                                   "Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false."
@@ -57,56 +57,56 @@ HCseq <- setRefClass("HCseq",
                                   if(a != b){stop("Error: FullSequence is initialized but InformativeSequence is not. This should not happen.")}
                                   return(a)
                                 },
-                              
+
                               enforceDNA =
                                 function(){
                                   "Enforces some rules about the content of the sequence object and throws errors should they occur."
                                   if(!hasDNA()){stop("Error: HCdna object has not got any sequences loaded in.")}
                                   if(length(InformativeSequence) != length(FullSequence)){stop("Error: Number of sequences in the full alignment, and informative alignment are not the same, this shouldn't happen.")}
                                 },
-                              
+
                               numberOfSequences =
                                 function(){
                                   "Returns the number of sequences in the stored alignment."
                                   enforceDNA()
                                   return(length(InformativeSequence))
                                 },
-                              
+
                               getFullBp =
                                 function(){
                                   "Returns a vector containing the numbers of the base positions in the aligned sequences."
                                   enforceDNA()
                                   return(1:getFullLength())
                                 },
-                              
+
                               getInformativeBp =
                                 function(){
                                   "Returns a vector of the base positions of the informative sites in the aligned sequences."
                                   enforceDNA()
                                   return(InformativeBp)
                                 },
-                              
+
                               getFullLength =
                                 function(){
                                   "Returns the length in base pairs, of the aligned sequences."
                                   enforceDNA()
                                   return(unique(width(FullSequence)))
                                 },
-                              
+
                               getInformativeLength =
                                 function(){
                                   "Returns the number in base pairs, of informative sites in the aligned sequences."
                                   enforceDNA()
                                   return(unique(width(InformativeSequence)))
                                 },
-                              
+
                               getSequenceNames =
                                 function(){
                                   "Returns a character vector of the sequence names."
                                   enforceDNA()
                                   return(names(InformativeSequence))
                                 },
-                              
+
                               pullTriplet =
                                 function(selection){
                                   "Extracts from the sequence object, a triplet of sequences."
@@ -114,7 +114,7 @@ HCseq <- setRefClass("HCseq",
                                   if(length(selection) != 3 || !is.character(selection)){stop("Three sequence names must be provided to pull a triplet of sequences.")}
                                   return(InformativeSequence[selection])
                                 },
-                              
+
                               setPopulations =
                                 function(pops){
                                   "Define which sequences form a population. Provide a list of vectors containing either integers or sequence names."
@@ -123,7 +123,7 @@ HCseq <- setRefClass("HCseq",
                                     if(any(!unlist(lapply(pops, function(x) is.integer(x) || is.character(x))))){stop("Need to provide a list of groups of sequence names or integers representing sequence numbers.")}
                                     pops <- lapply(pops, function(x){
                                       if(is.integer(x)){
-                                        return(getSequenceNames()[x]) 
+                                        return(getSequenceNames()[x])
                                       } else {
                                         return(x)
                                       }
@@ -144,36 +144,36 @@ HCseq <- setRefClass("HCseq",
                                     }
                                   }
                                 },
-                              
+
                               oneSeqOnePop = function(){
                                 "Function assigns one population per sequence."
                                 enforceDNA()
                                 setPopulations(as.list(getSequenceNames()))
                               },
-                              
+
                               numberOfPopulations =
                                 function(){
                                   "Returns the number of populations assigned."
                                   return(length(Populations))
                                 },
-                              
+
                               hasPopulations =
                                 function(){
                                   "Returns TRUE when a set of populations has been defined. Otherwise returns FALSE."
                                   return(length(Populations) >= 1)
                                 },
-                              
+
                               namesOfPopulations =
                                 function(){
                                   "Returns the names of the populations."
                                   return(names(Populations))
                                 },
-                              
+
                               textSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object."
                                   start <- paste0("DNA Sequence Information:\n",
-                                                  "-------------------------\nAn alignment of ", numberOfSequences(), 
+                                                  "-------------------------\nAn alignment of ", numberOfSequences(),
                                                   " sequences.\n\nFull length of alignment: ", getFullLength(),
                                                   "\nExcluding non-informative sites: ", getInformativeLength(),
                                                   "\n\nSequence names:\n")
@@ -182,7 +182,7 @@ HCseq <- setRefClass("HCseq",
                                   if(length(Populations) == 0){
                                     pops <- "No populations have been specified."
                                   } else {
-                                    pops <- paste0(lapply(1:length(Populations), 
+                                    pops <- paste0(lapply(1:length(Populations),
                                                           function(i){paste0(namesOfPopulations()[i],
                                                                              ": ",
                                                                              paste0(Populations[[i]], collapse = ", ")
@@ -190,7 +190,7 @@ HCseq <- setRefClass("HCseq",
                                   }
                                   return(paste0(start, end, "\n\nPopulations:\n", pops, "\n"))
                                 },
-                              
+
                               htmlSummary =
                                 function(){
                                   "Creates a character vector of the summary of the sequence object, formatted as HTML."
@@ -206,13 +206,13 @@ HCseq <- setRefClass("HCseq",
                                   } else {
                                     pops <- paste0(lapply(1:length(Populations),
                                                           function(i){paste0(namesOfPopulations()[i], ": ",
-                                                                             paste0(Populations[[i]], 
+                                                                             paste0(Populations[[i]],
                                                                                     collapse = ", "))}),
                                                    collapse = "<br>")
                                   }
                                   return(paste0(start, end, "<br><br><b>Populations:</b><br>", pops, "<br>"))
                                 },
-                              
+
                               show =
                                 function(){
                                   "Prints a text summary of the object to console."
@@ -257,4 +257,3 @@ checkForDuplicates <- function(dna){
 is.initialized <- function(x){
   return(class(x) != "uninitializedField")
 }
-
