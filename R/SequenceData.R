@@ -5,7 +5,7 @@
 #' @field InformativeBp An integer vector containing the base positions that are informative.
 #' @field ReferenceSeq A character vector of length one with the sequence name that is the reference.
 #' @field Populations A list of population definitions - a list of vectors containing sequence names.
-SequenceData <- setRefClass("SequenceData",
+HCSeq <- setRefClass("HCSeq",
                             fields = list(
                               FullSequence = "ANY",
                               InformativeSequence = "ANY",
