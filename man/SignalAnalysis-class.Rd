@@ -3,16 +3,19 @@
 \docType{class}
 \name{SignalAnalysis-class}
 \alias{SignalAnalysis-class}
-\title{Basic S4 class for storing the output and settings of a Recombination Signal Analysis.}
+\title{Basic S4 class for storing the output and settings of a Recombination
+Signal Analysis.}
 \description{
-Basic S4 class for storing the output and settings of a Recombination Signal Analysis.
+Basic S4 class for storing the output and settings of a Recombination
+Signal Analysis.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{data}}{A multiple sequence alignment stored as a DNAMultipleAlignment.}
 
-\item{\code{results}}{A RangedData variable that stores the recombination signal calculated
-between sequences across the alignment, the location of said signal represented by IRanges.}
+\item{\code{results}}{A RangedData variable that stores the recombination signal
+calculated between sequences across the alignment, the location of said 
+signal represented by IRanges.}
 }}
 

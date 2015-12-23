@@ -2,12 +2,12 @@
 
 #' Get the length of the aligned sequences.
 #' 
-#' @param object The object storing the multiple sequence alignment data from which
-#' you wish to get the length.
+#' @param object The object storing the multiple sequence alignment data from
+#' which you wish to get the length.
 #' 
 #' @return A numeric value representing the length of the aligned sequences.
 #' All sequences in the alignment have the same length.
-#' @docType methods
+#' @rdname sequenceLength
 setGeneric("sequenceLength", function(object){
   standardGeneric("sequenceLength")
 })
