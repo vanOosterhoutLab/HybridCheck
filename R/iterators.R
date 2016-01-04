@@ -1,9 +1,138 @@
-# Classes 
+# Iterators over and across sequence data.
 
-# This is a programming construct called an iterator.
-# An iterator is some object, typically a small collection of data and some functions, which make it efficient
-# to iterate over some container. This makes R's loops more efficient, and better usable in parallel.
+setOldClass(c("abstractiter", "iter"))
 
+Iterator <- setRefClass("Iterator",
+                         contains = "abstractiter",
+                         methods = list(nextElem = function() stop("Not implemented"))
+                        )
+
+CheckIterator <- setRefClass("CheckIterator",
+                             fields = list(
+                               checkFun = "function"
+                             ),
+                             contains = "Iterator",
+                             methods = list(
+                               initialize = function(fun = function() TRUE){
+                                 checkFun <<- fun
+                               }
+                             )
+)
+
+IdxIterator <- setRefClass("IdxIterator",
+                           fields = list(
+                             current = "integer",
+                             limit = "integer"
+                           ),
+                           contains = "CheckIterator",
+                           methods = list(
+                             initialize = function(limit, fun = function(...) TRUE){
+                               callSuper(fun)
+                               current <<- 1L
+                               limit <<- limit
+                             }
+                           )
+)
+
+PairIdx <- setRefClass("PairIdx",
+                         contains = "IdxIterator",
+                         methods = list(
+                           initialize = function(limit, fun = function(...) TRUE){
+                             callSuper(limit, fun)
+                             current <<- c(1L, 1L)
+                           },
+                           nextElem = function(){
+                             repeat {
+                               if(!hasNext()){
+                                 stop("StopIteration")
+                               }
+                               if(current[2] == limit){
+                                 current[1] <<- current[1] + 1L
+                                 current[2] <<- current[1]
+                               } else {
+                                 current[2] <<- current[2] + 1L
+                               }
+                               if(checkFun(current)){
+                                 return(current)
+                               }
+                             }
+                           },
+                           hasNext = function(){
+                             return((current[1] <= limit) && (current[2] <= limit))
+                           }
+                         )
+)
+
+PairsMAlign <- setRefClass("PairsMAlign",
+                               fields = list(
+                                 obj = "MultipleAlignment",
+                                 itr = "PairIdx"
+                               ),
+                               methods = list(
+                                 initialize = function(obj, fun){
+                                   obj <<- obj
+                                   itr <<- PairIdx$new(nrow(obj))
+                                 },
+                                 nextElem = function(){
+                                   idx <- itr$nextElem()
+                                   pair <- maskSequences(obj,
+                                                         idx,
+                                                         invert = TRUE,
+                                                         append = "replace"
+                                   )
+                                   return(pair)
+                                 }
+                               )
+)
+
+setGeneric("Pairs", function(object){
+  standardGeneric("Pairs")
+})
+
+setMethod("Pairs",
+          representation("MultipleAlignment"),
+          function(object) {
+            return(PairsIterMAlign$new(object))
+          }
+)
+                             
+                             
+                             
+                            
+
+
+
+
+triplets <- function(obj, ...){
+  UseMethod('triplets')
+}
+
+triplets.DNAMultipleAlignment <- function(obj, checkFunc = function(...) TRUE){
+  state <- new.env()
+  state$i <- 0L
+  state$j <- 1L
+  state$k <- 1L
+  state$obj <- obj
+  it <- list(state=state, checkFunc=checkFunc)
+  class(it) <- c("triplets", "containeriter", "iter")
+  return(it)
+}
+
+getIterVal.triplets <- function(obj, plus = 0L, ...){
+  obj$state$i <- obj$state$i + plus
+  if(obj$state$i > nrow(obj$state$obj)){
+    obj$state$j <- obj$state$j + plus
+    obj$state$i <- 0
+  }
+  if(obj$state$j > nrow(obj$state$obj)){
+    obj$state$k <- obj$state$k + plus
+    obj$state$j <- 0
+  }
+  if(obj$state$k > nrow(obj$state$obj) || obj$state$j > nrow(obj$state$obj) || obj$state$i > nrow(obj$state$obj)){
+    stop('SubscriptOutOfBounds', call.=FALSE)
+  }
+  return(obj$state$obj[c(obj$state$i,obj$state$j,obj$state$k)])
+}
 
 rangedDataSpaces <- function(obj, split, checkFunc = function(...) TRUE){
   state <- new.env()
