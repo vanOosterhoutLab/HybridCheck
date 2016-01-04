@@ -3,7 +3,8 @@
 \docType{class}
 \name{SignalAnalysisMethod-class}
 \alias{SignalAnalysisMethod-class}
-\title{A Virtual class to which all methods of computing a signal analysis should belong.}
+\title{A Virtual class to which all methods of computing a signal analysis should
+belong.}
 \description{
 As a virtual class, has no fields, and should not be instantiated.
 }
