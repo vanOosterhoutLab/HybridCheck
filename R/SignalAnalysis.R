@@ -26,16 +26,6 @@ setMethod("sequenceLength",
           })
 
 
-
-#' A Virtual class to which all methods of computing a signal analysis should
-#' belong.
-#' 
-#' As a virtual class, has no fields, and should not be instantiated.
-setClass("SignalAnalysisMethod",
-         representation(),
-         contains = "VIRTUAL")
-
-
 #' Generic function used to perform a SignalAnalysis.
 #' 
 #' Analyse the recombination signal present in a variable containing
@@ -53,6 +43,13 @@ setGeneric("analyzeSignal", function(data, method) {
   standardGeneric("analyzeSignal")
 })
 
+#' A Virtual class to which all methods of computing a signal analysis should
+#' belong.
+#' 
+#' As a virtual class, has no fields, and should not be instantiated.
+setClass("SignalAnalysisMethod",
+         representation(),
+         contains = "VIRTUAL")
 
 #' A class for a Sliding Window based method of analysing recombination signal.
 #' 
@@ -71,7 +68,6 @@ setClass(
   prototype = prototype(width = 1000L,
                         step = 1000L)
 )
-
 
 #' A class for a Sliding Window based method of analysing recombination signal,
 #' by comparing sequence similarity of many sequences, against one reference.
@@ -116,6 +112,7 @@ setMethod("analyzeSignal",
           signature(data = "DNAMultipleAlignment", method = "ReferenceWindowScan"),
           function(data, method) {
             polymorphicOnly <- maskConservedSites(data, "union")
+            itr <- PairsMAlign$new(polymorphicOnly)
             results <-
               foreach(
                 x = pairsRef(polymorphicOnly, method@reference), .combine = c, .multicombine = TRUE

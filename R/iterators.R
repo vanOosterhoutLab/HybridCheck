@@ -2,87 +2,160 @@
 
 setOldClass(c("abstractiter", "iter"))
 
-Iterator <- setRefClass("Iterator",
-                         contains = "abstractiter",
-                         methods = list(nextElem = function() stop("Not implemented"))
-                        )
-
-CheckIterator <- setRefClass("CheckIterator",
-                             fields = list(
-                               checkFun = "function"
-                             ),
-                             contains = "Iterator",
-                             methods = list(
-                               initialize = function(fun = function() TRUE){
-                                 checkFun <<- fun
-                               }
-                             )
+Iterator <- setRefClass(
+  "Iterator",
+  fields = list(checkFun = "function"),
+  methods = list(
+    initialize = function(fun = function()
+      TRUE) {
+      checkFun <<- fun
+    },
+    nextElem = function()
+      stop("Not implemented")
+  )
 )
 
-IdxIterator <- setRefClass("IdxIterator",
-                           fields = list(
-                             current = "integer",
-                             limit = "integer"
-                           ),
-                           contains = "CheckIterator",
-                           methods = list(
-                             initialize = function(limit, fun = function(...) TRUE){
-                               callSuper(fun)
-                               current <<- 1L
-                               limit <<- limit
-                             }
-                           )
+IdxIterator <- setRefClass(
+  "IdxIterator",
+  fields = list(current = "integer",
+                limit = "integer"),
+  contains = "Iterator",
+  methods = list(
+    initialize = function(limit = 1L, fun = function(...)
+      TRUE) {
+      callSuper(fun)
+      current <<- 1L
+      limit <<- limit
+    }
+  )
 )
 
-PairIdx <- setRefClass("PairIdx",
-                         contains = "IdxIterator",
-                         methods = list(
-                           initialize = function(limit, fun = function(...) TRUE){
-                             callSuper(limit, fun)
-                             current <<- c(1L, 1L)
-                           },
-                           nextElem = function(){
-                             repeat {
-                               if(!hasNext()){
-                                 stop("StopIteration")
-                               }
-                               if(current[2] == limit){
-                                 current[1] <<- current[1] + 1L
-                                 current[2] <<- current[1]
-                               } else {
-                                 current[2] <<- current[2] + 1L
-                               }
-                               if(checkFun(current)){
-                                 return(current)
-                               }
+PairIdx <- setRefClass(
+  "PairIdx",
+  contains = "IdxIterator",
+  methods = list(
+    initialize = function(limit = 1L, fun = function(...)
+      TRUE) {
+      callSuper(limit, fun)
+      current <<- c(1L, 1L)
+    },
+    nextElem = function() {
+      repeat {
+        if (!hasNext()) {
+          stop("StopIteration")
+        }
+        if (current[2] == limit) {
+          current[1] <<- current[1] + 1L
+          current[2] <<- current[1]
+        } else {
+          current[2] <<- current[2] + 1L
+        }
+        if (checkFun(current)) {
+          return(current)
+        }
+      }
+    },
+    hasNext = function() {
+      return((current[1] <= limit) && (current[2] <= limit))
+    }
+  )
+)
+
+OneVAll <- setRefClass("OneVAll",
+                       fields = list(one = "integer"),
+                       contains = "PairIdx",
+                       methods = list(
+                         initialize = function(limit = 1L, one = 1L, fun = function(...) TRUE){
+                           callSuper(limit, fun)
+                           one <<- one
+                         },
+                         nextElem = function() {
+                           repeat {
+                             if (!hasNext()) {
+                               stop("StopIteration")
                              }
-                           },
-                           hasNext = function(){
-                             return((current[1] <= limit) && (current[2] <= limit))
+                             current[2] <<- current[2] + 1L
+                             if (checkFun(current)) {
+                               return(current)
+                             }
                            }
-                         )
+                         },
+                         hasNext = function(){
+                           return(current[2] != limit)
+                         }
+                       )
+)
+                       
+                       
+
+setRefClass("SequenceIterator",
+            contains = c("VIRTUAL"))
+
+PairsMAlign <- setRefClass(
+  "PairsMAlign",
+  fields = list(obj = "MultipleAlignment",
+                itr = "PairIdx",
+                checkFun = "function"),
+  contains = "SequenceIterator",
+  methods = list(
+    initialize = function(obj, fun = function(x)
+      TRUE) {
+      obj <<- obj
+      itr <<- PairIdx$new(limit = nrow(obj))
+    },
+    nextElem = function() {
+      repeat {
+        idx <- itr$nextElem()
+        pair <- maskSequences(obj,
+                              idx,
+                              invert = TRUE,
+                              append = "replace")
+        if(checkFun(pair)){
+          return(pair)
+        }
+      }
+    }
+  )
 )
 
-PairsMAlign <- setRefClass("PairsMAlign",
-                               fields = list(
-                                 obj = "MultipleAlignment",
-                                 itr = "PairIdx"
-                               ),
-                               methods = list(
-                                 initialize = function(obj, fun){
-                                   obj <<- obj
-                                   itr <<- PairIdx$new(nrow(obj))
-                                 },
-                                 nextElem = function(){
-                                   idx <- itr$nextElem()
-                                   pair <- maskSequences(obj,
-                                                         idx,
-                                                         invert = TRUE,
-                                                         append = "replace"
-                                   )
-                                   return(pair)
-                                 }
-                               )
+RefMAlign <- setRefClass(
+  "RefMAlign",
+  fields = list(
+    obj = "MultipleAlignment",
+    itr = "OneVAll",
+    ref = "integer"),
+  contains = "SequenceIterator",
+  methods = list(
+    initialize = function(obj, ref = NULL, fun = function(x)
+      TRUE) {
+      if(is.null(ref)){
+        ref <<- 1L
+      } else {
+        if(class(ref) == "character"){
+          ref <<- which(rownames(obj)) == ref
+        } else {
+          if(class(ref) == "integer" || class(ref) == "numeric"){
+            ref <<- ref
+          } else {
+            stop("Invalid input for parameter 'ref'.")
+          }
+        }
+      }
+      itr <<- OneVAll$new(limit = nrow(obj), one = ref)
+    },
+    nextElem = function() {
+      repeat {
+        idx <- itr$nextElem()
+        pair <- maskSequences(obj,
+                              idx,
+                              invert = TRUE,
+                              append = "replace")
+        if(checkFun(pair)){
+          return(pair)
+        }
+      }
+    }
+  )
 )
 
 setGeneric("Pairs", function(object){
@@ -92,12 +165,20 @@ setGeneric("Pairs", function(object){
 setMethod("Pairs",
           representation("MultipleAlignment"),
           function(object) {
-            return(PairsIterMAlign$new(object))
+            return(PairsMAlign$new(object))
           }
 )
+            
+setGeneric("EachWRef", function(object, reference){
+  standardGenetic("EachWRef")
+})                 
                              
-                             
-                             
+setMethod("EachWRef",
+          representation("MultipleAlignment", "character"),
+          function(object, reference) {
+            return(OneVAll$new(limit = object, one = reference))
+          }
+)                           
                             
 
 
@@ -150,60 +231,60 @@ getIterVal.rDataSpaces <- function(obj, plus = 0L, ...){
 }
 
 
-pairsRef <- function(obj, ...){
-  UseMethod('pairsRef')
-}
-
-pairsRef.DNAMultipleAlignment <- function(obj, ref = NULL, checkFunc = function(...) TRUE){
-  state <- new.env()
-  state$i <- 0L
-  state$obj <- obj
-  if(is.null(ref)){
-    state$ref <- rownames(obj)[1]
-  } else {
-    state$ref <- ref
-  }
-  state$nonRefs <- rownames(obj)
-  state$nonRefs <- state$nonRefs[state$nonRefs != state$ref]
-  it <- list(state=state, checkFunc=checkFunc)
-  class(it) <- c("pairsRef", "containeriter", "iter")
-  return(it)
-}
-
-getIterVal.pairsRef <- function(obj, plus = 0L, ...){
-  i <- obj$state$i + plus
-  if(i > length(obj$state$nonRefs))
-    stop('SubscriptOutOfBounds', call.=FALSE)
-  pair <- maskSequences(obj$state$obj,
-                        c(obj$state$ref, obj$state$nonRefs[i]),
-                        invert = TRUE,
-                        append = "replace"
-  )
-  return(pair)
-}
-
-nextElem.pairsRef <- function(obj, ...){
-  repeat {
-    tryCatch({
-      val <- getIterVal(obj, 1L)
-      if(obj$checkFunc(val)){
-        obj$state$i <- obj$state$i + 1L
-        return(val)
-      }
-      obj$state$i <- obj$state$i + 1L
-    }, error = function(e){
-      if(any(nzchar(e$message))){
-        if(identical(e$message, "SubscriptOutOfBounds")){
-          stop("StopIteration", call.=FALSE)
-        } else {
-          stop(e$message, call.=FALSE)
-        }
-      } else {
-        stop("Abort", call.=e)
-      }
-    })
-  }
-}
+# pairsRef <- function(obj, ...){
+#   UseMethod('pairsRef')
+# }
+# 
+# pairsRef.DNAMultipleAlignment <- function(obj, ref = NULL, checkFunc = function(...) TRUE){
+#   state <- new.env()
+#   state$i <- 0L
+#   state$obj <- obj
+#   if(is.null(ref)){
+#     state$ref <- rownames(obj)[1]
+#   } else {
+#     state$ref <- ref
+#   }
+#   state$nonRefs <- rownames(obj)
+#   state$nonRefs <- state$nonRefs[state$nonRefs != state$ref]
+#   it <- list(state=state, checkFunc=checkFunc)
+#   class(it) <- c("pairsRef", "containeriter", "iter")
+#   return(it)
+# }
+# 
+# getIterVal.pairsRef <- function(obj, plus = 0L, ...){
+#   i <- obj$state$i + plus
+#   if(i > length(obj$state$nonRefs))
+#     stop('SubscriptOutOfBounds', call.=FALSE)
+#   pair <- maskSequences(obj$state$obj,
+#                         c(obj$state$ref, obj$state$nonRefs[i]),
+#                         invert = TRUE,
+#                         append = "replace"
+#   )
+#   return(pair)
+# }
+# 
+# nextElem.pairsRef <- function(obj, ...){
+#   repeat {
+#     tryCatch({
+#       val <- getIterVal(obj, 1L)
+#       if(obj$checkFunc(val)){
+#         obj$state$i <- obj$state$i + 1L
+#         return(val)
+#       }
+#       obj$state$i <- obj$state$i + 1L
+#     }, error = function(e){
+#       if(any(nzchar(e$message))){
+#         if(identical(e$message, "SubscriptOutOfBounds")){
+#           stop("StopIteration", call.=FALSE)
+#         } else {
+#           stop(e$message, call.=FALSE)
+#         }
+#       } else {
+#         stop("Abort", call.=e)
+#       }
+#     })
+#   }
+# }
 
 windows <- function(obj, ...){
   UseMethod('windows')
