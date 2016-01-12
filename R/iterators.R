@@ -5,46 +5,66 @@
 # to iterate over some container. This makes R's loops more efficient, and better usable in parallel.
 
 
-
 pairsRef <- function(obj, ...){
   UseMethod('pairsRef')
 }
 
-pairsRef.DNAMultipleAlignment <- function(obj, ref = NULL){
-  state <- new.env()
-  state$i <- 0L
-  state$obj <- obj
-  if(is.null(ref)){
-    state$ref <- rownames(obj)[1]
-  } else {
-    state$ref <- ref
+
+pairsRef.DNAMultipleAlignment <- 
+  function(obj, ref = NULL, checkFunc = function(x, ...) TRUE){
+    state <- new.env()
+    state$i <- 0L
+    state$obj <- obj
+    if(is.null(ref)){
+      state$ref <- rownames(obj)[1]
+      } else {
+        state$ref <- ref
+      }
+    state$nonRefs <- rownames(obj)
+    state$nonRefs <- state$nonRefs[state$nonRefs != state$ref]
+    it <- list(state=state, checkFunc = checkFunc)
+    class(it) <- c("pairsRef", "abstractiter", "iter")
+    return(it)
   }
-  state$nonRefs <- rownames(obj)
-  state$nonRefs <- state$nonRefs[state$nonRefs != state$ref]
-  it <- list(state=state)
-  class(it) <- c("pairsRef", "abstractiter", "iter")
-  return(it)
-}
 
+#' @importFrom iterators nextElem
+#' @export
 nextElem.pairsRef <- function(obj, ...){
-  obj$state$i <- obj$state$i + 1L
-  if(obj$state$i > length(obj$state$nonRefs))
-    stop('StopIteration', call.=FALSE)
-  pair <- maskSequences(obj$state$obj,
-                        c(obj$state$ref, obj$state$nonRefs[obj$state$i]),
-                        invert = TRUE,
-                        append = "replace"
-  )
-  return(pair)
+  repeat {
+    obj$state$i <- obj$state$i + 1L
+    if(obj$state$i > length(obj$state$nonRefs))
+      stop('StopIteration', call.=FALSE)
+    pair <- maskSequences(obj$state$obj,
+                          c(obj$state$ref, obj$state$nonRefs[obj$state$i]),
+                          invert = TRUE,
+                          append = "replace"
+    )
+    if(obj$checkFunc(pair)){
+      return(pair)
+    }
+  }
 }
 
+nonExpTestParentFrame <- function(){
+  list(parent.frame(),
+  doSEQTestParentFrame())
+}
 
+doSEQTestParentFrame <- function(){
+  parent.frame()
+}
 
+#' windows
+#' 
+#' @export
 windows <- function(obj, ...){
   UseMethod('windows')
 }
 
-windows.default <- function(obj, width, step, inds = FALSE){
+#' windows.default
+#' 
+#' @export
+windows.default <- function(obj, width, step, inds = FALSE, checkFunc = function(x, ...) TRUE){
   n <- length(obj)
   if(width < 1){stop("Window width must be ≥ 1.")}
   if(step < 1){stop("step must be ≥ 1.")}
@@ -62,6 +82,9 @@ windows.default <- function(obj, width, step, inds = FALSE){
   return(it)
 }
 
+#' nextElem.containerwindow
+#' 
+#' @export
 nextElem.containerwindow <- function(obj, ...){
   start <- obj$state$i
   end <- start + obj$state$width - 1

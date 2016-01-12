@@ -1,4 +1,4 @@
-#' @include Generics.R
+#' @include Generic_Methods.R
 NULL
 
 setMethod("sequenceLength",
@@ -62,8 +62,9 @@ setMethod("maskSequences",
 setMethod("getSeqNames",
           signature("DNAMultipleAlignment"),
           function(object) {
-            rownames(object)[-which(as.logical(coverage(rowmask(object))))]
+            rownames(object)[-as.integer(rowmask(object))]
           })
+
 
 setMethod("statesPerBase",
           signature("DNAMultipleAlignment"),

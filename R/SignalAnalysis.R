@@ -113,7 +113,9 @@ setMethod("analyzeSignal",
           function(data, method) {
             noNs <- maskNs(data, "union")
             polymorphicOnly <- maskConservedSites(noNs, "union")
-            results <- foreach(x = pairsRef(polymorphicOnly, ref = method@reference), .combine = c, .multicombine = TRUE) %dopar% {
+            results <- foreach(x = pairsRef(polymorphicOnly, ref = method@reference, checkFunc = function(x) TRUE),
+                               .combine = c,
+                               .multicombine = TRUE) %dopar% {
               table <- slidingPoly(x, method@width, method@step)
               end(table) <- unmaskedSites(x)[end(table)]
               start(table) <- unmaskedSites(x)[start(table)]
@@ -121,7 +123,7 @@ setMethod("analyzeSignal",
               snames <- getSeqNames(x)
               table$secondSeq <- as.factor(snames[snames != method@reference])
               return(table)
-            }
+                               }
             return(new("SSToReferenceWindowScan", data = data, settings = method, results = results))
           })
 
