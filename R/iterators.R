@@ -45,14 +45,6 @@ nextElem.pairsRef <- function(obj, ...){
   }
 }
 
-nonExpTestParentFrame <- function(){
-  list(parent.frame(),
-  doSEQTestParentFrame())
-}
-
-doSEQTestParentFrame <- function(){
-  parent.frame()
-}
 
 #' windows
 #' 
