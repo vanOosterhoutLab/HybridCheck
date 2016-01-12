@@ -16,6 +16,10 @@ setGeneric("maskConservedSites", function(object, append = "union"){
   standardGeneric("maskConservedSites")
 })
 
+setGeneric("maskNs", function(object, append = "union"){
+  standardGeneric("maskNs")
+})
+
 setGeneric("maskedSites", function(object){
   standardGeneric("maskedSites")
 })

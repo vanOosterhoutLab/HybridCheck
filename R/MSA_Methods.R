@@ -16,6 +16,14 @@ setMethod("maskConservedSites",
             return(object)
           })
 
+setMethod("maskNs",
+          signature("DNAMultipleAlignment", "character"),
+          function(object, append) {
+            ns <- IRanges(consensusMatrix(object)[15, ] != 0)
+            colmask(object, append = append) <- ns
+            return(object)
+          })
+
 setMethod("maskedSites",
           signature("DNAMultipleAlignment"),
           function(object) {

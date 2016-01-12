@@ -111,30 +111,18 @@ setClass(
 setMethod("analyzeSignal",
           signature(data = "DNAMultipleAlignment", method = "ReferenceWindowScan"),
           function(data, method) {
-            polymorphicOnly <- maskConservedSites(data, "union")
-            itr <- PairsMAlign$new(polymorphicOnly)
-            results <-
-              foreach(
-                x = pairsRef(polymorphicOnly, method@reference), .combine = c, .multicombine = TRUE
-              ) %dopar% {
-                table <- slidingPoly(x, method@width, method@step)
-                end(table) <-
-                  unmaskedSites(x)[end(table)]
-                start(table) <-
-                  unmaskedSites(x)[start(table)]
-                table$firstSeq <-
-                  as.factor(method@reference)
-                snames <- getSeqNames(x)
-                table$secondSeq <-
-                  as.factor(snames[snames != method@reference])
-                return(table)
-              }
-            return(new(
-              "SSToReferenceWindowScan",
-              data = data,
-              settings = method,
-              results = results
-            ))
+            noNs <- maskNs(data, "union")
+            polymorphicOnly <- maskConservedSites(noNs, "union")
+            results <- foreach(x = pairsRef(polymorphicOnly, ref = method@reference), .combine = c, .multicombine = TRUE) %dopar% {
+              table <- slidingPoly(x, method@width, method@step)
+              end(table) <- unmaskedSites(x)[end(table)]
+              start(table) <- unmaskedSites(x)[start(table)]
+              table$firstSeq <- as.factor(method@reference)
+              snames <- getSeqNames(x)
+              table$secondSeq <- as.factor(snames[snames != method@reference])
+              return(table)
+            }
+            return(new("SSToReferenceWindowScan", data = data, settings = method, results = results))
           })
 
 
