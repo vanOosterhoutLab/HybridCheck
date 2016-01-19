@@ -130,7 +130,7 @@ setMethod("analyzeSignal",
             known <- sitesWithKnown(data)
             polymorphic <- polymorphicSites(data)
             informativeIdx <- which(known & polymorphic)
-            infSubset <- excludeSites(data, informativeIdx)
+            infSubset <- subsetSites(data, informativeIdx)
             return(infSubset)
           }
 )
