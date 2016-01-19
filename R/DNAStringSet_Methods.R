@@ -66,6 +66,7 @@ setMethod("subsetSequences",
           }
 )
 
+#' @rdname slidingPoly
 setMethod("slidingPoly",
           signature("DNAStringSet", "integer", "integer"),
           function(object, windowSize, stepSize) {

@@ -110,3 +110,14 @@ setGeneric("excludeUnknownSites",
            }
 )
 
+#' @name slidingPoly
+#' @title Calculate sequence identity across sliding windows.
+#' @description 
+#' @rdname slidingPoly
+#' @param object An object which represents sequence data.
+#' @export
+setGeneric("slidingPoly",
+           function(object) {
+             standardGeneric("slidingPoly")
+           }
+)
