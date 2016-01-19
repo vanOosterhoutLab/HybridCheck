@@ -32,8 +32,14 @@ setGeneric("sitesNotUnknown",
 
 setGeneric("subsetSites",
           function(object, index){
-            standardGeneric("excludeSites")
+            standardGeneric("subsetSites")
           }
+)
+
+setGeneric("subsetSequences",
+           function(object, index){
+             standardGeneric("subsetSequences")
+           }
 )
 
 setGeneric("excludeUnknownSites",
@@ -42,8 +48,3 @@ setGeneric("excludeUnknownSites",
            }
 )
 
-setGeneric("subsetSequences",
-           function(object, index){
-             standardGeneric("subsetSequences")
-           }
-)
