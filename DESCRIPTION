@@ -17,6 +17,7 @@ VignetteBuilder: knitr
 RoxygenNote: 5.0.1
 Collate:
     'Generic_Methods.R'
+    'DNAStringSet_Methods.R'
     'HybridCheck.R'
     'MSA_Methods.R'
     'SignalAnalysis.R'

@@ -16,9 +16,6 @@ setClass(
 )
 
 
-#' @describeIn sequenceLength Get the length of the sequence alignment that was
-#' analysed by the analysis represented by the given SignalAnalysis object.
-#' @export
 setMethod("sequenceLength",
           signature(object = "SignalAnalysis"),
           function(object) {
@@ -128,3 +125,14 @@ setMethod("analyzeSignal",
           })
 
 
+#' @describeIn analyzeSignal Analyse recombination signal in a 
+#' DNAStringSet, using the ReferenceWindowScan method.
+#' @export
+setMethod("analyzeSignal",
+          signature(data = "DNAStringSet", method = "ReferenceWindowScan"),
+          function(data, method){
+            known <- sitesNotUnknown(data)
+            polymorphic <- polymorphicSites(data)
+            excludeSites(data, which(known & polymorphic))
+          }
+)

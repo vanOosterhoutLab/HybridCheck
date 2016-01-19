@@ -4,11 +4,14 @@
 \name{analyzeSignal}
 \alias{analyzeSignal}
 \alias{analyzeSignal,DNAMultipleAlignment,ReferenceWindowScan-method}
+\alias{analyzeSignal,DNAStringSet,ReferenceWindowScan-method}
 \title{Generic function used to perform a SignalAnalysis.}
 \usage{
 analyzeSignal(data, method)
 
 \S4method{analyzeSignal}{DNAMultipleAlignment,ReferenceWindowScan}(data, method)
+
+\S4method{analyzeSignal}{DNAStringSet,ReferenceWindowScan}(data, method)
 }
 \description{
 Analyse the recombination signal present in a variable containing
@@ -22,6 +25,9 @@ type of the input data, and the class of the method veriable.
 \itemize{
 \item \code{data = DNAMultipleAlignment,method = ReferenceWindowScan}: Analyse recombination signal in a 
 DNAMultipleAlignment, using the ReferenceWindowScan method.
+
+\item \code{data = DNAStringSet,method = ReferenceWindowScan}: Analyse recombination signal in a 
+DNAStringSet, using the ReferenceWindowScan method.
 }}
 \section{Fields}{
 

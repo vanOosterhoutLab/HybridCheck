@@ -7,7 +7,6 @@ setMethod("sequenceLength",
             return(width(object))
           })
 
-
 setMethod("statesPerBase",
           signature("DNAStringSet"),
           function(object) {
@@ -26,4 +25,23 @@ setMethod("sitesWithUnknown",
             consensusMatrix(object)[15, ] != 0
           })
 
+setMethod("sitesNotUnknown",
+          signature("DNAStringSet"),
+          function(object){
+            consensusMatrix(object)[15, ] == 0
+          })
 
+setMethod("subsetSites",
+          signature("DNAStringSet", "integer"),
+          function(object, index){
+            index <- rep.int(list(index), length(object))
+            return(object[index])
+          }
+)
+
+setMethod("subsetSequences",
+          signature("DNAStringSet", "integer"),
+          function(object, index){
+            return(object[index])
+          }
+)
