@@ -21,14 +21,6 @@ sequence alignment data.
 The specific method used to analyse the data is dispatched based on the
 type of the input data, and the class of the method veriable.
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{data = DNAMultipleAlignment,method = ReferenceWindowScan}: Analyse recombination signal in a 
-DNAMultipleAlignment, using the ReferenceWindowScan method.
-
-\item \code{data = DNAStringSet,method = ReferenceWindowScan}: Analyse recombination signal in a 
-DNAStringSet, using the ReferenceWindowScan method.
-}}
 \section{Fields}{
 
 \describe{

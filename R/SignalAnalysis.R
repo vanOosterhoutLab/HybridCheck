@@ -102,9 +102,7 @@ setClass(
 )
 
 
-#' @describeIn analyzeSignal Analyse recombination signal in a 
-#' DNAMultipleAlignment, using the ReferenceWindowScan method.
-#' @export
+#' @rdname analyzeSignal
 setMethod("analyzeSignal",
           signature(data = "DNAMultipleAlignment", method = "ReferenceWindowScan"),
           function(data, method) {
@@ -125,14 +123,14 @@ setMethod("analyzeSignal",
           })
 
 
-#' @describeIn analyzeSignal Analyse recombination signal in a 
-#' DNAStringSet, using the ReferenceWindowScan method.
-#' @export
+#' @rdname analyzeSignal
 setMethod("analyzeSignal",
           signature(data = "DNAStringSet", method = "ReferenceWindowScan"),
           function(data, method){
-            known <- sitesNotUnknown(data)
+            known <- sitesWithKnown(data)
             polymorphic <- polymorphicSites(data)
-            excludeSites(data, which(known & polymorphic))
+            informativeIdx <- which(known & polymorphic)
+            infSubset <- excludeSites(data, informativeIdx)
+            return(infSubset)
           }
 )
