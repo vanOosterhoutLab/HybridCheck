@@ -117,7 +117,7 @@ setGeneric("excludeUnknownSites",
 #' @param object An object which represents sequence data.
 #' @export
 setGeneric("slidingPoly",
-           function(object) {
+           function(object, windowSize, stepSize) {
              standardGeneric("slidingPoly")
            }
 )
