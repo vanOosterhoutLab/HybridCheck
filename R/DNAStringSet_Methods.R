@@ -65,3 +65,34 @@ setMethod("subsetSequences",
             return(object[index])
           }
 )
+
+setMethod("slidingPoly",
+          signature("DNAStringSet", "integer", "integer"),
+          function(object, windowSize, stepSize) {
+            if(length(object) != 2){
+              stop("Error (slidingPoly; DNAStringSet): More than two seqeunces provided.")
+            }
+            isPoly <- polymorphicSites(object)
+            wins <- windows(
+              isPoly,
+              width = windowSize,
+              step = stepSize
+            )
+            dists <- foreach(x = wins, .combine = c) %dopar% {
+              sum(x)
+            }
+            dists <- 100 - round((dists / windowSize) * 100)
+            windowStarts <- 
+              seq(from = 1, to = sequenceLength(object), by = stepSize)
+            windowEnds <-
+              seq(from = windowSize, to = sequenceLength(object), by = stepSize)
+            data <-
+              RangedData(
+                space = paste(getSeqNames(object), collapse = ":"),
+                ranges = IRanges(start = windowStarts[1:length(windowEnds)],
+                                 end = windowEnds),
+                signal = dists
+              )
+            return(data)
+          })
+                     
