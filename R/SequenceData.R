@@ -44,11 +44,6 @@ HCseq <- setRefClass("HCseq",
                                   message("Finished DNA input...")
                                 },
 
-                              addBAMSAMs =
-                                function(files){
-
-                                },
-
                               hasDNA =
                                 function(){
                                   "Returns true if a DNA sequence alignment has been read in and stored in the object. Otherwise returns false."
