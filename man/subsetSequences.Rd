@@ -3,17 +3,20 @@
 \docType{methods}
 \name{subsetSequences}
 \alias{subsetSequences}
+\alias{subsetSequences,DNAStringSet,character-method}
 \alias{subsetSequences,DNAStringSet,integer-method}
 \title{Generic method Create an DNA sequence object which only contains a subset of sequences.}
 \usage{
 subsetSequences(object, index)
 
 \S4method{subsetSequences}{DNAStringSet,integer}(object, index)
+
+\S4method{subsetSequences}{DNAStringSet,character}(object, index)
 }
 \arguments{
 \item{object}{An object which represents sequence data.}
 
-\item{index}{A numeric vector of sites to subset.}
+\item{index}{A vector of sequences to subset.}
 }
 \description{
 Create an DNA sequence object which only contains the sequences by index.

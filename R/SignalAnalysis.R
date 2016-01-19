@@ -131,19 +131,16 @@ setMethod("analyzeSignal",
             polymorphic <- polymorphicSites(data)
             informativeIdx <- which(known & polymorphic)
             infSubset <- subsetSites(data, informativeIdx)
-            
-            results <- foreach(x = pairsRef(infSubset, ref = method@reference, checkFunc = function(x) TRUE),
+            itr <- pairsRef(infSubset, ref = method@reference)
+            results <- foreach(x = itr,
                                .combine = c,
-                               .multicombine = TRUE) %dopar% {
+                               .multicombine = TRUE) %do% {
                                  table <- slidingPoly(x, method@width, method@step)
                                  end(table) <- informativeIdx[end(table)]
                                  start(table) <- informativeIdx[start(table)]
-                                 
-                                 table$hi <- 1
-                          
                                  return(table)
                                }
             
-            return(infSubset)
+            return(l)
           }
 )

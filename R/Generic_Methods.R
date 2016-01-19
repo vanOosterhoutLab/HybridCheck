@@ -1,3 +1,7 @@
+# These generic methods form a standardised interface for working with various classes that store aligned sequences.
+# Providing a consistent interface for manipping various classes makes it easier to 
+
+
 
 #' @name sequenceLength
 #' @title Get the length of a sequence alignment
@@ -8,6 +12,18 @@
 setGeneric("sequenceLength",
            function(object){
              standardGeneric("sequenceLength")
+           }
+)
+
+#' @name sequenceNames
+#' @title Get the sequence names from the object
+#' @description Generic method to get the sequence names from an object.
+#' @rdname sequenceNames
+#' @param object An object which represents sequence data.
+#' @export
+setGeneric("sequenceNames",
+           function(object){
+             standardGeneric("sequenceNames")
            }
 )
 
@@ -90,7 +106,7 @@ setGeneric("subsetSites",
 #' @description Create an DNA sequence object which only contains the sequences by index.
 #' @rdname subsetSequences
 #' @param object An object which represents sequence data.
-#' @param index A numeric vector of sites to subset.
+#' @param index A vector of sequences to subset.
 #' @export
 setGeneric("subsetSequences",
            function(object, index){
@@ -112,7 +128,8 @@ setGeneric("excludeUnknownSites",
 
 #' @name slidingPoly
 #' @title Calculate sequence identity across sliding windows.
-#' @description 
+#' @description Move a sliding window across two aligned sequences,
+#' calculating sequence similarity at each step.
 #' @rdname slidingPoly
 #' @param object An object which represents sequence data.
 #' @export

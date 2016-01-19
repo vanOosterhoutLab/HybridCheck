@@ -9,7 +9,7 @@ Description: An R package for the detection and dating of
     Recombinant Regions in DNA sequence data.
 License: GPL-2
 Imports:
-    Biostrings,IRanges
+    Biostrings,IRanges,foreach
 Suggests:
     knitr,testthat,
     rmarkdown

@@ -8,6 +8,13 @@ setMethod("sequenceLength",
             return(width(object))
           })
 
+#' @rdname sequenceNames
+setMethod("sequenceNames",
+          representation("DNAStringSet"),
+          function(object) {
+            return(names(object))
+          })
+
 #' @rdname statesPerBase
 setMethod("statesPerBase",
           signature("DNAStringSet"),
@@ -61,6 +68,14 @@ setMethod("subsetSites",
 #' @rdname subsetSequences
 setMethod("subsetSequences",
           signature("DNAStringSet", "integer"),
+          function(object, index){
+            return(object[index])
+          }
+)
+
+#' @rdname subsetSequences
+setMethod("subsetSequences",
+          signature("DNAStringSet", "character"),
           function(object, index){
             return(object[index])
           }
