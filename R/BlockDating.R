@@ -125,6 +125,9 @@ date.blocks <- function(blocksobj, dnaobj, mut, pair, pthresh, bonfcorrect, dany
       distanceByModel <- dist.dna(as.DNAbin(Seq), model = model)[1]
       blocksobj[i, "CorrectedSNPs"] <- round(distanceByModel * blocksobj[i, "ApproxBpLength"])
     }
+    # This fix removes blocks for which the CorrectedSNPs computation results in NaN, often due to excesive gaps in sequences.
+    removals <- is.nan(blocksobj[, "CorrectedSNPs"])
+    blocksobj <- blocksobj[!removals,]
     blocksobj$P_Value <- pbinom(blocksobj$SNPs, blocksobj$ApproxBpLength, wholeSequenceDist)
     if(!danyway){
       blocksobj <- blocksobj[which(blocksobj$P_Value < pthresh),]
