@@ -29,12 +29,12 @@ scan.similarity <- function(dna, triplet, settings){
       halfWindow <- as.integer(triplet$ScanData$WindowSizeUsed / 2)
       allstepsfrom <- 1 + halfWindow
       allstepsto <- (triplet$InformativeDNALength - halfWindow) + 1
-      allsteps <- seq(from = allstepsfrom, to = allstepsto, by = triplet$ScanData$StepSizeUsed)
+      #allsteps <- seq(from = allstepsfrom, to = allstepsto, by = triplet$ScanData$StepSizeUsed)
       #windowp1 <- allsteps - halfWindow # All the window start points.
       #windowp2 <- allsteps + halfWindow # All the window end points.
       windowp2 <- seq(from = triplet$ScanData$WindowSizeUsed, to = triplet$InformativeDNALength, by = triplet$ScanData$StepSizeUsed)
       windowp1 <- windowp2 - (triplet$ScanData$WindowSizeUsed - 1)
-      #allsteps <- ceilwindowp2 / 2
+      allsteps <- ceiling(windowp2 / 2)
       
       removals <- which(windowp2 > triplet$InformativeDNALength) # Remove the last window and any accidentally beyond the sequence end point.
       if(length(removals) > 0) {
