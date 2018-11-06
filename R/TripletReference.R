@@ -230,7 +230,7 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                              rm(A_mix, B_mix, C_mix)
                              plottingFrame <- data.frame(X = frame$X, Y = rep(c(3, 2, 1), each = plottingSettings$MosaicScale), colour = c(frame$A_mix, frame$B_mix, frame$C_mix))
                              bars <- ggplot(plottingFrame, aes(x = X, y = as.factor(Y))) +
-                               geom_raster(aes(fill = colour)) + scale_fill_identity() +
+                               geom_tile(aes(fill = colour)) + scale_fill_identity() +
                                xlab("Approximate Base Position") +
                                ylab("Sequence Name") +
                                scale_x_continuous(breaks = c(seq(from = 1, to = plottingSettings$MosaicScale, by = plottingSettings$MosaicScale / 10), plottingSettings$MosaicScale), labels = c(frame$bpX[seq(from = 1, to = plottingSettings$MosaicScale, by = plottingSettings$MosaicScale / 10)], max(frame$bpX))) + 
