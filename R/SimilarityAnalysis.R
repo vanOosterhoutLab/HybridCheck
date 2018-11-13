@@ -34,7 +34,7 @@ scan.similarity <- function(dna, triplet, settings){
       #windowp2 <- allsteps + halfWindow # All the window end points.
       windowp2 <- seq(from = triplet$ScanData$WindowSizeUsed, to = triplet$InformativeDNALength, by = triplet$ScanData$StepSizeUsed)
       windowp1 <- windowp2 - (triplet$ScanData$WindowSizeUsed - 1)
-      allsteps <- ceiling(windowp2 / 2)
+      allsteps <- floor((windowp1 + windowp2) / 2)
       
       removals <- which(windowp2 > triplet$InformativeDNALength) # Remove the last window and any accidentally beyond the sequence end point.
       if(length(removals) > 0) {
@@ -57,7 +57,7 @@ scan.similarity <- function(dna, triplet, settings){
       conMatAB <- colSums(consensusMatrix(cutDNA[c(1, 2)]) != 0) > 1
       conMatAC <- colSums(consensusMatrix(cutDNA[c(1, 3)]) != 0) > 1
       conMatBC <- colSums(consensusMatrix(cutDNA[c(2, 3)]) != 0) > 1
-      #Do the loop - Calculates all the hamming distances for all contig pairs, in all window frames.
+      # Do the loop - Calculates all the hamming distances for all contig pairs, in all window frames.
       for(i in seq(nrow(Distances))){
         stretch <- Distances[i, 2] : Distances[i, 3]
         Distances[i, 7] <- sum(conMatAB[stretch])
