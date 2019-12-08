@@ -31,6 +31,7 @@ A Reference Class for managing a HybridCheck analysis.
 \item{\code{filesDirectory}}{Character - the root directory where all temporary files
 used by this object are found.}
 }}
+
 \section{Methods}{
 
 \describe{

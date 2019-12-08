@@ -18,6 +18,7 @@ A reference class to represent settings for triplet generation.
 
 \item{\code{Refine}}{A logical vector of length 1.}
 }}
+
 \section{Methods}{
 
 \describe{

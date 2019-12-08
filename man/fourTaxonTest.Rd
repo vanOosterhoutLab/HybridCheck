@@ -14,4 +14,3 @@ and also for the scenario of complete introgression between P2 and P3.
 The jack-knife implementation and computation of Z scores is based on that used in the software package
 ANGSD.
 }
-

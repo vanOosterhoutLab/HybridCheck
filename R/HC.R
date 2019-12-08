@@ -1,6 +1,6 @@
 #' @docType package
 #' ...
-#' @import ape Biostrings
+#' @import ape Biostrings IRanges ggplot2 gridExtra methods
 #' @importFrom png readPNG
 NULL
 

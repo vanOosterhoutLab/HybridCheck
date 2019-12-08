@@ -1,6 +1,6 @@
 Package: HybridCheck
 Type: Package
-Title: Detection and dating of Recombinant Regions in DNA sequence data.
+Title: Detection and dating of Recombinant Regions in DNA sequence data
 Version: 1.0.1
 Date: 2014-12-18
 Author: Ben J. Ward
@@ -16,4 +16,4 @@ Suggests:
     knitr,testthat,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1

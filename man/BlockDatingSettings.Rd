@@ -20,6 +20,7 @@ A reference class storing the settings for recombination block dating.
 
 \item{\code{MutationCorrection}}{Character vector of length 1, can be any of the model supported by the ape package. Default is "JC69".}
 }}
+
 \section{Methods}{
 
 \describe{

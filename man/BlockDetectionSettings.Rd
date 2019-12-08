@@ -12,6 +12,7 @@ Reference type for storing the settings for block detection.
 \describe{
 \item{\code{ManualThresholds}}{A numeric value between 1 and 100, the percentage raw sequence similarity a region has to reach, before it is identified as a block.}
 }}
+
 \section{Methods}{
 
 \describe{

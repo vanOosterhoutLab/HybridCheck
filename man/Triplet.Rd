@@ -14,6 +14,7 @@ Reference class to store and manage triplet data.
 
 \item{\code{ContigNumbers}}{integer vector of length 3, stores the indecies of the sequences that made the triplet.}
 }}
+
 \section{Methods}{
 
 \describe{

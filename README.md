@@ -1,43 +1,47 @@
-<a name="logo"/>
-<div align="center">
-<a href="http://ward9250.github.io/HybridCheck">
-<img src="http://ward9250.github.io/HybridCheck/img/HybridCheckLogo.png" height="250" alt="HybridCheck Logo Here"></img>
-</a>
-</div>
-<p align="center">
-    <a href="https://gitter.im/Ward9250/HybridCheck?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge">
-        <img src="https://badges.gitter.im/Join Chat.svg" alt="Gitter">
-    </a>
-    <a href="https://travis-ci.org/Ward9250/HybridCheck">
-        <img src="https://travis-ci.org/Ward9250/HybridCheck.svg?branch=master" alt="Build Status">
-    </a>
-    <a href="https://waffle.io/Ward9250/HybridCheck">
-        <img src="https://badge.waffle.io/Ward9250/HybridCheck.png?label=ready&title=Ready" alt="Stories in Ready">
-    </a>
-    <a href="https://waffle.io/Ward9250/HybridCheck">
-        <img src="https://badge.waffle.io/Ward9250/HybridCheck.png?label=In%20Progress&title=In%20Progress" alt="Stories in Ready">
-    </a>
-</p>
+# HybirdCheck
 
-**An R package for simple visualisation of recombinant regions and mosaic genome structures. Including block detection and simple dating estimation.**
-**Visit the website ward9250.github.io/HybridCheck**
+## Introduction
 
-# Introduction
+HybridCheck is an R package that is intended to make it quick, simple
+and easy to script scans of recombination signal in sequence triplets.
 
-The HybridCheck project is an R package that is intended to make it quick, simple and easy to script scans of recombination signal in sequence triplets.
+It also allows you to compute ABBA BABA tests for gene flow and some variants of
+the ABBA BABA test.
 
-# Installation from Github
+## Installation instructions
 
-Note for this you must have the "devtools" installed.
+Installing HybridCheck from GitHub is easy if you have "devtools" installed.
+If you don't have devtools, fear not, it is easy to acquire.
 
-1. Open an R window and type into it: `install_github("Ward9250/HybridCheck", build_vignettes=TRUE)`
-2. Thats it!
+```R
+install.packages("devtools")
+```
 
-# Running HybridCheck
+Once you have devtools, you can use the `install_github` function to grab and
+install HybridCheck.
+
+```R
+devtools::install_github("BenJWard/HybridCheck", build_vignettes = TRUE)
+```
+
+## Using HybridCheck
 
 Once R is open, and you have installed HybridCheck as described above you simply need to invoke the library command:
 
-```R library(HybridCheck) ```
+```R
+library(HybridCheck)
+```
+
+### Loading sequence data
+
+Create a new HybridCheck session by using `HC$new`. Provide a fasta file as an
+argument. For example:
+
+```R
+MyAnalysis <- HC$new("~/Dropbox/MySequences.fas")
+```
+
+
 
 ## Documentation
 

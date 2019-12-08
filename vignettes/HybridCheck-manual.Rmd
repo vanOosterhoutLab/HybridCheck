@@ -1,17 +1,14 @@
 ---
-title: "HybridCheck in the console"
+title: "HybridCheck user manual"
 author: "Ben J. Ward"
 date: '`r Sys.Date()`'
-output:
-  pdf_document:
-    highlight: zenburn
-    toc: yes
-  html_document:
-    toc: yes
-vignette: |
-  %\VignetteIndexEntry{Vignette Title} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{HybridCheck user manual}
+  %\VignetteEncoding{UTF-8}
 ---
-*****
+
 This manual is provided as a vignette to the HybridCheck package for R. It can be acessed from an R session with with following:
 
 ```{r eval=FALSE}

@@ -83,6 +83,7 @@ used to store the dataframe accessed with the table field.}
 in a temporary file on disk. The location of this file is indicated by the tableFile
 field.}
 }}
+
 \section{Methods}{
 
 \describe{

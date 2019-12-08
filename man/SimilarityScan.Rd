@@ -18,6 +18,7 @@ Reference class to store the results from sequence similarity analyses, and bloc
 
 \item{\code{StepSizeUsed}}{Single integer value, stores the size of the sliding window used for the scan.}
 }}
+
 \section{Methods}{
 
 \describe{

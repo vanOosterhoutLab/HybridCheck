@@ -14,6 +14,7 @@ A Reference Class for performing and storing results of four taxon tests for int
 
 \item{\code{results}}{A list of reference objects defining the result of a given four taxon test.}
 }}
+
 \section{Methods}{
 
 \describe{

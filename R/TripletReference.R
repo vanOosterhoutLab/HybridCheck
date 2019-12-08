@@ -240,8 +240,6 @@ bars and the NaNs will be dealt with my filling them in black.\n\nTo get rid of 
                              if(plottingSettings$Legends == T){
                                legend <- readPNG(system.file("extdata/rgblegend.png", package="HybridCheck"), TRUE)
                                if (names(dev.cur()) == "windows"){
-                                 # windows device doesn’t support semi-transparency so we’ll need
-                                 # to flatten the image
                                  transparent <- legend[,,4] == 0
                                  legend <- as.raster(legend[,,1:3])
                                  legend[transparent] <- NA
