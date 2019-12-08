@@ -9,12 +9,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This manual is provided as a vignette to the HybridCheck package for R. It can be acessed from an R session with with following:
-
-```{r eval=FALSE}
-vignette("HybridCheck in the console")
-```
-
 # Installing HybridCheck
 
 To install HybridCheck from the GitHub repository executing the following code - snippet into an R session should get HybridCheck installed with minimum difficulty:
@@ -39,7 +33,7 @@ To get started fire up the R console and enter:
 library(HybridCheck)
 ```
 
-To get started using HybridCheck to analyse a set of sequences, you first have to create a new HybridCheck object.
+To get started using HybridCheck to analyse a set of haplotype sequences, you first have to create a new HybridCheck object.
  
 The HybridCheck object will contain all data, options, and will carry out the analysis. So everything you do in HybridCheck is done by interacting with this object.
 
