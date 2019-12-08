@@ -6,6 +6,10 @@ HybridCheck is an R package that is intended to make it quick, simple
 and easy to script analyses scanning for recombination signal between haplotype
 sequences.
 
+It can plot such scans:
+
+![hybridcheck-plot](exampleplot.jpeg)
+
 It also allows you to compute ABBA BABA tests for gene flow and some variants of
 the ABBA BABA test.
 
