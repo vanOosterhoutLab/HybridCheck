@@ -26,7 +26,7 @@ Once you have devtools, you can use the `install_github` function to grab and
 install HybridCheck.
 
 ```R
-devtools::install_github("BenJWard/HybridCheck", build_vignettes = TRUE)
+devtools::install_github("vanOosterhoutLab/HybridCheck", build_vignettes = TRUE)
 ```
 
 ## Documentation
