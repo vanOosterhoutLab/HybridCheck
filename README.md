@@ -68,6 +68,6 @@ If you would like to contribute to HybridCheck, or want to ask a question or rep
 You can either use GitHub Issues and Pull Requests in the usual way, or you can contact either
 of the two maintainers below:
 
-- Dr. Ben J. Ward <benjward@protonmail.com> 
+- Dr. Sabrina J. Ward <sabrinajward@protonmail.com> 
 - Prof. Cock van Oosterhout <c.van-oosterhout@uea.ac.uk>
 
